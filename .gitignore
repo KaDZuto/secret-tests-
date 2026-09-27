@@ -1,0 +1,9 @@
+dist/
+
+game/vendor/
+game/absorbed/*
+!game/absorbed/SAO/
+game/absorbed/SAO/*
+!game/absorbed/SAO/character_art/
+game/absorbed/SAO/character_art/*
+!game/absorbed/SAO/character_art/asuna/

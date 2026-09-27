@@ -1,0 +1,47 @@
+{
+  "title": "Станция Ноль",
+  "genre": ["science fiction", "mystery", "drama"],
+  "tone": "quiet and tense",
+  "premise": "Three passengers wake up on a station with no record of their departure.",
+  "characters": [
+    {
+      "id": "lina",
+      "name": "Лина",
+      "role": "инженер",
+      "personality": "спокойная, прямолинейная, заботливая",
+      "goals": ["восстановить связь"],
+      "secrets": ["она знает один фрагмент кода станции"],
+      "relationships": {"player": 20},
+      "visual": {"type": "sprite", "states": {"neutral": "images/char_demo.png", "happy": "images/char_demo.png"}}
+    },
+    {
+      "id": "kai",
+      "name": "Кай",
+      "role": "пассажир",
+      "personality": "саркастичный, внимательный",
+      "goals": ["найти выход"],
+      "secrets": [],
+      "relationships": {"player": 10},
+      "visual": {"type": "sprite", "states": {"neutral": "images/char_demo.png"}}
+    },
+    {
+      "id": "sora",
+      "name": "Сора",
+      "role": "наблюдатель",
+      "personality": "тихая, аналитичная",
+      "goals": ["понять, почему на часах всегда 03:17"],
+      "secrets": ["у неё есть жетон с символом станции"],
+      "relationships": {"player": 15},
+      "visual": {"type": "sprite", "states": {"neutral": "images/char_demo.png"}}
+    }
+  ],
+  "locations": {
+    "station": {"description": "Тускло освещённая станция", "lore": ["Камеры иногда записывают события на 11 минут раньше."]},
+    "control": {"description": "Центральный пункт управления", "lore": ["Ключевые терминалы требуют сразу два человека."]}
+  },
+  "lore": ["Никто не помнит, как попал на станцию.", "Системные часы постоянно показывают 03:17."],
+  "flags": {},
+  "time": "03:17",
+  "location": "station",
+  "memory_summary": "История только начинается."
+}

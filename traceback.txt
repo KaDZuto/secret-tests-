@@ -1,0 +1,28 @@
+﻿I'm sorry, but an uncaught exception occurred.
+
+While running game code:
+  File "game/zz_probe_tmp.rpy", line 1, in script
+    init 20 python:
+  File "game/zz_probe_tmp.rpy", line 10, in <module>
+    _found = _style.get_style(_s)
+Exception: Style 'vn_panel' does not exist.
+
+-- Full Traceback ------------------------------------------------------------
+
+Full traceback:
+  File "game/zz_probe_tmp.rpy", line 1, in script
+    init 20 python:
+  File "/home/alexius/.local/share/renpy/renpy-8.3.7-sdk/renpy/ast.py", line 834, in execute
+    renpy.python.py_exec_bytecode(self.code.bytecode, self.hide, store=self.store)
+  File "/home/alexius/.local/share/renpy/renpy-8.3.7-sdk/renpy/python.py", line 1187, in py_exec_bytecode
+    exec(bytecode, globals, locals)
+  File "game/zz_probe_tmp.rpy", line 10, in <module>
+    _found = _style.get_style(_s)
+  File "style.pyx", line 64, in renpy.style.get_style
+  File "style.pyx", line 98, in renpy.style.get_style
+Exception: Style 'vn_panel' does not exist.
+
+Linux-7.2.5-3-omarchy-x86_64-with-glibc2.44 x86_64
+Ren'Py 8.3.7.25031702
+Living VN 0.1.0-mvp
+Sun Sep 27 18:28:17 2026

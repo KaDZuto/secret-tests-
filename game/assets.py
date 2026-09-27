@@ -1,0 +1,1021 @@
+"""Asset manager for Living VN.
+
+Responsibilities:
+
+* discover character packs, sprites, Live2D models and backgrounds instead of
+  hard-coding an asset list;
+* parse the `character.json` manifests described in `ASSET_PACK_SCHEMA.md`
+  and tolerate partial or broken manifests;
+* keep every lookup on an explicit fallback chain, so a missing file degrades
+  into a sprite or into nothing instead of raising;
+* expose an inspectable, JSON-serializable catalog for the creator UI.
+
+Only local files are read. Nothing here executes, imports, decrypts or
+otherwise runs code that ships inside an imported game.
+"""
+
+import json
+import os
+import re
+from datetime import datetime
+
+try:
+    import renpy
+    import renpy.config as config
+    import renpy.loader as loader
+except Exception:  # pragma: no cover - the offline smoke tests run without renpy
+    renpy = None
+    loader = None
+
+    class _Config(object):
+        gamedir = os.path.dirname(os.path.abspath(__file__))
+
+    config = _Config()
+
+
+IMAGE_EXT = (".png", ".jpg", ".jpeg", ".webp", ".bmp", ".gif")
+LIVE2D_MODEL_SUFFIX = ".model3.json"
+MANIFEST_NAME = "character.json"
+
+# Directory conventions from ASSET_PACK_SCHEMA.md. These are conventions, not an
+# asset list: every folder found inside them is discovered on every scan.
+PACK_ROOTS = ("characters", "locations", "live2d", "assets")
+ABSORBED_ROOT = "absorbed"
+IMAGE_ROOT = "images"
+SPRITE_DIRS = ("sprites", "character_art", "portraits", "char")
+LIVE2D_DIRS = ("live2d", "model", "cubism")
+BACKGROUND_DIRS = ("backgrounds", "background", "bg", "scenes")
+
+IGNORE_DIRS = {
+    ".git", ".renpy", "__pycache__", "cache", "caches", "logs", "persistent",
+    "save", "saves", "screenshots", "temp", "tmp",
+}
+
+DEMO_SPRITE = "images/char_demo.png"
+DEMO_BACKGROUND = "images/bg_demo.png"
+
+MAX_FILES_PER_ROOT = 6000
+MAX_PACKS = 250
+MAX_LOOSE = 600
+MAX_DEPTH = 3
+ASSET_SUBDIRS = tuple(sorted(set(SPRITE_DIRS + LIVE2D_DIRS + BACKGROUND_DIRS)))
+
+# Vocabulary used to guess a sprite state from its file name. A sprite that does
+# not match keeps its own slug, so a director can still address it by name.
+EMOTION_WORDS = (
+    "neutral", "normal", "default", "happy", "smile", "smiling", "grin", "laugh",
+    "joy", "sad", "cry", "crying", "tear", "angry", "anger", "annoy", "mad",
+    "embarrassed", "blush", "shy", "surprised", "shock", "wow", "scared", "fear",
+    "worried", "worry", "thinking", "think", "serious", "calm", "sleepy", "tired",
+    "determined", "resolve", "cold", "hot", "doubt", "hope", "pain", "hurt", "null",
+)
+
+BACKGROUND_NAME = re.compile(r"^(background|backdrop|scene|bg|фон|локация)", re.IGNORECASE)
+CHARACTER_NAME = re.compile(r"^(char|character|portrait|sprite|person|персонаж|портрет)", re.IGNORECASE)
+
+PATH_FIELDS = ("states",)
+NAME_FIELDS = ("expressions", "motions", "outfits", "aliases")
+
+_CATALOG = None
+
+
+# ---------------------------------------------------------------- primitives
+
+
+def _now():
+    return datetime.utcnow().isoformat() + "Z"
+
+
+def _norm(path):
+    return str(path).replace("\\", "/")
+
+
+def _slug(text):
+    value = re.sub(r"[^0-9A-Za-zА-Яа-я._-]+", "_", str(text)).strip("_")
+    return value[:96] or "unnamed"
+
+
+def _is_image(name):
+    return str(name).lower().endswith(IMAGE_EXT)
+
+
+def _is_model(name):
+    return str(name).lower().endswith(LIVE2D_MODEL_SUFFIX)
+
+
+def _str_map(value):
+    """Keep only string->string entries of a manifest mapping."""
+    if not isinstance(value, dict):
+        return {}
+    out = {}
+    for key, item in value.items():
+        if isinstance(item, str) and item.strip():
+            out[str(key).strip()] = item.strip()
+    return out
+
+
+def _raw_map(value):
+    """Keep string->(string|dict|list) entries, used for outfit definitions."""
+    if not isinstance(value, dict):
+        return {}
+    out = {}
+    for key, item in value.items():
+        if isinstance(item, str) and item.strip():
+            out[str(key).strip()] = item.strip()
+        elif isinstance(item, dict) and item:
+            out[str(key).strip()] = item
+        elif isinstance(item, list) and item:
+            out[str(key).strip()] = [x for x in item if isinstance(x, (str, int, float))]
+    return out
+
+
+def _display_name(value):
+    """A human-readable pack name: a string, or one locale of a name mapping."""
+    if isinstance(value, str):
+        return value.strip()
+    if isinstance(value, dict):
+        for key in ("ru", "ru-RU", "en", "en-US", "ja"):
+            item = value.get(key)
+            if isinstance(item, str) and item.strip():
+                return item.strip()
+        for item in value.values():
+            if isinstance(item, str) and item.strip():
+                return item.strip()
+    return ""
+
+
+def _gamedir():
+    return getattr(config, "gamedir", os.path.dirname(os.path.abspath(__file__)))
+
+
+def is_available(path, portable=None):
+    """True when an engine-side path can actually be displayed.
+
+    `portable` is True for paths stored relative to the game directory, which is
+    what a packaged build can load. External absolute paths are reported as
+    available when the file is on disk, but they stay marked non-portable so a
+    world export can drop them.
+    """
+    if not path:
+        return False
+    path = _norm(path)
+    if portable is False:
+        return os.path.isfile(path)
+    if renpy is not None:
+        try:
+            if renpy.loadable(path):
+                return True
+        except Exception:
+            pass
+    return os.path.isfile(os.path.join(_gamedir(), path))
+
+
+# ------------------------------------------------------------------- tree I/O
+
+
+def _ignored(name):
+    return name.startswith(".") or name.lower() in IGNORE_DIRS
+
+
+def _walk_tree(root_path, max_depth=MAX_DEPTH, max_files=MAX_FILES_PER_ROOT):
+    """Map of relative directory -> file names, for a filesystem root."""
+    tree = {}
+    seen = 0
+    for dirpath, dirnames, filenames in os.walk(root_path):
+        rel_dir = os.path.relpath(dirpath, root_path)
+        rel_dir = "" if rel_dir == "." else _norm(rel_dir)
+        if rel_dir.count("/") + (1 if rel_dir else 0) >= max_depth:
+            dirnames[:] = []
+        dirnames[:] = [d for d in dirnames if not _ignored(d)]
+        for filename in filenames:
+            if filename.startswith("."):
+                continue
+            seen += 1
+            if seen > max_files:
+                return tree, True
+            tree.setdefault(rel_dir, []).append(filename)
+    return tree, False
+
+
+def _archive_tree(prefix, max_files=MAX_FILES_PER_ROOT):
+    """Map of relative directory -> file names, built from game archive files.
+
+    A packaged build keeps game data in an archive where the game directory is
+    not browsable, so `renpy.list_files()` is the authoritative source there.
+    """
+    tree = {}
+    if renpy is None:
+        return tree, True
+    try:
+        names = list(renpy.list_files())
+    except Exception:
+        return tree, True
+    seen = 0
+    for name in names:
+        name = _norm(name)
+        if not name.startswith(prefix):
+            continue
+        rel = name[len(prefix):].lstrip("/")
+        if not rel:
+            continue
+        seen += 1
+        if seen > max_files:
+            return tree, True
+        head, _, tail = rel.rpartition("/")
+        tree.setdefault(head, []).append(tail)
+    return tree, False
+
+
+def _child_dirs(tree, rel_dir):
+    prefix = (rel_dir + "/") if rel_dir else ""
+    out = set()
+    for path in tree:
+        if path == rel_dir or not path.startswith(prefix):
+            continue
+        rest = path[len(prefix):]
+        if "/" not in rest:
+            out.add(rest)
+    return sorted(out)
+
+
+def _files_in(tree, rel_dir):
+    return sorted(tree.get(rel_dir, []))
+
+
+def _join(rel_dir, name):
+    return (rel_dir + "/" + name) if rel_dir else name
+
+
+def _collect_under(tree, rel_dir, test, max_depth=2, limit=200):
+    """All files under `rel_dir` (inclusive) that satisfy `test`."""
+    out = []
+    if not rel_dir:
+        return out
+    queue = [(rel_dir, 0)]
+    while queue and len(out) < limit:
+        current, depth = queue.pop(0)
+        for name in _files_in(tree, current):
+            path = _join(current, name)
+            if test(name):
+                out.append(path)
+        if depth >= max_depth:
+            continue
+        for child in _child_dirs(tree, current):
+            queue.append((current + "/" + child, depth + 1))
+    return out
+
+
+# ------------------------------------------------------------------ detection
+
+
+def _emotion_for(filename):
+    stem = os.path.splitext(str(filename))[0].lower().replace("-", " ").replace("_", " ")
+    for word in EMOTION_WORDS:
+        if re.search(r"(^|[^a-z])" + re.escape(word) + r"($|[^a-z])", stem):
+            return word
+    return None
+
+
+def _state_key(filename):
+    """Stable state key for a sprite file, independent of the pack layout."""
+    parts = [p for p in re.split(r"[^0-9A-Za-zА-Яа-я]+", os.path.splitext(str(filename))[0]) if p]
+    if not parts:
+        return "neutral"
+    if len(parts) > 1:
+        parts = parts[1:]
+    return _slug("_".join(parts[-2:]) if len(parts) > 1 else parts[0])
+
+
+def _manifest_packs(tree):
+    """Directories that carry their own `character.json`: real character packs."""
+    return {rel_dir for rel_dir in tree if MANIFEST_NAME in tree[rel_dir]}
+
+
+def _ancestors(rel_dir, stop_at=""):
+    """Every parent directory of `rel_dir`, outermost last."""
+    out = []
+    current = rel_dir
+    while current and current != stop_at:
+        out.append(current)
+        current = current.rsplit("/", 1)[0] if "/" in current else ""
+    return out
+
+
+def _pack_markers(tree):
+    """Directories that look like a character pack.
+
+    A directory with its own `character.json` is always a pack, and that is how a
+    real Ren'Py game is laid out: `images/sprites/<character>/*.png` is one
+    character per folder. When such a nested pack exists its ancestors are only a
+    group of packs (the `absorbed/<source>/` folder, for instance) and are not
+    reported as one merged character, because their states would collide.
+    """
+    markers = []
+    manifest_packs = _manifest_packs(tree)
+    grouped = set()
+    for pack in manifest_packs:
+        grouped.update(_ancestors(pack))
+    # "" is a candidate too: a pack folder may hold no files of its own and
+    # only a `sprites/` or `live2d/` subdirectory.
+    for rel_dir in sorted(set(tree) | {""}):
+        if rel_dir in manifest_packs:
+            markers.append(rel_dir)
+            continue
+        if rel_dir in grouped:
+            continue
+        child_dirs = _child_dirs(tree, rel_dir)
+        files = _files_in(tree, rel_dir)
+        if any(_is_model(name) for name in files):
+            markers.append(rel_dir)
+            continue
+        for sub in child_dirs:
+            if sub.lower() not in SPRITE_DIRS and sub.lower() not in LIVE2D_DIRS:
+                continue
+            # Look under the subdirectory, not only in it: a character folder
+            # inside `sprites/` is still a sprite pack.
+            if _collect_under(tree, _join(rel_dir, sub), _is_image):
+                markers.append(rel_dir)
+                break
+    return markers
+
+
+def _engine_path(root_path, root_kind, prefix, rel):
+    """Turn a root-relative path into a path the engine can load."""
+    if root_kind == "external":
+        return _norm(os.path.join(root_path, rel))
+    return prefix + _norm(rel)
+
+
+def _resolve_declared(value, rel_dir, root_path, root_kind, prefix):
+    """Resolve a manifest value declared as a file.
+
+    Manifests use game-relative paths (ASSET_PACK_SCHEMA). A pack-relative path
+    and a bare filename are accepted as fallbacks, and a miss returns None so the
+    caller can drop the entry instead of keeping a broken reference.
+    """
+    value = _norm(str(value).strip())
+    if not value:
+        return None
+    portable = root_kind != "external"
+    for candidate in (value, _join(rel_dir, value), _join(rel_dir, value.lstrip("./"))):
+        if portable:
+            if is_available(prefix + candidate):
+                return prefix + candidate
+        elif os.path.isfile(os.path.join(root_path, candidate)):
+            return _engine_path(root_path, root_kind, prefix, candidate)
+    return None
+
+
+def _visual_from_manifest(manifest, rel_dir, root_path, root_kind, prefix, issues):
+    """Normalize the `visual` block of a `character.json`.
+
+    `states` and `model` must be real files, so they are resolved and dropped
+    when missing. `expressions`, `motions`, `outfits` and `aliases` may name a
+    Cubism motion or expression instead of a file, so the declared value is kept
+    verbatim and only a resolved path is recorded as a hint.
+    """
+    raw = manifest.get("visual")
+    if raw is not None and not isinstance(raw, dict):
+        issues.append("visual_not_object")
+        raw = {}
+    raw = raw if isinstance(raw, dict) else {}
+
+    # A layered pack stores one composed body per pose under `poses` instead of
+    # `states`, because the eyes and mouth are separate layer files that Ren'Py picks by
+    # attribute. The bodies still are the pack's drawable states, so they are folded into
+    # `states` here and every consumer keeps working unchanged.
+    layered_poses = raw.get("poses") if isinstance(raw.get("poses"), dict) else {}
+    if layered_poses and not isinstance(raw.get("states"), dict):
+        raw = dict(raw)
+        raw["states"] = {
+            pose: (info or {}).get("base")
+            for pose, info in layered_poses.items()
+            if isinstance(info, dict) and info.get("base")
+        }
+
+    visual = {
+        "type": str(raw.get("type") or "").strip().lower(),
+        "base": raw.get("base"),
+        "height": raw.get("height"),
+        "zoom": raw.get("zoom"),
+        "top": raw.get("top"),
+        "seamless": raw.get("seamless"),
+        "states": {},
+        "expressions": {},
+        "motions": {},
+        "outfits": {},
+        "aliases": {},
+        "nonexclusive": [],
+        "files": {},
+        "missing": [],
+    }
+    if raw.get("nonexclusive") is not None and not isinstance(raw.get("nonexclusive"), list):
+        issues.append("nonexclusive_not_list")
+    for name in (raw.get("nonexclusive") or []):
+        text = str(name).strip()
+        if text and text not in visual["nonexclusive"]:
+            visual["nonexclusive"].append(text)
+
+    for field in PATH_FIELDS + NAME_FIELDS:
+        for key, value in _raw_map(raw.get(field)).items():
+            if field in NAME_FIELDS and not isinstance(value, str):
+                # A parameter-driven outfit, applied by the Live2D pack loader.
+                visual[field][key] = value
+                continue
+            resolved = _resolve_declared(value, rel_dir, root_path, root_kind, prefix)
+            if field in PATH_FIELDS:
+                if resolved is None:
+                    visual["missing"].append(field + "." + key)
+                    continue
+                visual[field][key] = resolved
+            else:
+                visual[field][key] = value.strip()
+                if resolved is not None:
+                    visual["files"][field + "." + key] = resolved
+
+    model = raw.get("model")
+    if isinstance(model, str) and model.strip():
+        resolved = _resolve_declared(model, rel_dir, root_path, root_kind, prefix)
+        if resolved is None:
+            visual["missing"].append("model")
+        else:
+            visual["model"] = resolved
+
+    if layered_poses:
+        visual["poses"] = {}
+        for pose, info in layered_poses.items():
+            if not isinstance(info, dict):
+                continue
+            visual["poses"][pose] = {
+                "base": info.get("base"),
+                "eyes_set": info.get("eyes_set") or "",
+                "mouth_set": info.get("mouth_set") or "",
+            }
+        visual["rpy"] = raw.get("rpy")
+        expressions = manifest.get("expressions")
+        if isinstance(expressions, dict):
+            visual["layered_expressions"] = expressions
+
+    for item in visual["missing"]:
+        issues.append("manifest_path_missing:" + item)
+    return visual
+
+
+def _build_pack(tree, rel_dir, root_path, root_kind, prefix, root_label, third_party, redistributable):
+    issues = []
+    names = _files_in(tree, rel_dir)
+    pack_id = _slug(rel_dir.split("/")[-1] if rel_dir else root_label)
+
+    manifest = {}
+    if MANIFEST_NAME in names:
+        manifest_file = _engine_path(root_path, root_kind, prefix, _join(rel_dir, MANIFEST_NAME))
+        if root_kind == "external":
+            try:
+                with open(manifest_file, "r", encoding="utf-8") as fh:
+                    loaded = json.load(fh)
+                manifest = loaded if isinstance(loaded, dict) else {}
+                if not isinstance(loaded, dict):
+                    issues.append("manifest_not_object")
+            except Exception:
+                issues.append("manifest_unreadable")
+        else:
+            # Packaged roots may live in an archive, where reading by path fails.
+            try:
+                with loader.load(manifest_file, directory="images") as fh:
+                    loaded = json.loads(fh.read().decode("utf-8", "ignore"))
+                manifest = loaded if isinstance(loaded, dict) else {}
+                if not isinstance(loaded, dict):
+                    issues.append("manifest_not_object")
+            except Exception:
+                try:
+                    with open(os.path.join(_gamedir(), manifest_file), "r", encoding="utf-8") as fh:
+                        loaded = json.load(fh)
+                    manifest = loaded if isinstance(loaded, dict) else {}
+                except Exception:
+                    issues.append("manifest_unreadable")
+
+    visual = _visual_from_manifest(manifest, rel_dir, root_path, root_kind, prefix, issues)
+
+    # Discovered files fill the gaps of a manifest and never overwrite a
+    # manifest entry.
+    sprites = []
+    for sub in _child_dirs(tree, rel_dir):
+        if sub.lower() in SPRITE_DIRS:
+            sprites.extend(_collect_under(tree, _join(rel_dir, sub), _is_image))
+    if not sprites and MANIFEST_NAME in names:
+        # A manifest states who this pack is, so its own images are the sprites
+        # whatever they are named: `dv_3_pioneer.png` is a valid state of `dv`.
+        sprites.extend(_join(rel_dir, name) for name in names if _is_image(name))
+    if not sprites and rel_dir:
+        sprites.extend(name for name in names if _is_image(name) and CHARACTER_NAME.search(name))
+    models = []
+    for sub in _child_dirs(tree, rel_dir):
+        if sub.lower() in LIVE2D_DIRS:
+            models.extend(_collect_under(tree, _join(rel_dir, sub), _is_model))
+    models.extend(_join(rel_dir, name) for name in names if _is_model(name))
+
+    states = {}
+    for path in sprites:
+        key = _emotion_for(os.path.basename(path)) or _state_key(path)
+        if key in states:
+            continue
+        states[key] = _engine_path(root_path, root_kind, prefix, path)
+    for key, value in (visual.get("states") or {}).items():
+        if value:
+            states[key] = value
+    visual["states"] = states
+
+    if not visual.get("model") and models:
+        visual["model"] = _engine_path(root_path, root_kind, prefix, models[0])
+    if not visual["type"]:
+        visual["type"] = "live2d" if (visual.get("model") and _is_model(visual["model"])) else (
+            "sprite" if states else "none")
+    if visual["type"] == "live2d" and not visual.get("model"):
+        issues.append("live2d_without_model")
+        visual["type"] = "sprite" if states else "none"
+
+    character_id = _slug(manifest.get("id") or pack_id)
+    display_name = _display_name(manifest.get("name")) or character_id
+    record = {
+        "id": character_id,
+        "name": display_name,
+        "display_name": display_name,
+        "pack_id": pack_id,
+        "pack_dir": rel_dir,
+        # Game-relative, unlike pack_dir which is relative to the scanned root. Ren'Py
+        # addresses files from the game directory, so this is the prefix a caller needs to
+        # reach a file inside the pack.
+        "pack_path": ("%s/%s" % (root_label, rel_dir)).strip("/") if root_label else rel_dir,
+        "root_label": root_label,
+        "root_kind": root_kind,
+        "manifest": bool(manifest),
+        "third_party": bool(third_party or manifest.get("third_party")),
+        "redistributable": bool(manifest.get("redistributable", False)) if redistributable is None
+        else bool(redistributable),
+        "visual": visual,
+        "sprites": [_engine_path(root_path, root_kind, prefix, s) for s in sprites],
+        "models": [_engine_path(root_path, root_kind, prefix, m) for m in models],
+        "state_count": len(states),
+        "issues": issues,
+    }
+    if not manifest and not sprites and not models:
+        record["issues"].append("empty_pack")
+        record["status"] = "broken"
+    elif record["visual"]["type"] == "none":
+        record["issues"].append("no_visual_assets")
+        record["status"] = "broken"
+    elif record["issues"]:
+        record["status"] = "warn"
+    else:
+        record["status"] = "ok"
+    return record
+
+
+def _scan_root(root):
+    path = root["path"]
+    kind = root["kind"]
+    label = root["label"]
+    prefix = "" if kind == "external" else label + "/"
+    issues = []
+    characters = []
+    backgrounds = []
+    loose = []
+
+    if kind == "external":
+        if not os.path.isdir(path):
+            return {
+                "root": {"path": path, "label": label, "kind": kind, "exists": False,
+                         "packs": 0, "backgrounds": 0, "loose": 0, "truncated": False,
+                         "issue": "missing_directory"},
+                "characters": [], "backgrounds": [], "loose": [],
+                "issues": ["missing_directory"],
+            }
+        tree, truncated = _walk_tree(path)
+    else:
+        filesystem_root = os.path.join(_gamedir(), label)
+        if os.path.isdir(filesystem_root):
+            tree, truncated = _walk_tree(filesystem_root)
+        else:
+            tree, truncated = _archive_tree(prefix)
+            if not tree:
+                return {
+                    "root": {"path": filesystem_root, "label": label, "kind": kind, "exists": False,
+                             "packs": 0, "backgrounds": 0, "loose": 0, "truncated": False,
+                             "issue": "missing_directory"},
+                    "characters": [], "backgrounds": [], "loose": [],
+                    "issues": ["missing_directory"],
+                }
+
+    if truncated:
+        issues.append("file_limit_reached")
+
+    for rel_dir in _pack_markers(tree):
+        if len(characters) >= MAX_PACKS:
+            issues.append("pack_limit_reached")
+            break
+        # Anything outside the game directory is third-party: it is inspected and
+        # counted, never treated as redistributable project content.
+        third_party = kind in ("absorbed", "external")
+        record = _build_pack(tree, rel_dir, path, kind, prefix, label, third_party,
+                             False if kind in ("absorbed", "external") else None)
+        characters.append(record)
+
+    found_backgrounds, found_loose = _scan_images(tree, path, kind, prefix, label)
+    backgrounds.extend(found_backgrounds)
+    loose.extend(found_loose)
+
+    characters, duplicates = _dedupe_characters(characters)
+    issues.extend(duplicates)
+    backgrounds, _ = _dedupe_backgrounds(backgrounds)
+    if len(loose) > MAX_LOOSE:
+        loose = loose[:MAX_LOOSE]
+        issues.append("loose_limit_reached")
+
+    return {
+        "root": {
+            "path": path,
+            "label": label,
+            "kind": kind,
+            "exists": True,
+            "packs": len(characters),
+            "backgrounds": len(backgrounds),
+            "loose": len(loose),
+            "truncated": truncated,
+            "issue": None,
+        },
+        "characters": characters,
+        "backgrounds": backgrounds,
+        "loose": loose,
+        "issues": issues,
+    }
+
+
+def _scan_images(tree, root_path, kind, prefix, root_label):
+    """Classify loose images into backgrounds, characters and unknowns."""
+    backgrounds = []
+    loose = []
+    for rel_dir in sorted(tree):
+        for name in _files_in(tree, rel_dir):
+            if not _is_image(name):
+                continue
+            rel = _join(rel_dir, name)
+            full = _engine_path(root_path, kind, prefix, rel)
+            parts = [p.lower() for p in rel_dir.split("/") if p]
+            if BACKGROUND_NAME.search(name) or any(p in BACKGROUND_DIRS for p in parts):
+                guess = "background"
+            elif CHARACTER_NAME.search(name) or any(p in SPRITE_DIRS for p in parts):
+                guess = "character"
+            else:
+                guess = "unknown"
+            entry = {"id": _slug(os.path.splitext(name)[0]), "path": full, "label": name,
+                     "guess": guess, "kind": kind, "portable": kind != "external"}
+            if guess == "background":
+                entry["portable"] = True
+                backgrounds.append(entry)
+            elif guess == "character" or kind != "external":
+                loose.append(entry)
+    if root_label.lower() == "locations":
+        for rel_dir in _child_dirs(tree, ""):
+            location = _slug(rel_dir)
+            for name in _files_in(tree, rel_dir):
+                if not _is_image(name):
+                    continue
+                backgrounds.append({
+                    "id": location + "_" + _slug(os.path.splitext(name)[0]),
+                    "location": location,
+                    "path": _engine_path(root_path, kind, prefix, _join(rel_dir, name)),
+                    "label": name,
+                    "kind": "location",
+                    "portable": True,
+                })
+    return backgrounds, loose
+
+
+def _dedupe_characters(characters):
+    seen = {}
+    duplicates = []
+    kept = []
+    for record in characters:
+        key = record["id"]
+        if key in seen:
+            duplicates.append("duplicate_character_id:" + key)
+            previous = seen[key]
+            # Prefer the pack that has a manifest, then the one with more states.
+            replace = (bool(record["manifest"]) and not bool(previous["manifest"])) or (
+                bool(record["manifest"]) == bool(previous["manifest"])
+                and record["state_count"] > previous["state_count"])
+            if replace:
+                kept[kept.index(previous)] = record
+                seen[key] = record
+            continue
+        seen[key] = record
+        kept.append(record)
+    return kept, duplicates
+
+
+def _dedupe_backgrounds(backgrounds):
+    """One entry per file. A location-tagged entry wins over a bare guess."""
+    seen = {}
+    order = []
+    for item in backgrounds:
+        key = item.get("path")
+        if key not in seen:
+            seen[key] = item
+            order.append(key)
+            continue
+        previous = seen[key]
+        # `locations/<name>/file.png` is the explicit form: it knows the
+        # logical location id, which the loose guess cannot infer.
+        if item.get("location") and not previous.get("location"):
+            seen[key] = item
+    return [seen[key] for key in order], []
+
+
+# -------------------------------------------------------------------- catalog
+
+
+def default_roots(extra=None):
+    """Ordered scan roots: game conventions first, then user folders."""
+    roots = []
+    for name in PACK_ROOTS:
+        roots.append({"path": os.path.join(_gamedir(), name), "label": name, "kind": "packaged"})
+    roots.append({"path": os.path.join(_gamedir(), ABSORBED_ROOT), "label": ABSORBED_ROOT,
+                  "kind": "absorbed"})
+    roots.append({"path": os.path.join(_gamedir(), IMAGE_ROOT), "label": IMAGE_ROOT,
+                  "kind": "packaged"})
+    for raw in (extra or []):
+        text = str(raw).strip().strip('"')
+        if not text:
+            continue
+        expanded = os.path.abspath(os.path.expanduser(text))
+        roots.append({"path": expanded, "label": os.path.basename(expanded.rstrip("/")) or expanded,
+                      "kind": "external"})
+    return roots
+
+
+def build_catalog(extra_roots=None):
+    catalog = {
+        "generated_at": _now(),
+        "roots": [],
+        "characters": [],
+        "backgrounds": [],
+        "loose": [],
+        "issues": [],
+    }
+    for root in default_roots(extra_roots):
+        try:
+            found = _scan_root(root)
+        except Exception as exc:  # a broken root must never break the game
+            catalog["roots"].append({"path": root["path"], "label": root["label"], "kind": root["kind"],
+                                     "exists": False, "packs": 0, "backgrounds": 0, "loose": 0,
+                                     "truncated": False, "issue": "scan_failed"})
+            catalog["issues"].append("scan_failed:" + str(exc)[:120])
+            continue
+        catalog["roots"].append(found["root"])
+        catalog["characters"].extend(found["characters"])
+        catalog["backgrounds"].extend(found["backgrounds"])
+        catalog["loose"].extend(found["loose"])
+        catalog["issues"].extend(found["issues"])
+    catalog["characters"], dupes = _dedupe_characters(catalog["characters"])
+    catalog["issues"].extend(dupes)
+    catalog["backgrounds"], _ = _dedupe_backgrounds(catalog["backgrounds"])
+    catalog["counts"] = {
+        "roots": len([r for r in catalog["roots"] if r.get("exists")]),
+        "characters": len(catalog["characters"]),
+        "backgrounds": len(catalog["backgrounds"]),
+        "live2d": len([c for c in catalog["characters"] if c["visual"].get("type") == "live2d"]),
+        "third_party": len([c for c in catalog["characters"] if c.get("third_party")]),
+        "broken": len([c for c in catalog["characters"] if c.get("status") == "broken"]),
+    }
+    return catalog
+
+
+def get_catalog(extra_roots=None, refresh=False):
+    global _CATALOG
+    if _CATALOG is None or refresh:
+        _CATALOG = build_catalog(extra_roots)
+    return _CATALOG
+
+
+def set_catalog(catalog):
+    global _CATALOG
+    _CATALOG = catalog
+    return _CATALOG
+
+
+def clear_cache():
+    global _CATALOG
+    _CATALOG = None
+
+
+def parse_extra_roots(text):
+    return [p for p in str(text or "").split(";") if p.strip()]
+
+
+# ------------------------------------------------------------------ resolution
+
+
+def find_character(catalog, cid):
+    for record in catalog.get("characters", []):
+        if record.get("id") == cid:
+            return record
+    for record in catalog.get("characters", []):
+        if str(record.get("name", "")).lower() == str(cid or "").lower():
+            return record
+    return None
+
+
+def state_chain(record, emotion):
+    """Ordered fallback chain for a sprite lookup."""
+    states = ((record or {}).get("visual") or {}).get("states") or {}
+    chain = []
+    for key in (emotion, "neutral", "normal", "default"):
+        value = states.get(key)
+        if value and value not in chain:
+            chain.append(value)
+    for value in states.values():
+        if value and value not in chain:
+            chain.append(value)
+    return chain
+
+
+def resolve_state(record, emotion="neutral"):
+    """Return (path, reason). Never raises; `reason` explains the fallback."""
+    if not record:
+        return None, "no_pack"
+    for path in state_chain(record, emotion):
+        if is_available(path, not os.path.isabs(_norm(path))):
+            return path, "ok"
+    if (record.get("visual") or {}).get("type") == "live2d":
+        return None, "live2d_only"
+    return None, "missing"
+
+
+def resolve_background(catalog, location_id):
+    """Return (path, reason) for a logical location id."""
+    stem = _slug(location_id or "")
+    for item in catalog.get("backgrounds", []):
+        if item.get("location") == location_id or item.get("id") == location_id:
+            if is_available(item.get("path"), item.get("portable", True)):
+                return item["path"], "ok"
+    if stem:
+        for item in catalog.get("backgrounds", []):
+            if stem in _slug(item.get("id", "")):
+                if is_available(item.get("path"), item.get("portable", True)):
+                    return item["path"], "fuzzy"
+    if is_available(DEMO_BACKGROUND):
+        return DEMO_BACKGROUND, "demo"
+    return None, "missing"
+
+
+def status_of(record):
+    if not record:
+        return "unknown"
+    visual = record.get("visual") or {}
+    if visual.get("type") == "live2d" and visual.get("model"):
+        return "live2d"
+    if state_chain(record, "neutral"):
+        return "sprite"
+    return "missing"
+
+
+# ---------------------------------------------------------------- world bridge
+
+
+def visual_for_world(record):
+    """A `character.visual` dict the engine can consume directly."""
+    record = record or {}
+    visual = dict(record.get("visual") or {})
+    states = dict((k, v) for k, v in (visual.get("states") or {}).items() if v)
+    if not states and is_available(DEMO_SPRITE):
+        states["neutral"] = DEMO_SPRITE
+    out = {
+        "type": visual.get("type") or ("sprite" if states else "none"),
+        "states": states,
+    }
+    for key in ("model", "expressions", "motions", "outfits", "aliases", "nonexclusive",
+                "base", "height", "zoom", "top", "seamless"):
+        value = visual.get(key)
+        if value:
+            out[key] = value
+    out["pack_id"] = record.get("pack_id")
+    out["third_party"] = bool(record.get("third_party"))
+    # A pack outside the game directory stays inspect-only: Ren'Py loads through
+    # its own search path, so the engine is told the paths are not portable.
+    out["portable"] = record.get("root_kind") != "external"
+    if not out["portable"]:
+        out["inspect_only"] = True
+    if record.get("issues"):
+        out["pack_issues"] = list(record["issues"])[:6]
+    return out
+
+
+def attach_visual(world, record, cid, add_missing=False):
+    """Bind a detected pack to a world character, or add the character.
+
+    Returns "bound", "added" or "skipped".
+    """
+    world.setdefault("characters", [])
+    existing = None
+    for character in world["characters"]:
+        if character.get("id") == cid:
+            existing = character
+            break
+    if existing is None and not add_missing:
+        return "skipped"
+    created = False
+    if existing is None:
+        existing = {
+            "id": _slug(cid or record.get("id")),
+            "name": record.get("name") or _slug(cid),
+            "role": "asset pack character",
+            "personality": "",
+            "goals": [],
+            "secrets": [],
+            "relationships": {},
+        }
+        world["characters"].append(existing)
+        created = True
+    existing["visual"] = visual_for_world(record)
+    if record.get("third_party"):
+        existing["imported_from"] = record.get("pack_id")
+    world.setdefault("flags", {})["asset_packs_bound"] = True
+    return "added" if created else "bound"
+
+
+def _world_id_for(world, record):
+    names = {}
+    for character in world.get("characters", []):
+        names[str(character.get("name", "")).lower()] = character.get("id")
+    return names.get(str(record.get("name", "")).lower(), record.get("id"))
+
+
+def bind_all(world, catalog, add_missing=False):
+    """Bind every detected pack to the world.
+
+    Matching is by character id, then by name. `add_missing` is opt-in because it
+    grows the cast of the current world. A pack that lives outside the game
+    directory is inspect-only, so it is never bound: the character keeps its
+    own sprites and the demo fallback.
+    """
+    report = {"bound": [], "added": [], "skipped": [], "inspect_only": []}
+    for record in catalog.get("characters", []):
+        if record.get("status") == "broken" and not add_missing:
+            report["skipped"].append(record.get("id"))
+            continue
+        if record.get("root_kind") == "external":
+            report["inspect_only"].append(record.get("id"))
+            continue
+        cid = _world_id_for(world, record)
+        outcome = attach_visual(world, record, cid, add_missing=add_missing)
+        key = record.get("id")
+        if key:
+            if outcome in ("bound", "added"):
+                report[outcome].append(key)
+            else:
+                report["skipped"].append(key)
+    return report
+
+
+def bind_backgrounds(world, catalog):
+    """Attach a detected background to every world location that has one.
+
+    Only portable backgrounds are attached: a background that lives outside the
+    game directory is reported by the inspector but never written into the world.
+    """
+    bound = []
+    for name, location in (world.get("locations") or {}).items():
+        if not isinstance(location, dict):
+            continue
+        path, reason = resolve_background(catalog, name)
+        if path and reason in ("ok", "fuzzy") and not os.path.isabs(path):
+            location["background"] = path
+            bound.append(name)
+    return bound
+
+
+# ---------------------------------------------------------------- inspection
+
+
+def catalog_lines(catalog):
+    catalog = catalog or {}
+    counts = catalog.get("counts") or {}
+    lines = ["Обновлено: %s" % catalog.get("generated_at", "?")]
+    lines.append("Персонажи: %d (live2d: %d, сторонних: %d, проблемных: %d) • Фоны: %d" % (
+        counts.get("characters", 0), counts.get("live2d", 0), counts.get("third_party", 0),
+        counts.get("broken", 0), counts.get("backgrounds", 0)))
+    for root in catalog.get("roots", []):
+        if not root.get("exists"):
+            lines.append("— %s: нет (%s)" % (root.get("label"), root.get("issue") or "missing"))
+            continue
+        lines.append("— %s [%s]: паков %d, фонов %d, картинок %d%s" % (
+            root.get("label"), root.get("kind"), root.get("packs", 0),
+            root.get("backgrounds", 0), root.get("loose", 0),
+            " [обрезано]" if root.get("truncated") else ""))
+    for record in catalog.get("characters", []):
+        lines.append("• %s (%s) — %s, состояний: %d%s" % (
+            record.get("name"), record.get("id"), status_of(record), record.get("state_count", 0),
+            "  ⚠ " + ", ".join(record.get("issues", [])[:3]) if record.get("issues") else ""))
+    if catalog.get("issues"):
+        lines.append("Замечания: " + ", ".join(sorted(set(catalog["issues"]))[:8]))
+    return lines
