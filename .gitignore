@@ -9,6 +9,8 @@ game/tracebacks/
 log.txt
 errors.txt
 traceback.txt
+*.log
+*.txt.tmp
 
 # --- Python bytecode --------------------------------------------------
 __pycache__/
