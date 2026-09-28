@@ -1,97 +1,243 @@
 {
-  "e1807_mbfa8": {
-    "poses": [
-      "000",
-      "003",
-      "004",
-      "005",
-      "008",
-      "009"
-    ],
-    "eyes": {
-      "frame": [
-        248,
-        124
-      ],
-      "margin": [
-        0,
-        0
-      ],
-      "offset": [
-        251,
-        203
-      ],
-      "frames": {
-        "open": 1,
-        "closed": 0,
-        "happy": 12,
-        "half": 14,
-        "wide": 11,
-        "up": 2,
-        "down": 10
-      }
-    },
-    "mouth": {
-      "frame": [
-        90,
-        90
-      ],
-      "margin": [
-        2,
-        4
-      ],
-      "offset": [
-        336,
-        329
-      ],
-      "frames": {
-        "neutral": 15,
-        "smile": 19,
-        "grin": 20,
-        "laugh": 10,
-        "open": 0,
-        "frown": 2,
-        "small": 13,
-        "surprise": 16
-      }
-    },
-    "emotions": {
-      "neutral": {
-        "eyes": "open",
-        "mouth": "neutral"
-      },
-      "smile": {
-        "eyes": "open",
-        "mouth": "smile"
-      },
-      "happy": {
-        "eyes": "happy",
-        "mouth": "grin"
-      },
-      "laugh": {
-        "eyes": "happy",
-        "mouth": "laugh"
-      },
-      "surprised": {
-        "eyes": "wide",
-        "mouth": "surprise"
-      },
-      "sad": {
-        "eyes": "half",
-        "mouth": "frown"
-      },
-      "closed": {
-        "eyes": "closed",
-        "mouth": "neutral"
-      },
-      "think": {
-        "eyes": "up",
-        "mouth": "small"
-      },
-      "shy": {
-        "eyes": "half",
-        "mouth": "small"
-      }
-    }
+ "e1807_mbfa8": {
+  "poses": [
+   "000",
+   "003",
+   "004",
+   "005",
+   "008",
+   "009"
+  ],
+  "eyes": {
+   "frame": [
+    248,
+    124
+   ],
+   "margin": [
+    0,
+    0
+   ],
+   "offset": [
+    251,
+    203
+   ],
+   "frames": {
+    "open": 1,
+    "closed": 0,
+    "happy": 12,
+    "half": 14,
+    "wide": 11,
+    "up": 2,
+    "down": 10
+   }
+  },
+  "mouth": {
+   "frame": [
+    92,
+    90
+   ],
+   "margin": [
+    4,
+    4
+   ],
+   "offset": [
+    338,
+    329
+   ],
+   "frames": {
+    "neutral": 15,
+    "smile": 19,
+    "grin": 20,
+    "laugh": 10,
+    "open": 0,
+    "frown": 2,
+    "small": 13,
+    "surprise": 16
+   }
+  },
+  "emotions": {
+   "neutral": {
+    "eyes": "open",
+    "mouth": "neutral"
+   },
+   "smile": {
+    "eyes": "open",
+    "mouth": "smile"
+   },
+   "happy": {
+    "eyes": "happy",
+    "mouth": "grin"
+   },
+   "laugh": {
+    "eyes": "happy",
+    "mouth": "laugh"
+   },
+   "surprised": {
+    "eyes": "wide",
+    "mouth": "surprise"
+   },
+   "sad": {
+    "eyes": "half",
+    "mouth": "frown"
+   },
+   "closed": {
+    "eyes": "closed",
+    "mouth": "neutral"
+   },
+   "think": {
+    "eyes": "up",
+    "mouth": "small"
+   },
+   "shy": {
+    "eyes": "half",
+    "mouth": "small"
+   }
   }
+ },
+ "e5eb2_m0d8d": {
+  "eyes": {
+   "frame": [
+    242,
+    146
+   ],
+   "margin": [
+    6,
+    2
+   ],
+   "offset": [
+    249,
+    171
+   ],
+   "frames": {
+    "open": 1,
+    "closed": 0,
+    "happy": 9,
+    "half": 14,
+    "wide": 2,
+    "up": 18,
+    "down": 11
+   }
+  },
+  "mouth": {
+   "frame": [
+    102,
+    72
+   ],
+   "margin": [
+    2,
+    0
+   ],
+   "offset": [
+    333,
+    315
+   ],
+   "frames": {
+    "neutral": 14,
+    "smile": 10,
+    "grin": 19,
+    "laugh": 9,
+    "open": 3,
+    "frown": 20,
+    "small": 13,
+    "surprise": 1
+   }
+  },
+  "emotions": {
+   "neutral": {
+    "eyes": "open",
+    "mouth": "neutral"
+   },
+   "smile": {
+    "eyes": "open",
+    "mouth": "smile"
+   },
+   "happy": {
+    "eyes": "happy",
+    "mouth": "grin"
+   },
+   "laugh": {
+    "eyes": "happy",
+    "mouth": "laugh"
+   },
+   "surprised": {
+    "eyes": "wide",
+    "mouth": "surprise"
+   },
+   "sad": {
+    "eyes": "half",
+    "mouth": "frown"
+   },
+   "closed": {
+    "eyes": "closed",
+    "mouth": "neutral"
+   },
+   "think": {
+    "eyes": "up",
+    "mouth": "small"
+   },
+   "shy": {
+    "eyes": "half",
+    "mouth": "small"
+   }
+  }
+ },
+ "e0c79_mnone": {
+  "eyes": {
+   "frame": [
+    244,
+    124
+   ],
+   "margin": [
+    4,
+    4
+   ],
+   "offset": [
+    260,
+    221
+   ],
+   "frames": {
+    "open": 1,
+    "closed": 0,
+    "wide": 2
+   }
+  },
+  "emotions": {
+   "neutral": {
+    "eyes": "open",
+    "mouth": "neutral"
+   },
+   "smile": {
+    "eyes": "open",
+    "mouth": "smile"
+   },
+   "happy": {
+    "eyes": "happy",
+    "mouth": "grin"
+   },
+   "laugh": {
+    "eyes": "happy",
+    "mouth": "laugh"
+   },
+   "surprised": {
+    "eyes": "wide",
+    "mouth": "surprise"
+   },
+   "sad": {
+    "eyes": "half",
+    "mouth": "frown"
+   },
+   "closed": {
+    "eyes": "closed",
+    "mouth": "neutral"
+   },
+   "think": {
+    "eyes": "up",
+    "mouth": "small"
+   },
+   "shy": {
+    "eyes": "half",
+    "mouth": "small"
+   }
+  }
+ }
 }

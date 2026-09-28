@@ -1,0 +1,85 @@
+{
+ "id": "ch1-18",
+ "items": [
+  {
+   "id": "story_chapter.py:morning@506",
+   "meaning": "ok",
+   "link": "ok",
+   "facts": "ok",
+   "voice": "ok",
+   "grammar": "ok",
+   "note": "",
+   "fix": ""
+  },
+  {
+   "id": "story_chapter.py:morning@507",
+   "meaning": "ok",
+   "link": "ok",
+   "facts": "ok",
+   "voice": "ok",
+   "grammar": "ok",
+   "note": "",
+   "fix": ""
+  },
+  {
+   "id": "story_chapter.py:morning@509",
+   "meaning": "ok",
+   "link": "ok",
+   "facts": "ok",
+   "voice": "ok",
+   "grammar": "ok",
+   "note": "",
+   "fix": ""
+  },
+  {
+   "id": "story_chapter.py:morning@511",
+   "meaning": "ok",
+   "link": "ok",
+   "facts": "ok",
+   "voice": "ok",
+   "grammar": "ok",
+   "note": "",
+   "fix": ""
+  },
+  {
+   "id": "story_chapter.py:morning@514",
+   "meaning": "ok",
+   "link": "ok",
+   "facts": "ok",
+   "voice": "ok",
+   "grammar": "ok",
+   "note": "",
+   "fix": ""
+  },
+  {
+   "id": "story_chapter.py:opt@517",
+   "meaning": "ok",
+   "link": "ok",
+   "facts": "ok",
+   "voice": "ok",
+   "grammar": "ok",
+   "note": "",
+   "fix": ""
+  },
+  {
+   "id": "story_chapter.py:opt@518",
+   "meaning": "ok",
+   "link": "ok",
+   "facts": "ok",
+   "voice": "ok",
+   "grammar": "ok",
+   "note": "",
+   "fix": ""
+  },
+  {
+   "id": "story_chapter.py:office@528",
+   "meaning": "ok",
+   "link": "ok",
+   "facts": "ok",
+   "voice": "ok",
+   "grammar": "ok",
+   "note": "",
+   "fix": ""
+  }
+ ]
+}

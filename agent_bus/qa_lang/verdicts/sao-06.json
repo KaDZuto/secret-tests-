@@ -1,0 +1,85 @@
+{
+ "id": "sao-06",
+ "items": [
+  {
+   "id": "story_sao.json/scene_3/10",
+   "meaning": "ok",
+   "link": "ok",
+   "facts": "ok",
+   "voice": "ok",
+   "grammar": "ok",
+   "note": "",
+   "fix": ""
+  },
+  {
+   "id": "story_sao.json/scene_3/11",
+   "meaning": "ok",
+   "link": "ok",
+   "facts": "ok",
+   "voice": "ok",
+   "grammar": "ok",
+   "note": "",
+   "fix": ""
+  },
+  {
+   "id": "story_sao.json/scene_3/12",
+   "meaning": "ok",
+   "link": "ok",
+   "facts": "ok",
+   "voice": "ok",
+   "grammar": "ok",
+   "note": "",
+   "fix": ""
+  },
+  {
+   "id": "story_sao.json/scene_3/13",
+   "meaning": "ok",
+   "link": "ok",
+   "facts": "ok",
+   "voice": "ok",
+   "grammar": "ok",
+   "note": "",
+   "fix": ""
+  },
+  {
+   "id": "story_sao.json/scene_3/14",
+   "meaning": "ok",
+   "link": "ok",
+   "facts": "ok",
+   "voice": "ok",
+   "grammar": "ok",
+   "note": "",
+   "fix": ""
+  },
+  {
+   "id": "story_sao.json/scene_3/15",
+   "meaning": "ok",
+   "link": "ok",
+   "facts": "ok",
+   "voice": "ok",
+   "grammar": "ok",
+   "note": "",
+   "fix": ""
+  },
+  {
+   "id": "story_sao.json/scene_3/16",
+   "meaning": "ok",
+   "link": "ok",
+   "facts": "ok",
+   "voice": "ok",
+   "grammar": "ok",
+   "note": "",
+   "fix": ""
+  },
+  {
+   "id": "story_sao.json/scene_3/17",
+   "meaning": "ok",
+   "link": "ok",
+   "facts": "ok",
+   "voice": "ok",
+   "grammar": "ok",
+   "note": "",
+   "fix": ""
+  }
+ ]
+}

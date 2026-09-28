@@ -1,0 +1,85 @@
+{
+ "id": "ch1-03",
+ "items": [
+  {
+   "id": "story_chapter.py:gate_talk@161",
+   "meaning": "ok",
+   "link": "ok",
+   "facts": "ok",
+   "voice": "ok",
+   "grammar": "ok",
+   "note": "",
+   "fix": ""
+  },
+  {
+   "id": "story_chapter.py:gate_talk@163",
+   "meaning": "ok",
+   "link": "ok",
+   "facts": "ok",
+   "voice": "ok",
+   "grammar": "ok",
+   "note": "",
+   "fix": ""
+  },
+  {
+   "id": "story_chapter.py:gate_talk@165",
+   "meaning": "ok",
+   "link": "ok",
+   "facts": "ok",
+   "voice": "ok",
+   "grammar": "ok",
+   "note": "",
+   "fix": ""
+  },
+  {
+   "id": "story_chapter.py:gate_talk@167",
+   "meaning": "ok",
+   "link": "ok",
+   "facts": "ok",
+   "voice": "ok",
+   "grammar": "ok",
+   "note": "",
+   "fix": ""
+  },
+  {
+   "id": "story_chapter.py:gate_talk@169",
+   "meaning": "ok",
+   "link": "ok",
+   "facts": "ok",
+   "voice": "ok",
+   "grammar": "ok",
+   "note": "",
+   "fix": ""
+  },
+  {
+   "id": "story_chapter.py:gate_talk@172",
+   "meaning": "ok",
+   "link": "ok",
+   "facts": "ok",
+   "voice": "ok",
+   "grammar": "ok",
+   "note": "",
+   "fix": ""
+  },
+  {
+   "id": "story_chapter.py:gate_talk@174",
+   "meaning": "ok",
+   "link": "ok",
+   "facts": "ok",
+   "voice": "ok",
+   "grammar": "ok",
+   "note": "",
+   "fix": ""
+  },
+  {
+   "id": "story_chapter.py:road_ask@184",
+   "meaning": "ok",
+   "link": "ok",
+   "facts": "ok",
+   "voice": "ok",
+   "grammar": "ok",
+   "note": "",
+   "fix": ""
+  }
+ ]
+}

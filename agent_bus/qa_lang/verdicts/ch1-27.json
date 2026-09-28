@@ -1,0 +1,85 @@
+{
+ "id": "ch1-27",
+ "items": [
+  {
+   "id": "story_chapter.py:clubs@702",
+   "meaning": "ok",
+   "link": "ok",
+   "facts": "ok",
+   "voice": "ok",
+   "grammar": "ok",
+   "note": "",
+   "fix": ""
+  },
+  {
+   "id": "story_chapter.py:clubs@703",
+   "meaning": "ok",
+   "link": "ok",
+   "facts": "ok",
+   "voice": "ok",
+   "grammar": "ok",
+   "note": "",
+   "fix": ""
+  },
+  {
+   "id": "story_chapter.py:clubs@705",
+   "meaning": "ok",
+   "link": "ok",
+   "facts": "ok",
+   "voice": "ok",
+   "grammar": "ok",
+   "note": "",
+   "fix": ""
+  },
+  {
+   "id": "story_chapter.py:clubs@708",
+   "meaning": "ok",
+   "link": "ok",
+   "facts": "ok",
+   "voice": "ok",
+   "grammar": "ok",
+   "note": "",
+   "fix": ""
+  },
+  {
+   "id": "story_chapter.py:wash@719",
+   "meaning": "ok",
+   "link": "ok",
+   "facts": "ok",
+   "voice": "ok",
+   "grammar": "ok",
+   "note": "",
+   "fix": ""
+  },
+  {
+   "id": "story_chapter.py:wash@721",
+   "meaning": "ok",
+   "link": "ok",
+   "facts": "ok",
+   "voice": "ok",
+   "grammar": "ok",
+   "note": "",
+   "fix": ""
+  },
+  {
+   "id": "story_chapter.py:wash@723",
+   "meaning": "ok",
+   "link": "ok",
+   "facts": "ok",
+   "voice": "ok",
+   "grammar": "ok",
+   "note": "",
+   "fix": ""
+  },
+  {
+   "id": "story_chapter.py:wash@726",
+   "meaning": "ok",
+   "link": "ok",
+   "facts": "ok",
+   "voice": "ok",
+   "grammar": "ok",
+   "note": "",
+   "fix": ""
+  }
+ ]
+}

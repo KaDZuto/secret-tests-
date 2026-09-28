@@ -1,9 +1,59 @@
-dist/
+# --- Ren'Py build artefacts -------------------------------------------
+*.rpyc
+*.rpyb
+*.rpa
+game/cache/
+game/saves/
+game/logs/
+game/tracebacks/
+log.txt
+errors.txt
+traceback.txt
 
+# --- Python bytecode --------------------------------------------------
+__pycache__/
+*.py[cod]
+.pytest_cache/
+
+# --- Release output ---------------------------------------------------
+dist/
+build/
+*.zip
+*.tar
+*.tar.gz
+
+# --- Vendored GPL reader (unrpa 2.3.0) ---------------------------------
+# Kept out of the repository: it is GPL-3.0, which would relicense the
+# whole distribution. game/rpa_index.py degrades gracefully without it.
 game/vendor/
-game/absorbed/*
-!game/absorbed/SAO/
-game/absorbed/SAO/*
-!game/absorbed/SAO/character_art/
-game/absorbed/SAO/character_art/*
-!game/absorbed/SAO/character_art/asuna/
+
+# --- Imported third-party assets ---------------------------------------
+# game/absorbed/<pack>/ holds art imported from other Ren'Py games.
+# The manifests are tracked; the binaries are not.
+game/absorbed/
+!game/absorbed/
+game/absorbed/**/*
+!game/absorbed/**/
+!game/absorbed/**/character.json
+
+# --- Agent run logs ----------------------------------------------------
+# Specs and the handoff contract are tracked; per-run agent notes are not.
+BUILD_STATUS.md
+tools/sprite_audit_report.md
+*_AUDIT.md
+*_NOTES_TMP.md
+
+# --- Local environment -------------------------------------------------
+local\ drawer/
+opencode.json
+
+# --- Analysis report (tracked separately) ------------------------------
+# ANALYSIS_REPORT.md is tracked — it is the handoff document for the next agent.
+
+# --- OS / editor noise -------------------------------------------------
+.DS_Store
+Thumbs.db
+*.swp
+*~
+.idea/
+.vscode/

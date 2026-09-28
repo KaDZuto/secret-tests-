@@ -1,0 +1,85 @@
+{
+ "id": "ch1-39",
+ "items": [
+  {
+   "id": "story_chapter.py:opt@977",
+   "meaning": "ok",
+   "link": "ok",
+   "facts": "ok",
+   "voice": "ok",
+   "grammar": "ok",
+   "note": "",
+   "fix": ""
+  },
+  {
+   "id": "story_chapter.py:opt@978",
+   "meaning": "ok",
+   "link": "ok",
+   "facts": "ok",
+   "voice": "ok",
+   "grammar": "ok",
+   "note": "",
+   "fix": ""
+  },
+  {
+   "id": "story_chapter.py:end_promise@989",
+   "meaning": "ok",
+   "link": "ok",
+   "facts": "ok",
+   "voice": "ok",
+   "grammar": "ok",
+   "note": "",
+   "fix": ""
+  },
+  {
+   "id": "story_chapter.py:end_promise@991",
+   "meaning": "ok",
+   "link": "ok",
+   "facts": "ok",
+   "voice": "ok",
+   "grammar": "ok",
+   "note": "",
+   "fix": ""
+  },
+  {
+   "id": "story_chapter.py:end_promise@992",
+   "meaning": "ok",
+   "link": "ok",
+   "facts": "ok",
+   "voice": "ok",
+   "grammar": "ok",
+   "note": "",
+   "fix": ""
+  },
+  {
+   "id": "story_chapter.py:end_promise@995",
+   "meaning": "ok",
+   "link": "ok",
+   "facts": "ok",
+   "voice": "ok",
+   "grammar": "ok",
+   "note": "",
+   "fix": ""
+  },
+  {
+   "id": "story_chapter.py:end_promise@997",
+   "meaning": "ok",
+   "link": "ok",
+   "facts": "ok",
+   "voice": "ok",
+   "grammar": "ok",
+   "note": "",
+   "fix": ""
+  },
+  {
+   "id": "story_chapter.py:end_promise@999",
+   "meaning": "ok",
+   "link": "ok",
+   "facts": "ok",
+   "voice": "ok",
+   "grammar": "ok",
+   "note": "",
+   "fix": ""
+  }
+ ]
+}

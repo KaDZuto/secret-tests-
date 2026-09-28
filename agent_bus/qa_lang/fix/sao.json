@@ -1,0 +1,1086 @@
+{
+ "story": "/home/alexius/Downloads/LivingVN_MVP/data/story_sao.json",
+ "note": "Заполни поля new или split. Если правка не нужна — skip. Правь только те строки, что перечислены в items.",
+ "held_back": 0,
+ "held_back_note": "",
+ "questions": [
+  "meaning: отвечает ли реплика или действие на то, о чём шла речь?",
+  "link: следует ли строка из предыдущей и ведёт ли к следующей?",
+  "facts: не знает ли персонаж того, чего не мог знать?",
+  "voice: соответствует ли интонация объявленной эмоции?",
+  "grammar: есть ли то, чего не поймал скрипт: неудачное слово, разнобой, канцелярит?"
+ ],
+ "style": "Тихая летняя повседневность, короткие реплики, деталь важнее пафоса. Внутри «…» только голос персонажа, ремарка и действие — отдельной строкой.",
+ "items": [
+  {
+   "id": "story_sao.json/scene_1/2",
+   "kind": "dialogue",
+   "speaker": "kirito",
+   "emotion": "sad",
+   "scene": "scene_1",
+   "old": "Два года... А кажется, что всё это было вчера.",
+   "script": [
+    "typo.dots: три точки вместо многоточия «…»",
+    "typo.dots: три точки вместо многоточия «…»"
+   ],
+   "new": "",
+   "split": [],
+   "skip": "",
+   "why": "у шага-реплики нет поля character, спрайт не покажется (engine._visual_character берёт step['character'])"
+  },
+  {
+   "id": "story_sao.json/scene_1/4",
+   "kind": "dialogue",
+   "speaker": "asuna",
+   "emotion": "neutral",
+   "scene": "scene_1",
+   "old": "Кирито.",
+   "script": [
+    "struct.short_text: строка короче 8 символов: «Кирито.»",
+    "struct.short_text: строка короче 8 символов: «Кирито.»"
+   ],
+   "new": "",
+   "split": [],
+   "skip": "",
+   "why": "у шага-реплики нет поля character, спрайт не покажется (engine._visual_character берёт step['character'])"
+  },
+  {
+   "id": "story_sao.json/scene_1/6",
+   "kind": "dialogue",
+   "speaker": "kirito",
+   "emotion": "surprised",
+   "scene": "scene_1",
+   "old": "Асуна... Ты тоже пришла.",
+   "script": [
+    "typo.dots: три точки вместо многоточия «…»",
+    "typo.dots: три точки вместо многоточия «…»"
+   ],
+   "new": "",
+   "split": [],
+   "skip": "",
+   "why": "у шага-реплики нет поля character, спрайт не покажется (engine._visual_character берёт step['character'])"
+  },
+  {
+   "id": "story_sao.json/scene_1/13",
+   "kind": "dialogue",
+   "speaker": "kirito",
+   "emotion": "surprised",
+   "scene": "scene_1",
+   "old": "Что? Но система безопасности...",
+   "script": [
+    "typo.dots: три точки вместо многоточия «…»",
+    "typo.dots: три точки вместо многоточия «…»"
+   ],
+   "new": "",
+   "split": [],
+   "skip": "",
+   "why": "у шага-реплики нет поля character, спрайт не покажется (engine._visual_character берёт step['character'])"
+  },
+  {
+   "id": "story_sao.json/scene_2/5",
+   "kind": "dialogue",
+   "speaker": "asuna",
+   "emotion": "surprised",
+   "scene": "scene_2",
+   "old": "Ёрко? Но она была в безопасной зоне...",
+   "script": [
+    "typo.dots: три точки вместо многоточия «…»",
+    "typo.dots: три точки вместо многоточия «…»"
+   ],
+   "new": "",
+   "split": [],
+   "skip": "",
+   "why": "у шага-реплики нет поля character, спрайт не покажется (engine._visual_character берёт step['character'])"
+  },
+  {
+   "id": "story_sao.json/scene_2/11",
+   "kind": "dialogue",
+   "speaker": "heathcliff",
+   "emotion": "sad",
+   "scene": "scene_2",
+   "old": "...Нет. Просто устал. Давайте сосредоточимся на расследовании.",
+   "script": [
+    "typo.dots: три точки вместо многоточия «…»",
+    "typo.dots: три точки вместо многоточия «…»"
+   ],
+   "new": "",
+   "split": [],
+   "skip": "",
+   "why": "у шага-реплики нет поля character, спрайт не покажется (engine._visual_character берёт step['character'])"
+  },
+  {
+   "id": "story_sao.json/scene_3/1",
+   "kind": "dialogue",
+   "speaker": "klein",
+   "emotion": "sad",
+   "scene": "scene_3",
+   "old": "Чувствую себя не в своей тарелке...",
+   "script": [
+    "typo.dots: три точки вместо многоточия «…»",
+    "typo.dots: три точки вместо многоточия «…»"
+   ],
+   "new": "",
+   "split": [],
+   "skip": "",
+   "why": "у шага-реплики нет поля character, спрайт не покажется (engine._visual_character берёт step['character'])"
+  },
+  {
+   "id": "story_sao.json/scene_3/4",
+   "kind": "dialogue",
+   "speaker": "klein",
+   "emotion": "sad",
+   "scene": "scene_3",
+   "old": "Да как бы сказать... Я ведь тоже мог оказаться на её месте. Мы все могли.",
+   "script": [
+    "typo.dots: три точки вместо многоточия «…»",
+    "typo.dots: три точки вместо многоточия «…»"
+   ],
+   "new": "",
+   "split": [],
+   "skip": "",
+   "why": "у шага-реплики нет поля character, спрайт не покажется (engine._visual_character берёт step['character'])"
+  },
+  {
+   "id": "story_sao.json/scene_3/16",
+   "kind": "dialogue",
+   "speaker": "kirito",
+   "emotion": "surprised",
+   "scene": "scene_3",
+   "old": "Пох... Что ты здесь делаешь?",
+   "script": [
+    "typo.dots: три точки вместо многоточия «…»",
+    "typo.dots: три точки вместо многоточия «…»"
+   ],
+   "new": "",
+   "split": [],
+   "skip": "",
+   "why": "у шага-реплики нет поля character, спрайт не покажется (engine._visual_character берёт step['character'])"
+  },
+  {
+   "id": "story_sao.json/scene_4/5",
+   "kind": "dialogue",
+   "speaker": "kirito",
+   "emotion": "surprised",
+   "scene": "scene_4",
+   "old": "Система кармы? Но она была отключена...",
+   "script": [
+    "typo.dots: три точки вместо многоточия «…»",
+    "typo.dots: три точки вместо многоточия «…»"
+   ],
+   "new": "",
+   "split": [],
+   "skip": "",
+   "why": "у шага-реплики нет поля character, спрайт не покажется (engine._visual_character берёт step['character'])"
+  },
+  {
+   "id": "story_sao.json/scene_4/8",
+   "kind": "dialogue",
+   "speaker": "yui",
+   "emotion": "sad",
+   "scene": "scene_4",
+   "old": "Только тот, у кого есть доступ к исходному коду SAO. То есть... разработчики.",
+   "script": [
+    "typo.dots: три точки вместо многоточия «…»",
+    "typo.lowercase_start: предложение с маленькой буквы: «разработчики.»",
+    "typo.dots: три точки вместо многоточия «…»",
+    "typo.lowercase_start: предложение с маленькой буквы: «разработчики.»"
+   ],
+   "new": "",
+   "split": [],
+   "skip": "",
+   "why": "у шага-реплики нет поля character, спрайт не покажется (engine._visual_character берёт step['character'])"
+  },
+  {
+   "id": "story_sao.json/scene_4/9",
+   "kind": "narration",
+   "speaker": "",
+   "emotion": "",
+   "scene": "scene_4",
+   "old": "Кирито задумывается. Разработчики... Хечклиф работает в компании, которая занимается VR-технологиями. У него есть доступ.",
+   "script": [
+    "typo.dots: три точки вместо многоточия «…»",
+    "typo.dots: три точки вместо многоточия «…»"
+   ],
+   "new": "",
+   "split": [],
+   "skip": "",
+   "why": "три точки вместо многоточия «…»"
+  },
+  {
+   "id": "story_sao.json/scene_4/11",
+   "kind": "dialogue",
+   "speaker": "yui",
+   "emotion": "sad",
+   "scene": "scene_4",
+   "old": "Попробую. Но это займёт время. И... папа, будь осторожен. Если это кто-то из разработчиков — они очень опасны.",
+   "script": [
+    "typo.dots: три точки вместо многоточия «…»",
+    "typo.lowercase_start: предложение с маленькой буквы: «папа, будь осторожен.»",
+    "typo.dots: три точки вместо многоточия «…»",
+    "typo.lowercase_start: предложение с маленькой буквы: «папа, будь осторожен.»"
+   ],
+   "new": "",
+   "split": [],
+   "skip": "",
+   "why": "у шага-реплики нет поля character, спрайт не покажется (engine._visual_character берёт step['character'])"
+  },
+  {
+   "id": "story_sao.json/scene_4/13",
+   "kind": "narration",
+   "speaker": "",
+   "emotion": "",
+   "scene": "scene_4",
+   "old": "Юи улыбается и исчезает. Кирито смотрит на тёмный экран. Он думает о Хечклифе. О его усталости. О том, что он скрывал.",
+   "script": [
+    "style.sentence_run: 5 предложений подряд, прочитается как стена",
+    "style.sentence_run: 5 предложений подряд, прочитается как стена"
+   ],
+   "new": "",
+   "split": [],
+   "skip": "",
+   "why": "5 предложений подряд, прочитается как стена"
+  },
+  {
+   "id": "story_sao.json/scene_5/5",
+   "kind": "dialogue",
+   "speaker": "kirito",
+   "emotion": "neutral",
+   "scene": "scene_5",
+   "old": "Асуна... Ты когда-нибудь думала о том, что будет после?",
+   "script": [
+    "typo.dots: три точки вместо многоточия «…»",
+    "typo.dots: три точки вместо многоточия «…»"
+   ],
+   "new": "",
+   "split": [],
+   "skip": "",
+   "why": "у шага-реплики нет поля character, спрайт не покажется (engine._visual_character берёт step['character'])"
+  },
+  {
+   "id": "story_sao.json/scene_5/9",
+   "kind": "dialogue",
+   "speaker": "asuna",
+   "emotion": "sad",
+   "scene": "scene_5",
+   "old": "Я не знаю. Моя семья хочет, чтобы я стала наследницей корпорации. Но я... я не хочу этого.",
+   "script": [
+    "typo.dots: три точки вместо многоточия «…»",
+    "typo.lowercase_start: предложение с маленькой буквы: «я не хочу этого.»",
+    "typo.dots: три точки вместо многоточия «…»",
+    "typo.lowercase_start: предложение с маленькой буквы: «я не хочу этого.»"
+   ],
+   "new": "",
+   "split": [],
+   "skip": "",
+   "why": "у шага-реплики нет поля character, спрайт не покажется (engine._visual_character берёт step['character'])"
+  },
+  {
+   "id": "story_sao.json/scene_5/14",
+   "kind": "dialogue",
+   "speaker": "asuna",
+   "emotion": "sad",
+   "scene": "scene_5",
+   "old": "Я хочу... я хочу быть с тобой. В реальном мире. Не только здесь.",
+   "script": [
+    "typo.dots: три точки вместо многоточия «…»",
+    "typo.lowercase_start: предложение с маленькой буквы: «я хочу быть с тобой.»",
+    "typo.dots: три точки вместо многоточия «…»",
+    "typo.lowercase_start: предложение с маленькой буквы: «я хочу быть с тобой.»"
+   ],
+   "new": "",
+   "split": [],
+   "skip": "",
+   "why": "у шага-реплики нет поля character, спрайт не покажется (engine._visual_character берёт step['character'])"
+  },
+  {
+   "id": "story_sao.json/scene_6/1",
+   "kind": "dialogue",
+   "speaker": "kibaou",
+   "emotion": "neutral",
+   "scene": "scene_6",
+   "old": "Итак, что мы имеем? Убийство в безопасной зоне, кристалл с кодом кармы, и Пох, который появляется в нужном месте в нужное время.",
+   "script": [
+    "style.opener: разговорное начало «итак,»",
+    "style.opener: разговорное начало «итак,»"
+   ],
+   "new": "",
+   "split": [],
+   "skip": "",
+   "why": "у шага-реплики нет поля character, спрайт не покажется (engine._visual_character берёт step['character'])"
+  },
+  {
+   "id": "story_sao.json/scene_6/6",
+   "kind": "dialogue",
+   "speaker": "lizbeth",
+   "emotion": "sad",
+   "scene": "scene_6",
+   "old": "Я знаю, что Хечклиф последнее время ведёт себя странно. Он уходит от дел, не отвечает на сообщения. И он... он боится.",
+   "script": [
+    "typo.dots: три точки вместо многоточия «…»",
+    "typo.lowercase_start: предложение с маленькой буквы: «он боится.»",
+    "typo.dots: три точки вместо многоточия «…»",
+    "typo.lowercase_start: предложение с маленькой буквы: «он боится.»"
+   ],
+   "new": "",
+   "split": [],
+   "skip": "",
+   "why": "у шага-реплики нет поля character, спрайт не покажется (engine._visual_character берёт step['character'])"
+  },
+  {
+   "id": "story_sao.json/scene_6/12",
+   "kind": "dialogue",
+   "speaker": "kirito",
+   "emotion": "surprised",
+   "scene": "scene_6",
+   "old": "Кто?",
+   "script": [
+    "struct.short_text: строка короче 8 символов: «Кто?»",
+    "struct.short_text: строка короче 8 символов: «Кто?»"
+   ],
+   "new": "",
+   "split": [],
+   "skip": "",
+   "why": "у шага-реплики нет поля character, спрайт не покажется (engine._visual_character берёт step['character'])"
+  },
+  {
+   "id": "story_sao.json/scene_6/15",
+   "kind": "dialogue",
+   "speaker": "heathcliff",
+   "emotion": "sad",
+   "scene": "scene_6",
+   "old": "Я не хотел этого. Но она... она узнала правду. Правду о том, что я сделал в SAO. И она хотела рассказать всем.",
+   "script": [
+    "typo.dots: три точки вместо многоточия «…»",
+    "typo.lowercase_start: предложение с маленькой буквы: «она узнала правду.»",
+    "typo.dots: три точки вместо многоточия «…»",
+    "typo.lowercase_start: предложение с маленькой буквы: «она узнала правду.»"
+   ],
+   "new": "",
+   "split": [],
+   "skip": "",
+   "why": "у шага-реплики нет поля character, спрайт не покажется (engine._visual_character берёт step['character'])"
+  },
+  {
+   "id": "story_sao.json/scene_6/17",
+   "kind": "dialogue",
+   "speaker": "heathcliff",
+   "emotion": "sad",
+   "scene": "scene_6",
+   "old": "Я был Каябой. Создателем смертельной игры. И я... я использовал систему кармы, чтобы убить её.",
+   "script": [
+    "typo.dots: три точки вместо многоточия «…»",
+    "typo.lowercase_start: предложение с маленькой буквы: «я использовал систему кармы, чтобы убить её.»",
+    "typo.dots: три точки вместо многоточия «…»",
+    "typo.lowercase_start: предложение с маленькой буквы: «я использовал систему кармы, чтобы убить её.»"
+   ],
+   "new": "",
+   "split": [],
+   "skip": "",
+   "why": "у шага-реплики нет поля character, спрайт не покажется (engine._visual_character берёт step['character'])"
+  },
+  {
+   "id": "story_sao.json/scene_7/1",
+   "kind": "dialogue",
+   "speaker": "asuna",
+   "emotion": "sad",
+   "scene": "scene_7",
+   "old": "Кирито... Что теперь будет?",
+   "script": [
+    "typo.dots: три точки вместо многоточия «…»",
+    "typo.dots: три точки вместо многоточия «…»"
+   ],
+   "new": "",
+   "split": [],
+   "skip": "",
+   "why": "у шага-реплики нет поля character, спрайт не покажется (engine._visual_character берёт step['character'])"
+  },
+  {
+   "id": "story_sao.json/scene_7/7",
+   "kind": "dialogue",
+   "speaker": "asuna",
+   "emotion": "sad",
+   "scene": "scene_7",
+   "old": "Кирито... Я боюсь. Боюсь, что всё это повторится. Что мы снова окажемся в ловушке.",
+   "script": [
+    "typo.dots: три точки вместо многоточия «…»",
+    "typo.dots: три точки вместо многоточия «…»"
+   ],
+   "new": "",
+   "split": [],
+   "skip": "",
+   "why": "у шага-реплики нет поля character, спрайт не покажется (engine._visual_character берёт step['character'])"
+  },
+  {
+   "id": "story_sao.json/scene_7/10",
+   "kind": "dialogue",
+   "speaker": "yui",
+   "emotion": "neutral",
+   "scene": "scene_7",
+   "old": "Мама, папа... Я нашла кое-что важное.",
+   "script": [
+    "typo.dots: три точки вместо многоточия «…»",
+    "typo.dots: три точки вместо многоточия «…»"
+   ],
+   "new": "",
+   "split": [],
+   "skip": "",
+   "why": "у шага-реплики нет поля character, спрайт не покажется (engine._visual_character берёт step['character'])"
+  },
+  {
+   "id": "story_sao.json/scene_7/17",
+   "kind": "dialogue",
+   "speaker": "asuna",
+   "emotion": "happy",
+   "scene": "scene_7",
+   "old": "Вместе.",
+   "script": [
+    "struct.short_text: строка короче 8 символов: «Вместе.»",
+    "struct.short_text: строка короче 8 символов: «Вместе.»"
+   ],
+   "new": "",
+   "split": [],
+   "skip": "",
+   "why": "у шага-реплики нет поля character, спрайт не покажется (engine._visual_character берёт step['character'])"
+  },
+  {
+   "id": "story_sao.json/scene_7/19",
+   "kind": "narration",
+   "speaker": "",
+   "emotion": "",
+   "scene": "scene_7",
+   "old": "Продолжение следует...",
+   "script": [
+    "style.placeholder: заглушка или служебная пометка «продолжение следует» попала в текст",
+    "typo.dots: три точки вместо многоточия «…»",
+    "style.placeholder: заглушка или служебная пометка «продолжение следует» попала в текст",
+    "typo.dots: три точки вместо многоточия «…»"
+   ],
+   "new": "",
+   "split": [],
+   "skip": "",
+   "why": "заглушка или служебная пометка «продолжение следует» попала в текст"
+  }
+ ],
+ "not_yours": [
+  {
+   "id": "story_sao.json/scene_1/2",
+   "not_yours": [
+    "engine.dialogue_no_character: у шага-реплики нет поля character, спрайт не покажется (engine._visual_character берёт step['character'])",
+    "engine.dialogue_no_character: у шага-реплики нет поля character, спрайт не покажется (engine._visual_character берёт step['character'])"
+   ]
+  },
+  {
+   "id": "story_sao.json/scene_1/4",
+   "not_yours": [
+    "engine.dialogue_no_character: у шага-реплики нет поля character, спрайт не покажется (engine._visual_character берёт step['character'])",
+    "engine.dialogue_no_character: у шага-реплики нет поля character, спрайт не покажется (engine._visual_character берёт step['character'])"
+   ]
+  },
+  {
+   "id": "story_sao.json/scene_1/6",
+   "not_yours": [
+    "engine.dialogue_no_character: у шага-реплики нет поля character, спрайт не покажется (engine._visual_character берёт step['character'])",
+    "engine.dialogue_no_character: у шага-реплики нет поля character, спрайт не покажется (engine._visual_character берёт step['character'])"
+   ]
+  },
+  {
+   "id": "story_sao.json/scene_1/7",
+   "not_yours": [
+    "engine.dialogue_no_character: у шага-реплики нет поля character, спрайт не покажется (engine._visual_character берёт step['character'])",
+    "engine.dialogue_no_character: у шага-реплики нет поля character, спрайт не покажется (engine._visual_character берёт step['character'])"
+   ]
+  },
+  {
+   "id": "story_sao.json/scene_1/8",
+   "not_yours": [
+    "engine.dialogue_no_character: у шага-реплики нет поля character, спрайт не покажется (engine._visual_character берёт step['character'])",
+    "engine.dialogue_no_character: у шага-реплики нет поля character, спрайт не покажется (engine._visual_character берёт step['character'])"
+   ]
+  },
+  {
+   "id": "story_sao.json/scene_1/10",
+   "not_yours": [
+    "engine.dialogue_no_character: у шага-реплики нет поля character, спрайт не покажется (engine._visual_character берёт step['character'])",
+    "engine.dialogue_no_character: у шага-реплики нет поля character, спрайт не покажется (engine._visual_character берёт step['character'])"
+   ]
+  },
+  {
+   "id": "story_sao.json/scene_1/11",
+   "not_yours": [
+    "engine.dialogue_no_character: у шага-реплики нет поля character, спрайт не покажется (engine._visual_character берёт step['character'])",
+    "engine.dialogue_no_character: у шага-реплики нет поля character, спрайт не покажется (engine._visual_character берёт step['character'])"
+   ]
+  },
+  {
+   "id": "story_sao.json/scene_1/12",
+   "not_yours": [
+    "engine.dialogue_no_character: у шага-реплики нет поля character, спрайт не покажется (engine._visual_character берёт step['character'])",
+    "engine.dialogue_no_character: у шага-реплики нет поля character, спрайт не покажется (engine._visual_character берёт step['character'])"
+   ]
+  },
+  {
+   "id": "story_sao.json/scene_1/13",
+   "not_yours": [
+    "engine.dialogue_no_character: у шага-реплики нет поля character, спрайт не покажется (engine._visual_character берёт step['character'])",
+    "engine.dialogue_no_character: у шага-реплики нет поля character, спрайт не покажется (engine._visual_character берёт step['character'])"
+   ]
+  },
+  {
+   "id": "story_sao.json/scene_1/14",
+   "not_yours": [
+    "engine.dialogue_no_character: у шага-реплики нет поля character, спрайт не покажется (engine._visual_character берёт step['character'])",
+    "engine.dialogue_no_character: у шага-реплики нет поля character, спрайт не покажется (engine._visual_character берёт step['character'])"
+   ]
+  },
+  {
+   "id": "story_sao.json/scene_1/16",
+   "not_yours": [
+    "engine.choice_flag_shape: движок читает id, text, flag, world_flag, goto, а здесь effects: флаг выбора молча потеряется. Флаг «kirito_investigates» больше нигде не встречается: выбор ничего не меняет.",
+    "engine.choice_flag_shape: движок читает id, text, flag, world_flag, goto, а здесь effects: флаг выбора молча потеряется. Флаг «kirito_refuses» больше нигде не встречается: выбор ничего не меняет.",
+    "engine.choice_flag_shape: движок читает id, text, flag, world_flag, goto, а здесь effects: флаг выбора молча потеряется. Флаг «kirito_asks_heathcliff» больше нигде не встречается: выбор ничего не меняет.",
+    "engine.choice_flag_shape: движок читает id, text, flag, world_flag, goto, а здесь effects: флаг выбора молча потеряется. Флаг «kirito_investigates» больше нигде не встречается: выбор ничего не меняет.",
+    "engine.choice_flag_shape: движок читает id, text, flag, world_flag, goto, а здесь effects: флаг выбора молча потеряется. Флаг «kirito_refuses» больше нигде не встречается: выбор ничего не меняет.",
+    "engine.choice_flag_shape: движок читает id, text, flag, world_flag, goto, а здесь effects: флаг выбора молча потеряется. Флаг «kirito_asks_heathcliff» больше нигде не встречается: выбор ничего не меняет."
+   ]
+  },
+  {
+   "id": "story_sao.json/scene_2/1",
+   "not_yours": [
+    "engine.dialogue_no_character: у шага-реплики нет поля character, спрайт не покажется (engine._visual_character берёт step['character'])",
+    "engine.dialogue_no_character: у шага-реплики нет поля character, спрайт не покажется (engine._visual_character берёт step['character'])"
+   ]
+  },
+  {
+   "id": "story_sao.json/scene_2/3",
+   "not_yours": [
+    "engine.dialogue_no_character: у шага-реплики нет поля character, спрайт не покажется (engine._visual_character берёт step['character'])",
+    "engine.dialogue_no_character: у шага-реплики нет поля character, спрайт не покажется (engine._visual_character берёт step['character'])"
+   ]
+  },
+  {
+   "id": "story_sao.json/scene_2/4",
+   "not_yours": [
+    "engine.dialogue_no_character: у шага-реплики нет поля character, спрайт не покажется (engine._visual_character берёт step['character'])",
+    "engine.dialogue_no_character: у шага-реплики нет поля character, спрайт не покажется (engine._visual_character берёт step['character'])"
+   ]
+  },
+  {
+   "id": "story_sao.json/scene_2/5",
+   "not_yours": [
+    "engine.dialogue_no_character: у шага-реплики нет поля character, спрайт не покажется (engine._visual_character берёт step['character'])",
+    "engine.dialogue_no_character: у шага-реплики нет поля character, спрайт не покажется (engine._visual_character берёт step['character'])"
+   ]
+  },
+  {
+   "id": "story_sao.json/scene_2/6",
+   "not_yours": [
+    "engine.dialogue_no_character: у шага-реплики нет поля character, спрайт не покажется (engine._visual_character берёт step['character'])",
+    "engine.dialogue_no_character: у шага-реплики нет поля character, спрайт не покажется (engine._visual_character берёт step['character'])"
+   ]
+  },
+  {
+   "id": "story_sao.json/scene_2/7",
+   "not_yours": [
+    "engine.dialogue_no_character: у шага-реплики нет поля character, спрайт не покажется (engine._visual_character берёт step['character'])",
+    "engine.dialogue_no_character: у шага-реплики нет поля character, спрайт не покажется (engine._visual_character берёт step['character'])"
+   ]
+  },
+  {
+   "id": "story_sao.json/scene_2/8",
+   "not_yours": [
+    "engine.dialogue_no_character: у шага-реплики нет поля character, спрайт не покажется (engine._visual_character берёт step['character'])",
+    "engine.dialogue_no_character: у шага-реплики нет поля character, спрайт не покажется (engine._visual_character берёт step['character'])"
+   ]
+  },
+  {
+   "id": "story_sao.json/scene_2/10",
+   "not_yours": [
+    "engine.dialogue_no_character: у шага-реплики нет поля character, спрайт не покажется (engine._visual_character берёт step['character'])",
+    "engine.dialogue_no_character: у шага-реплики нет поля character, спрайт не покажется (engine._visual_character берёт step['character'])"
+   ]
+  },
+  {
+   "id": "story_sao.json/scene_2/11",
+   "not_yours": [
+    "engine.dialogue_no_character: у шага-реплики нет поля character, спрайт не покажется (engine._visual_character берёт step['character'])",
+    "engine.dialogue_no_character: у шага-реплики нет поля character, спрайт не покажется (engine._visual_character берёт step['character'])"
+   ]
+  },
+  {
+   "id": "story_sao.json/scene_2/12",
+   "not_yours": [
+    "engine.choice_flag_shape: движок читает id, text, flag, world_flag, goto, а здесь effects: флаг выбора молча потеряется. Флаг «trust_heathcliff» больше нигде не встречается: выбор ничего не меняет.",
+    "engine.choice_flag_shape: движок читает id, text, flag, world_flag, goto, а здесь effects: флаг выбора молча потеряется. Флаг «press_heathcliff» больше нигде не встречается: выбор ничего не меняет.",
+    "engine.choice_flag_shape: движок читает id, text, flag, world_flag, goto, а здесь effects: флаг выбора молча потеряется. Флаг «ask_kibaou» больше нигде не встречается: выбор ничего не меняет.",
+    "engine.choice_flag_shape: движок читает id, text, flag, world_flag, goto, а здесь effects: флаг выбора молча потеряется. Флаг «trust_heathcliff» больше нигде не встречается: выбор ничего не меняет.",
+    "engine.choice_flag_shape: движок читает id, text, flag, world_flag, goto, а здесь effects: флаг выбора молча потеряется. Флаг «press_heathcliff» больше нигде не встречается: выбор ничего не меняет.",
+    "engine.choice_flag_shape: движок читает id, text, flag, world_flag, goto, а здесь effects: флаг выбора молча потеряется. Флаг «ask_kibaou» больше нигде не встречается: выбор ничего не меняет."
+   ]
+  },
+  {
+   "id": "story_sao.json/scene_3/1",
+   "not_yours": [
+    "engine.dialogue_no_character: у шага-реплики нет поля character, спрайт не покажется (engine._visual_character берёт step['character'])",
+    "engine.dialogue_no_character: у шага-реплики нет поля character, спрайт не покажется (engine._visual_character берёт step['character'])"
+   ]
+  },
+  {
+   "id": "story_sao.json/scene_3/3",
+   "not_yours": [
+    "engine.dialogue_no_character: у шага-реплики нет поля character, спрайт не покажется (engine._visual_character берёт step['character'])",
+    "engine.dialogue_no_character: у шага-реплики нет поля character, спрайт не покажется (engine._visual_character берёт step['character'])"
+   ]
+  },
+  {
+   "id": "story_sao.json/scene_3/4",
+   "not_yours": [
+    "engine.dialogue_no_character: у шага-реплики нет поля character, спрайт не покажется (engine._visual_character берёт step['character'])",
+    "engine.dialogue_no_character: у шага-реплики нет поля character, спрайт не покажется (engine._visual_character берёт step['character'])"
+   ]
+  },
+  {
+   "id": "story_sao.json/scene_3/5",
+   "not_yours": [
+    "engine.dialogue_no_character: у шага-реплики нет поля character, спрайт не покажется (engine._visual_character берёт step['character'])",
+    "engine.dialogue_no_character: у шага-реплики нет поля character, спрайт не покажется (engine._visual_character берёт step['character'])"
+   ]
+  },
+  {
+   "id": "story_sao.json/scene_3/7",
+   "not_yours": [
+    "engine.dialogue_no_character: у шага-реплики нет поля character, спрайт не покажется (engine._visual_character берёт step['character'])",
+    "engine.dialogue_no_character: у шага-реплики нет поля character, спрайт не покажется (engine._visual_character берёт step['character'])"
+   ]
+  },
+  {
+   "id": "story_sao.json/scene_3/9",
+   "not_yours": [
+    "engine.dialogue_no_character: у шага-реплики нет поля character, спрайт не покажется (engine._visual_character берёт step['character'])",
+    "engine.dialogue_no_character: у шага-реплики нет поля character, спрайт не покажется (engine._visual_character берёт step['character'])"
+   ]
+  },
+  {
+   "id": "story_sao.json/scene_3/10",
+   "not_yours": [
+    "engine.dialogue_no_character: у шага-реплики нет поля character, спрайт не покажется (engine._visual_character берёт step['character'])",
+    "engine.dialogue_no_character: у шага-реплики нет поля character, спрайт не покажется (engine._visual_character берёт step['character'])"
+   ]
+  },
+  {
+   "id": "story_sao.json/scene_3/11",
+   "not_yours": [
+    "engine.dialogue_no_character: у шага-реплики нет поля character, спрайт не покажется (engine._visual_character берёт step['character'])",
+    "engine.dialogue_no_character: у шага-реплики нет поля character, спрайт не покажется (engine._visual_character берёт step['character'])"
+   ]
+  },
+  {
+   "id": "story_sao.json/scene_3/12",
+   "not_yours": [
+    "engine.dialogue_no_character: у шага-реплики нет поля character, спрайт не покажется (engine._visual_character берёт step['character'])",
+    "engine.dialogue_no_character: у шага-реплики нет поля character, спрайт не покажется (engine._visual_character берёт step['character'])"
+   ]
+  },
+  {
+   "id": "story_sao.json/scene_3/14",
+   "not_yours": [
+    "engine.dialogue_no_character: у шага-реплики нет поля character, спрайт не покажется (engine._visual_character берёт step['character'])",
+    "engine.dialogue_no_character: у шага-реплики нет поля character, спрайт не покажется (engine._visual_character берёт step['character'])"
+   ]
+  },
+  {
+   "id": "story_sao.json/scene_3/16",
+   "not_yours": [
+    "engine.dialogue_no_character: у шага-реплики нет поля character, спрайт не покажется (engine._visual_character берёт step['character'])",
+    "engine.dialogue_no_character: у шага-реплики нет поля character, спрайт не покажется (engine._visual_character берёт step['character'])"
+   ]
+  },
+  {
+   "id": "story_sao.json/scene_3/17",
+   "not_yours": [
+    "engine.dialogue_no_character: у шага-реплики нет поля character, спрайт не покажется (engine._visual_character берёт step['character'])",
+    "engine.dialogue_no_character: у шага-реплики нет поля character, спрайт не покажется (engine._visual_character берёт step['character'])"
+   ]
+  },
+  {
+   "id": "story_sao.json/scene_3/18",
+   "not_yours": [
+    "engine.dialogue_no_character: у шага-реплики нет поля character, спрайт не покажется (engine._visual_character берёт step['character'])",
+    "engine.dialogue_no_character: у шага-реплики нет поля character, спрайт не покажется (engine._visual_character берёт step['character'])"
+   ]
+  },
+  {
+   "id": "story_sao.json/scene_3/19",
+   "not_yours": [
+    "engine.dialogue_no_character: у шага-реплики нет поля character, спрайт не покажется (engine._visual_character берёт step['character'])",
+    "engine.dialogue_no_character: у шага-реплики нет поля character, спрайт не покажется (engine._visual_character берёт step['character'])"
+   ]
+  },
+  {
+   "id": "story_sao.json/scene_3/21",
+   "not_yours": [
+    "engine.choice_flag_shape: движок читает id, text, flag, world_flag, goto, а здесь effects: флаг выбора молча потеряется. Флаг «let_poh_go» больше нигде не встречается: выбор ничего не меняет.",
+    "engine.choice_flag_shape: движок читает id, text, flag, world_flag, goto, а здесь effects: флаг выбора молча потеряется. Флаг «detain_poh» больше нигде не встречается: выбор ничего не меняет.",
+    "engine.choice_flag_shape: движок читает id, text, flag, world_flag, goto, а здесь effects: флаг выбора молча потеряется. Флаг «follow_poh» больше нигде не встречается: выбор ничего не меняет.",
+    "engine.choice_flag_shape: движок читает id, text, flag, world_flag, goto, а здесь effects: флаг выбора молча потеряется. Флаг «let_poh_go» больше нигде не встречается: выбор ничего не меняет.",
+    "engine.choice_flag_shape: движок читает id, text, flag, world_flag, goto, а здесь effects: флаг выбора молча потеряется. Флаг «detain_poh» больше нигде не встречается: выбор ничего не меняет.",
+    "engine.choice_flag_shape: движок читает id, text, flag, world_flag, goto, а здесь effects: флаг выбора молча потеряется. Флаг «follow_poh» больше нигде не встречается: выбор ничего не меняет."
+   ]
+  },
+  {
+   "id": "story_sao.json/scene_4/1",
+   "not_yours": [
+    "engine.dialogue_no_character: у шага-реплики нет поля character, спрайт не покажется (engine._visual_character берёт step['character'])",
+    "engine.dialogue_no_character: у шага-реплики нет поля character, спрайт не покажется (engine._visual_character берёт step['character'])"
+   ]
+  },
+  {
+   "id": "story_sao.json/scene_4/3",
+   "not_yours": [
+    "engine.dialogue_no_character: у шага-реплики нет поля character, спрайт не покажется (engine._visual_character берёт step['character'])",
+    "engine.dialogue_no_character: у шага-реплики нет поля character, спрайт не покажется (engine._visual_character берёт step['character'])"
+   ]
+  },
+  {
+   "id": "story_sao.json/scene_4/4",
+   "not_yours": [
+    "engine.dialogue_no_character: у шага-реплики нет поля character, спрайт не покажется (engine._visual_character берёт step['character'])",
+    "engine.dialogue_no_character: у шага-реплики нет поля character, спрайт не покажется (engine._visual_character берёт step['character'])"
+   ]
+  },
+  {
+   "id": "story_sao.json/scene_4/5",
+   "not_yours": [
+    "engine.dialogue_no_character: у шага-реплики нет поля character, спрайт не покажется (engine._visual_character берёт step['character'])",
+    "engine.dialogue_no_character: у шага-реплики нет поля character, спрайт не покажется (engine._visual_character берёт step['character'])"
+   ]
+  },
+  {
+   "id": "story_sao.json/scene_4/6",
+   "not_yours": [
+    "engine.dialogue_no_character: у шага-реплики нет поля character, спрайт не покажется (engine._visual_character берёт step['character'])",
+    "engine.dialogue_no_character: у шага-реплики нет поля character, спрайт не покажется (engine._visual_character берёт step['character'])"
+   ]
+  },
+  {
+   "id": "story_sao.json/scene_4/7",
+   "not_yours": [
+    "engine.dialogue_no_character: у шага-реплики нет поля character, спрайт не покажется (engine._visual_character берёт step['character'])",
+    "engine.dialogue_no_character: у шага-реплики нет поля character, спрайт не покажется (engine._visual_character берёт step['character'])"
+   ]
+  },
+  {
+   "id": "story_sao.json/scene_4/8",
+   "not_yours": [
+    "engine.dialogue_no_character: у шага-реплики нет поля character, спрайт не покажется (engine._visual_character берёт step['character'])",
+    "engine.dialogue_no_character: у шага-реплики нет поля character, спрайт не покажется (engine._visual_character берёт step['character'])"
+   ]
+  },
+  {
+   "id": "story_sao.json/scene_4/10",
+   "not_yours": [
+    "engine.dialogue_no_character: у шага-реплики нет поля character, спрайт не покажется (engine._visual_character берёт step['character'])",
+    "engine.dialogue_no_character: у шага-реплики нет поля character, спрайт не покажется (engine._visual_character берёт step['character'])"
+   ]
+  },
+  {
+   "id": "story_sao.json/scene_4/11",
+   "not_yours": [
+    "engine.dialogue_no_character: у шага-реплики нет поля character, спрайт не покажется (engine._visual_character берёт step['character'])",
+    "engine.dialogue_no_character: у шага-реплики нет поля character, спрайт не покажется (engine._visual_character берёт step['character'])"
+   ]
+  },
+  {
+   "id": "story_sao.json/scene_4/12",
+   "not_yours": [
+    "engine.dialogue_no_character: у шага-реплики нет поля character, спрайт не покажется (engine._visual_character берёт step['character'])",
+    "engine.dialogue_no_character: у шага-реплики нет поля character, спрайт не покажется (engine._visual_character берёт step['character'])"
+   ]
+  },
+  {
+   "id": "story_sao.json/scene_4/14",
+   "not_yours": [
+    "engine.choice_flag_shape: движок читает id, text, flag, world_flag, goto, а здесь effects: флаг выбора молча потеряется. Флаг «confront_heathcliff_now» больше нигде не встречается: выбор ничего не меняет.",
+    "engine.choice_flag_shape: движок читает id, text, flag, world_flag, goto, а здесь effects: флаг выбора молча потеряется. Флаг «talk_to_asuna_first» больше нигде не встречается: выбор ничего не меняет.",
+    "engine.choice_flag_shape: движок читает id, text, flag, world_flag, goto, а здесь effects: флаг выбора молча потеряется. Флаг «gather_more_evidence» больше нигде не встречается: выбор ничего не меняет.",
+    "engine.choice_flag_shape: движок читает id, text, flag, world_flag, goto, а здесь effects: флаг выбора молча потеряется. Флаг «confront_heathcliff_now» больше нигде не встречается: выбор ничего не меняет.",
+    "engine.choice_flag_shape: движок читает id, text, flag, world_flag, goto, а здесь effects: флаг выбора молча потеряется. Флаг «talk_to_asuna_first» больше нигде не встречается: выбор ничего не меняет.",
+    "engine.choice_flag_shape: движок читает id, text, flag, world_flag, goto, а здесь effects: флаг выбора молча потеряется. Флаг «gather_more_evidence» больше нигде не встречается: выбор ничего не меняет."
+   ]
+  },
+  {
+   "id": "story_sao.json/scene_5/1",
+   "not_yours": [
+    "engine.dialogue_no_character: у шага-реплики нет поля character, спрайт не покажется (engine._visual_character берёт step['character'])",
+    "engine.dialogue_no_character: у шага-реплики нет поля character, спрайт не покажется (engine._visual_character берёт step['character'])"
+   ]
+  },
+  {
+   "id": "story_sao.json/scene_5/3",
+   "not_yours": [
+    "engine.dialogue_no_character: у шага-реплики нет поля character, спрайт не покажется (engine._visual_character берёт step['character'])",
+    "engine.dialogue_no_character: у шага-реплики нет поля character, спрайт не покажется (engine._visual_character берёт step['character'])"
+   ]
+  },
+  {
+   "id": "story_sao.json/scene_5/4",
+   "not_yours": [
+    "engine.dialogue_no_character: у шага-реплики нет поля character, спрайт не покажется (engine._visual_character берёт step['character'])",
+    "engine.dialogue_no_character: у шага-реплики нет поля character, спрайт не покажется (engine._visual_character берёт step['character'])"
+   ]
+  },
+  {
+   "id": "story_sao.json/scene_5/5",
+   "not_yours": [
+    "engine.dialogue_no_character: у шага-реплики нет поля character, спрайт не покажется (engine._visual_character берёт step['character'])",
+    "engine.dialogue_no_character: у шага-реплики нет поля character, спрайт не покажется (engine._visual_character берёт step['character'])"
+   ]
+  },
+  {
+   "id": "story_sao.json/scene_5/6",
+   "not_yours": [
+    "engine.dialogue_no_character: у шага-реплики нет поля character, спрайт не покажется (engine._visual_character берёт step['character'])",
+    "engine.dialogue_no_character: у шага-реплики нет поля character, спрайт не покажется (engine._visual_character берёт step['character'])"
+   ]
+  },
+  {
+   "id": "story_sao.json/scene_5/7",
+   "not_yours": [
+    "engine.dialogue_no_character: у шага-реплики нет поля character, спрайт не покажется (engine._visual_character берёт step['character'])",
+    "engine.dialogue_no_character: у шага-реплики нет поля character, спрайт не покажется (engine._visual_character берёт step['character'])"
+   ]
+  },
+  {
+   "id": "story_sao.json/scene_5/9",
+   "not_yours": [
+    "engine.dialogue_no_character: у шага-реплики нет поля character, спрайт не покажется (engine._visual_character берёт step['character'])",
+    "engine.dialogue_no_character: у шага-реплики нет поля character, спрайт не покажется (engine._visual_character берёт step['character'])"
+   ]
+  },
+  {
+   "id": "story_sao.json/scene_5/10",
+   "not_yours": [
+    "engine.dialogue_no_character: у шага-реплики нет поля character, спрайт не покажется (engine._visual_character берёт step['character'])",
+    "engine.dialogue_no_character: у шага-реплики нет поля character, спрайт не покажется (engine._visual_character берёт step['character'])"
+   ]
+  },
+  {
+   "id": "story_sao.json/scene_5/11",
+   "not_yours": [
+    "engine.dialogue_no_character: у шага-реплики нет поля character, спрайт не покажется (engine._visual_character берёт step['character'])",
+    "engine.dialogue_no_character: у шага-реплики нет поля character, спрайт не покажется (engine._visual_character берёт step['character'])"
+   ]
+  },
+  {
+   "id": "story_sao.json/scene_5/12",
+   "not_yours": [
+    "engine.dialogue_no_character: у шага-реплики нет поля character, спрайт не покажется (engine._visual_character берёт step['character'])",
+    "engine.dialogue_no_character: у шага-реплики нет поля character, спрайт не покажется (engine._visual_character берёт step['character'])"
+   ]
+  },
+  {
+   "id": "story_sao.json/scene_5/14",
+   "not_yours": [
+    "engine.dialogue_no_character: у шага-реплики нет поля character, спрайт не покажется (engine._visual_character берёт step['character'])",
+    "engine.dialogue_no_character: у шага-реплики нет поля character, спрайт не покажется (engine._visual_character берёт step['character'])"
+   ]
+  },
+  {
+   "id": "story_sao.json/scene_5/16",
+   "not_yours": [
+    "engine.choice_flag_shape: движок читает id, text, flag, world_flag, goto, а здесь effects: флаг выбора молча потеряется. Флаг «confess_love» больше нигде не встречается: выбор ничего не меняет.",
+    "engine.choice_flag_shape: движок читает id, text, flag, world_flag, goto, а здесь effects: флаг выбора молча потеряется. Флаг «wait_for_love» больше нигде не встречается: выбор ничего не меняет.",
+    "engine.choice_flag_shape: движок читает id, text, flag, world_flag, goto, а здесь effects: флаг выбора молча потеряется. Флаг «focus_on_case» больше нигде не встречается: выбор ничего не меняет.",
+    "engine.choice_flag_shape: движок читает id, text, flag, world_flag, goto, а здесь effects: флаг выбора молча потеряется. Флаг «confess_love» больше нигде не встречается: выбор ничего не меняет.",
+    "engine.choice_flag_shape: движок читает id, text, flag, world_flag, goto, а здесь effects: флаг выбора молча потеряется. Флаг «wait_for_love» больше нигде не встречается: выбор ничего не меняет.",
+    "engine.choice_flag_shape: движок читает id, text, flag, world_flag, goto, а здесь effects: флаг выбора молча потеряется. Флаг «focus_on_case» больше нигде не встречается: выбор ничего не меняет."
+   ]
+  },
+  {
+   "id": "story_sao.json/scene_6/1",
+   "not_yours": [
+    "engine.dialogue_no_character: у шага-реплики нет поля character, спрайт не покажется (engine._visual_character берёт step['character'])",
+    "engine.dialogue_no_character: у шага-реплики нет поля character, спрайт не покажется (engine._visual_character берёт step['character'])"
+   ]
+  },
+  {
+   "id": "story_sao.json/scene_6/3",
+   "not_yours": [
+    "engine.dialogue_no_character: у шага-реплики нет поля character, спрайт не покажется (engine._visual_character берёт step['character'])",
+    "engine.dialogue_no_character: у шага-реплики нет поля character, спрайт не покажется (engine._visual_character берёт step['character'])"
+   ]
+  },
+  {
+   "id": "story_sao.json/scene_6/5",
+   "not_yours": [
+    "engine.dialogue_no_character: у шага-реплики нет поля character, спрайт не покажется (engine._visual_character берёт step['character'])",
+    "engine.dialogue_no_character: у шага-реплики нет поля character, спрайт не покажется (engine._visual_character берёт step['character'])"
+   ]
+  },
+  {
+   "id": "story_sao.json/scene_6/6",
+   "not_yours": [
+    "engine.dialogue_no_character: у шага-реплики нет поля character, спрайт не покажется (engine._visual_character берёт step['character'])",
+    "engine.dialogue_no_character: у шага-реплики нет поля character, спрайт не покажется (engine._visual_character берёт step['character'])"
+   ]
+  },
+  {
+   "id": "story_sao.json/scene_6/7",
+   "not_yours": [
+    "engine.dialogue_no_character: у шага-реплики нет поля character, спрайт не покажется (engine._visual_character берёт step['character'])",
+    "engine.dialogue_no_character: у шага-реплики нет поля character, спрайт не покажется (engine._visual_character берёт step['character'])"
+   ]
+  },
+  {
+   "id": "story_sao.json/scene_6/8",
+   "not_yours": [
+    "engine.dialogue_no_character: у шага-реплики нет поля character, спрайт не покажется (engine._visual_character берёт step['character'])",
+    "engine.dialogue_no_character: у шага-реплики нет поля character, спрайт не покажется (engine._visual_character берёт step['character'])"
+   ]
+  },
+  {
+   "id": "story_sao.json/scene_6/10",
+   "not_yours": [
+    "engine.dialogue_no_character: у шага-реплики нет поля character, спрайт не покажется (engine._visual_character берёт step['character'])",
+    "engine.dialogue_no_character: у шага-реплики нет поля character, спрайт не покажется (engine._visual_character берёт step['character'])"
+   ]
+  },
+  {
+   "id": "story_sao.json/scene_6/12",
+   "not_yours": [
+    "engine.dialogue_no_character: у шага-реплики нет поля character, спрайт не покажется (engine._visual_character берёт step['character'])",
+    "engine.dialogue_no_character: у шага-реплики нет поля character, спрайт не покажется (engine._visual_character берёт step['character'])"
+   ]
+  },
+  {
+   "id": "story_sao.json/scene_6/13",
+   "not_yours": [
+    "engine.dialogue_no_character: у шага-реплики нет поля character, спрайт не покажется (engine._visual_character берёт step['character'])",
+    "engine.dialogue_no_character: у шага-реплики нет поля character, спрайт не покажется (engine._visual_character берёт step['character'])"
+   ]
+  },
+  {
+   "id": "story_sao.json/scene_6/15",
+   "not_yours": [
+    "engine.dialogue_no_character: у шага-реплики нет поля character, спрайт не покажется (engine._visual_character берёт step['character'])",
+    "engine.dialogue_no_character: у шага-реплики нет поля character, спрайт не покажется (engine._visual_character берёт step['character'])"
+   ]
+  },
+  {
+   "id": "story_sao.json/scene_6/16",
+   "not_yours": [
+    "engine.dialogue_no_character: у шага-реплики нет поля character, спрайт не покажется (engine._visual_character берёт step['character'])",
+    "engine.dialogue_no_character: у шага-реплики нет поля character, спрайт не покажется (engine._visual_character берёт step['character'])"
+   ]
+  },
+  {
+   "id": "story_sao.json/scene_6/17",
+   "not_yours": [
+    "engine.dialogue_no_character: у шага-реплики нет поля character, спрайт не покажется (engine._visual_character берёт step['character'])",
+    "engine.dialogue_no_character: у шага-реплики нет поля character, спрайт не покажется (engine._visual_character берёт step['character'])"
+   ]
+  },
+  {
+   "id": "story_sao.json/scene_6/19",
+   "not_yours": [
+    "engine.choice_flag_shape: движок читает id, text, flag, world_flag, goto, а здесь effects: флаг выбора молча потеряется. Флаг «heathcliff_surrender» больше нигде не встречается: выбор ничего не меняет.",
+    "engine.choice_flag_shape: движок читает id, text, flag, world_flag, goto, а здесь effects: флаг выбора молча потеряется. Флаг «heathcliff_understand» больше нигде не встречается: выбор ничего не меняет.",
+    "engine.choice_flag_shape: движок читает id, text, flag, world_flag, goto, а здесь effects: флаг выбора молча потеряется. Флаг «heathcliff_explain» больше нигде не встречается: выбор ничего не меняет.",
+    "engine.choice_flag_shape: движок читает id, text, flag, world_flag, goto, а здесь effects: флаг выбора молча потеряется. Флаг «heathcliff_surrender» больше нигде не встречается: выбор ничего не меняет.",
+    "engine.choice_flag_shape: движок читает id, text, flag, world_flag, goto, а здесь effects: флаг выбора молча потеряется. Флаг «heathcliff_understand» больше нигде не встречается: выбор ничего не меняет.",
+    "engine.choice_flag_shape: движок читает id, text, flag, world_flag, goto, а здесь effects: флаг выбора молча потеряется. Флаг «heathcliff_explain» больше нигде не встречается: выбор ничего не меняет."
+   ]
+  },
+  {
+   "id": "story_sao.json/scene_7/1",
+   "not_yours": [
+    "engine.dialogue_no_character: у шага-реплики нет поля character, спрайт не покажется (engine._visual_character берёт step['character'])",
+    "engine.dialogue_no_character: у шага-реплики нет поля character, спрайт не покажется (engine._visual_character берёт step['character'])"
+   ]
+  },
+  {
+   "id": "story_sao.json/scene_7/3",
+   "not_yours": [
+    "engine.dialogue_no_character: у шага-реплики нет поля character, спрайт не покажется (engine._visual_character берёт step['character'])",
+    "engine.dialogue_no_character: у шага-реплики нет поля character, спрайт не покажется (engine._visual_character берёт step['character'])"
+   ]
+  },
+  {
+   "id": "story_sao.json/scene_7/4",
+   "not_yours": [
+    "engine.dialogue_no_character: у шага-реплики нет поля character, спрайт не покажется (engine._visual_character берёт step['character'])",
+    "engine.dialogue_no_character: у шага-реплики нет поля character, спрайт не покажется (engine._visual_character берёт step['character'])"
+   ]
+  },
+  {
+   "id": "story_sao.json/scene_7/5",
+   "not_yours": [
+    "engine.dialogue_no_character: у шага-реплики нет поля character, спрайт не покажется (engine._visual_character берёт step['character'])",
+    "engine.dialogue_no_character: у шага-реплики нет поля character, спрайт не покажется (engine._visual_character берёт step['character'])"
+   ]
+  },
+  {
+   "id": "story_sao.json/scene_7/7",
+   "not_yours": [
+    "engine.dialogue_no_character: у шага-реплики нет поля character, спрайт не покажется (engine._visual_character берёт step['character'])",
+    "engine.dialogue_no_character: у шага-реплики нет поля character, спрайт не покажется (engine._visual_character берёт step['character'])"
+   ]
+  },
+  {
+   "id": "story_sao.json/scene_7/8",
+   "not_yours": [
+    "engine.dialogue_no_character: у шага-реплики нет поля character, спрайт не покажется (engine._visual_character берёт step['character'])",
+    "engine.dialogue_no_character: у шага-реплики нет поля character, спрайт не покажется (engine._visual_character берёт step['character'])"
+   ]
+  },
+  {
+   "id": "story_sao.json/scene_7/10",
+   "not_yours": [
+    "engine.dialogue_no_character: у шага-реплики нет поля character, спрайт не покажется (engine._visual_character берёт step['character'])",
+    "engine.dialogue_no_character: у шага-реплики нет поля character, спрайт не покажется (engine._visual_character берёт step['character'])"
+   ]
+  },
+  {
+   "id": "story_sao.json/scene_7/11",
+   "not_yours": [
+    "engine.dialogue_no_character: у шага-реплики нет поля character, спрайт не покажется (engine._visual_character берёт step['character'])",
+    "engine.dialogue_no_character: у шага-реплики нет поля character, спрайт не покажется (engine._visual_character берёт step['character'])"
+   ]
+  },
+  {
+   "id": "story_sao.json/scene_7/12",
+   "not_yours": [
+    "engine.dialogue_no_character: у шага-реплики нет поля character, спрайт не покажется (engine._visual_character берёт step['character'])",
+    "engine.dialogue_no_character: у шага-реплики нет поля character, спрайт не покажется (engine._visual_character берёт step['character'])"
+   ]
+  },
+  {
+   "id": "story_sao.json/scene_7/13",
+   "not_yours": [
+    "engine.dialogue_no_character: у шага-реплики нет поля character, спрайт не покажется (engine._visual_character берёт step['character'])",
+    "engine.dialogue_no_character: у шага-реплики нет поля character, спрайт не покажется (engine._visual_character берёт step['character'])"
+   ]
+  },
+  {
+   "id": "story_sao.json/scene_7/14",
+   "not_yours": [
+    "engine.dialogue_no_character: у шага-реплики нет поля character, спрайт не покажется (engine._visual_character берёт step['character'])",
+    "engine.dialogue_no_character: у шага-реплики нет поля character, спрайт не покажется (engine._visual_character берёт step['character'])"
+   ]
+  },
+  {
+   "id": "story_sao.json/scene_7/16",
+   "not_yours": [
+    "engine.dialogue_no_character: у шага-реплики нет поля character, спрайт не покажется (engine._visual_character берёт step['character'])",
+    "engine.dialogue_no_character: у шага-реплики нет поля character, спрайт не покажется (engine._visual_character берёт step['character'])"
+   ]
+  },
+  {
+   "id": "story_sao.json/scene_7/17",
+   "not_yours": [
+    "engine.dialogue_no_character: у шага-реплики нет поля character, спрайт не покажется (engine._visual_character берёт step['character'])",
+    "engine.dialogue_no_character: у шага-реплики нет поля character, спрайт не покажется (engine._visual_character берёт step['character'])"
+   ]
+  }
+ ],
+ "not_yours_note": "Это ошибки формата и движка, а не языка. Текст здесь не трогай, их чинит разработчик: они остаются в agent_bus/qa_lang/report.md."
+}

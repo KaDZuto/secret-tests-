@@ -6,6 +6,24 @@ import renpy.config as config
 
 AUDIO_EXT = (".ogg", ".opus", ".mp3", ".wav")
 
+## Папки внутри игры, которые считаются музыкой. `renpy.list_files()` отдаёт весь игровой
+## каталог, так что фильтр -- это префикс: раньше здесь были только `music/` и `absorbed/`,
+## и два трека из `audio/` не попадали в каталог никогда.
+PACKAGED_DIRS = ("music/", "audio/", "sound/", "absorbed/")
+
+## Треки, которые лежат в репозитории. Теги у них проставлены руками, а не выводятся из
+## имени файла: каталог должен что-то значить ещё до того, как игрок указал свои папки, а
+## `choose_track` ищет именно по тегам. Порядок -- порядок включения по умолчанию.
+BUNDLED_TRACKS = (
+    ("audio/daylight.wav", ["calm"]),
+    ("music/nostalgia_daylight.wav", ["nostalgia", "calm"]),
+    ("audio/tension.wav", ["tension"]),
+    ("music/mystery_tension.wav", ["mystery", "tension"]),
+)
+
+## Запасной тег для файлов, имя которых ничего не говорит: тише молчания.
+DEFAULT_TAGS = ["calm"]
+
 KEYWORDS = {
     "calm": ("calm", "quiet", "ambient", "peace", "morning", "night", "спокой", "утро", "ночь"),
     "romance": ("love", "romance", "date", "heart", "sweet", "любов", "романтик", "свидан"),
@@ -28,38 +46,64 @@ def _tags(text):
     return result or ["calm"]
 
 
+def _exists(path):
+    """True when the game can actually load this file (archive or loose file)."""
+    try:
+        if renpy.loadable(path):
+            return True
+    except Exception:
+        pass
+    gamedir = getattr(config, "gamedir", "") or ""
+    return bool(gamedir) and os.path.isfile(os.path.join(gamedir, str(path)))
+
+
+def bundled_entries():
+    """The shipped tracks, hand-tagged, without asking the runtime for anything."""
+    entries = []
+    for path, tags in BUNDLED_TRACKS:
+        entries.append({
+            "path": path,
+            "name": os.path.basename(path),
+            "source": "bundled",
+            "tags": list(tags),
+        })
+    return entries
+
+
 def scan_music(paths=None):
     paths = paths or []
     entries = []
+    seen = set()
 
+    def add(entry):
+        path = entry.get("path")
+        if not path or path in seen:
+            return
+        seen.add(path)
+        entries.append(entry)
+
+    # 1. Shipped tracks first: a later discovery of the same file must not overwrite the
+    #    hand-written tags with whatever the file name happens to contain.
+    for entry in bundled_entries():
+        if _exists(entry["path"]):
+            add(entry)
+
+    # 2. Everything else that ships with the game, whether it is loose or in an archive.
     try:
         for filename in renpy.list_files():
             lower = filename.lower()
-            if lower.startswith("music/") and lower.endswith(AUDIO_EXT):
-                name = os.path.basename(filename)
-                entries.append({
-                    "path": filename,
-                    "name": name,
-                    "source": "packaged",
-                    "tags": _tags(filename),
-                })
+            if not lower.endswith(AUDIO_EXT) or not lower.startswith(PACKAGED_DIRS):
+                continue
+            add({
+                "path": filename,
+                "name": os.path.basename(filename),
+                "source": "absorbed" if lower.startswith("absorbed/") else "packaged",
+                "tags": _tags(filename),
+            })
     except Exception:
         pass
 
-    try:
-        for filename in renpy.list_files():
-            lower = filename.lower()
-            if lower.startswith("absorbed/") and lower.endswith(AUDIO_EXT):
-                name = os.path.basename(filename)
-                entries.append({
-                    "path": filename,
-                    "name": name,
-                    "source": "absorbed",
-                    "tags": _tags(filename),
-                })
-    except Exception:
-        pass
-
+    # 3. Folders the player pointed at in the creator screen.
     for root in paths:
         root = root.strip().strip('"')
         if not root or not os.path.isdir(root):
@@ -75,7 +119,7 @@ def scan_music(paths=None):
                     except OSError:
                         size = 0
                         mtime = 0
-                    entries.append({
+                    add({
                         "path": full,
                         "name": filename,
                         "source": "external",
@@ -84,10 +128,7 @@ def scan_music(paths=None):
                         "mtime": mtime,
                     })
 
-    unique = {}
-    for item in entries:
-        unique[item["path"]] = item
-    return list(unique.values())
+    return entries
 
 
 def save_catalog(catalog):
@@ -111,12 +152,29 @@ def load_catalog():
 
 
 def choose_track(catalog, intent):
-    if not catalog or not intent or intent == "none":
+    """The track for a scene's `music_intent`.
+
+    `none` -- это просьба сцены оставить канал в покое. Всё остальное, включая пустой
+    намеренный и пустой каталог, заканчивается звуком, а не тишиной: сначала ищется тег
+    из намерения, потом спокойный фон, и только потом первый попавшийся трек. Пустой
+    каталог дополняется треками, которые лежат в игре.
+    """
+    intent = str(intent or "").strip().lower()
+    if intent == "none":
         return None
-    candidates = [x for x in catalog if intent in x.get("tags", [])]
-    if not candidates:
-        candidates = catalog
-    return candidates[0].get("path") if candidates else None
+    tracks = [x for x in (catalog or []) if isinstance(x, dict) and x.get("path")]
+    if not tracks:
+        tracks = bundled_entries()
+    if not tracks:
+        return None
+    if intent:
+        for item in tracks:
+            if intent in [str(t).lower() for t in item.get("tags") or []]:
+                return item["path"]
+    for item in tracks:
+        if "calm" in [str(t).lower() for t in item.get("tags") or []]:
+            return item["path"]
+    return tracks[0]["path"]
 
 
 def analyze_catalog_with_ai(catalog, settings):

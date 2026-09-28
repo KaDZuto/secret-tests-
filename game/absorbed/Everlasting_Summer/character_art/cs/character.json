@@ -1,0 +1,27 @@
+{
+ "id": "cs",
+ "name": "CS",
+ "source": "Everlasting Summer",
+ "pack": "Everlasting_Summer",
+ "third_party": true,
+ "redistributable": false,
+ "visual": {
+  "type": "sprite",
+  "poses": {
+   "pose_1": {
+    "base": "base/pose_1.png",
+    "costumes": {
+     "normal": "base/pose_1_normal.png",
+     "shy": "base/pose_1_shy.png",
+     "smile": "base/pose_1_smile.png"
+    }
+   }
+  }
+ },
+ "states": {
+  "pose_1": "base/pose_1.png",
+  "pose_1_normal": "base/pose_1_normal.png",
+  "pose_1_shy": "base/pose_1_shy.png",
+  "pose_1_smile": "base/pose_1_smile.png"
+ }
+}

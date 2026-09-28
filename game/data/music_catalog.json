@@ -1,1 +1,36 @@
-[]
+[
+  {
+    "path": "audio/daylight.wav",
+    "name": "daylight.wav",
+    "source": "bundled",
+    "tags": [
+      "calm"
+    ]
+  },
+  {
+    "path": "music/nostalgia_daylight.wav",
+    "name": "nostalgia_daylight.wav",
+    "source": "bundled",
+    "tags": [
+      "nostalgia",
+      "calm"
+    ]
+  },
+  {
+    "path": "audio/tension.wav",
+    "name": "tension.wav",
+    "source": "bundled",
+    "tags": [
+      "tension"
+    ]
+  },
+  {
+    "path": "music/mystery_tension.wav",
+    "name": "mystery_tension.wav",
+    "source": "bundled",
+    "tags": [
+      "mystery",
+      "tension"
+    ]
+  }
+]

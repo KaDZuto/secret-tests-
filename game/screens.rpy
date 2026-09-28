@@ -25,6 +25,7 @@ default cannibalism_import_characters = True
 
 init -20 python:
     import vn_settings_schema
+    import vn_settings_layout
     import ai_provider
     import vn_assetbrowser
     import settings_status
@@ -33,8 +34,11 @@ default persistent.vn_settings = dict(vn_settings_schema.DEFAULTS)
 
 init -10 python:
     # An older save file is missing keys this version added, and `default` cannot
-    # repair that, so fill the gaps before any screen can ask for one.
+    # repair that, so fill the gaps before any screen can ask for one. `sanitize` then
+    # puts every declared key into its declared kind and range, so a hand-edited or
+    # half-written save cannot hand a bar or a label a value it cannot use.
     vn_settings_schema.merge_into_persistent()
+    vn_settings_schema.sanitize()
     vn_view = vn_settings_schema.view
 
     if not getattr(persistent, "vn_ai_profiles", None):
@@ -1519,8 +1523,6 @@ screen creator():
 
     frame:
         style "vn_panel"
-        xsize 1200
-        ysize 680
 
         vbox:
             spacing 10
@@ -1537,9 +1539,11 @@ screen creator():
                 id "creator_scroll"
                 scrollbars "vertical"
                 mousewheel True
-                draggable True
+                ## Not draggable on purpose. A draggable viewport turns a click on a field into
+                ## the start of a drag, so the click never reaches the input and the form cannot
+                ## be filled in past the first field. The wheel and the scrollbar still scroll it.
                 pagekeys True
-                ysize 470
+                ysize vn_creator_scroll_h
                 xfill True
 
                 vbox:
@@ -1553,17 +1557,17 @@ screen creator():
                             vbox:
                                 spacing 8
                                 text "Название"
-                                input value VariableInputValue("creator_title") length 80
+                                input value VariableInputValue("creator_title") length 80 style "vn_input"
                                 text "Жанры"
-                                input value VariableInputValue("creator_genre") length 120
+                                input value VariableInputValue("creator_genre") length 120 style "vn_input"
                                 text "Тон"
-                                input value VariableInputValue("creator_tone") length 120
+                                input value VariableInputValue("creator_tone") length 120 style "vn_input"
                                 text "Краткое описание сюжета"
-                                input value VariableInputValue("creator_description") length 600
+                                input value VariableInputValue("creator_description") length 600 style "vn_input"
                                 text "Количество персонажей"
-                                input value VariableInputValue("creator_character_count") length 3
+                                input value VariableInputValue("creator_character_count") length 3 style "vn_input"
                                 text "Музыкальные папки (desktop, через ; )"
-                                input value VariableInputValue("creator_music_paths") length 500
+                                input value VariableInputValue("creator_music_paths") length 500 style "vn_input"
 
                     elif creator_mode == "import":
                         frame:
@@ -1572,7 +1576,7 @@ screen creator():
                             vbox:
                                 spacing 10
                                 text "Путь к story.json / world.json"
-                                input value VariableInputValue("creator_json_path") length 500
+                                input value VariableInputValue("creator_json_path") length 500 style "vn_input"
                                 textbutton "Вставить JSON из буфера обмена" action Function(load_story_from_clipboard)
                                 text "Совет: файл должен описывать title, genre, characters, locations и lore." color "#8792a4"
 
@@ -1608,6 +1612,24 @@ screen dynamic_choices(choices):
             if persistent.vn_settings.get("free_input", True):
                 textbutton "Сказать самому" action Return("__FREE__") xfill True
 
+## The settings panel.
+##
+## It used to be one column of everything: the connection check, the model, twenty
+## sliders, the export path and the asset browser, all inside one scroll area. Nothing
+## had a place, so nothing had a name, and the thing the player actually came for -- does
+## the model answer at all -- sat between the api key and the temperature.
+##
+## The panel is now a contents list on the left and one section on the right. The list
+## shows each section's real current state, the section shows what it is for, an "итог"
+## strip of the values the engine will use, and then its rows. A row is one setting: its
+## name, what it means, the control, and the value as it is stored. Labels, hints,
+## slider bounds and units come from `vn_settings_schema`, so the screen holds no number
+## of its own; `vn_settings_layout` decides which rows live in which section.
+##
+## Two things stay outside the scroll area on purpose: the proof strip with the verdict of
+## the last real check, and the check button itself. A verdict the player has to scroll to
+## find is not a verdict.
+
 screen settings():
     tag menu
 
@@ -1620,368 +1642,479 @@ screen settings():
             spacing 8
 
             hbox:
-                spacing 8
-                yalign 0.0
+                spacing 12
+                text "Настройки" style "vn_panel_title" size 28 xalign 0.0
+                text "Провайдер, генерация, ассеты, звук, интерфейс и данные — по одному разделу" style "vn_hint" xalign 1.0 yalign 0.5
 
-                text "Обширные настройки" style "vn_panel_title" xalign 0.0
-
-                if persistent.vn_ai_profile:
-                    text "профиль: [persistent.vn_ai_profile]" style "vn_hint" xalign 1.0 yalign 0.5
-
-            ## The proof strip. It is outside the scroll area on purpose: a verdict the
-            ## player has to scroll to find is not a verdict.
-            frame:
-                style "vn_status_frame"
-
-                vbox:
-                    spacing 2
-                    xfill True
-
-                    for tone, line in settings_status.status_lines():
-                        text line style ("vn_status_none" if tone == "none" else "vn_status_" + tone) xalign 0.0
-
+            ## Fixed heights, so the panel never grows out of its box: the strip holds the
+            ## verdict, the mode and the reason, and the section area takes the rest.
             hbox:
-                spacing 6
+                spacing 10
+                ysize vn_status_h
 
-                textbutton ("▸ " if settings_tab == "ai" else "") + "ИИ" style ("vn_tab_main_on" if settings_tab == "ai" else "vn_tab_main") action SetScreenVariable("settings_tab", "ai")
-                textbutton ("▸ " if settings_tab == "assets" else "") + "Ассеты" style ("vn_tab_main_on" if settings_tab == "assets" else "vn_tab_main") action SetScreenVariable("settings_tab", "assets")
-                textbutton ("▸ " if settings_tab == "sound" else "") + "Звук" style ("vn_tab_main_on" if settings_tab == "sound" else "vn_tab_main") action SetScreenVariable("settings_tab", "sound")
-                textbutton ("▸ " if settings_tab == "ui" else "") + "Интерфейс" style ("vn_tab_main_on" if settings_tab == "ui" else "vn_tab_main") action SetScreenVariable("settings_tab", "ui")
-                textbutton ("▸ " if settings_tab == "data" else "") + "Данные" style ("vn_tab_main_on" if settings_tab == "data" else "vn_tab_main") action SetScreenVariable("settings_tab", "data")
-                textbutton ("▸ " if settings_tab == "cannibalism" else "") + "Поглощение" style ("vn_tab_main_on" if settings_tab == "cannibalism" else "vn_tab_main") action SetScreenVariable("settings_tab", "cannibalism")
+                frame:
+                    style "vn_status_frame"
+                    vbox:
+                        spacing 2
+                        xfill True
+                        for tone, line in settings_status.status_lines():
+                            text line style ("vn_status_none" if tone == "none" else "vn_status_" + tone) xalign 0.0
 
-            viewport:
-                id "settings_scroll"
-                scrollbars "vertical"
-                mousewheel True
-                draggable True
-                ysize 375
-                xfill True
-
-                vbox:
-                    spacing 10
-                    xfill True
-
-                    text "[settings_status.section_help()]" style "vn_status_warn" xalign 0.0
-
-                    ## ------------------------------------------------------------------ AI
-                    if settings_tab == "ai":
-                        ## Read-only, but live: every line is re-read on each screen update,
-                        ## so it moves the moment a field is edited. This is what makes the
-                        ## fields above look like the settings the game really uses.
-                        frame:
-                            style "vn_effective"
-
-                            vbox:
-                                spacing 2
-                                xfill True
-
-                                text "Эффективные значения — то, что игра использует сейчас" style "vn_field"
-                                for line in settings_status.effective_lines():
-                                    text line style "vn_mono" xalign 0.0
-
-                        text "Профиль ИИ" style "vn_section"
-                        text "Профиль — сохранённый набор адреса, моделей и параметров генерации." style "vn_hint"
-
-                        hbox:
-                            spacing 8
-                            for name in sorted((persistent.vn_ai_profiles or {}).keys()):
-                                textbutton name:
-                                    style ("vn_tab_on" if name == persistent.vn_ai_profile else "vn_tab")
-                                    action Function(ai_provider.set_active_profile, name)
-
-                        hbox:
-                            spacing 8
-                            text "Новый профиль" style "vn_field"
-                            input value VariableInputValue("profile_new_name") length 220
-                            textbutton "Сохранить текущие" action Function(ai_provider.store_profile, profile_new_name)
-                            textbutton "Удалить" action Function(ai_provider.delete_profile, persistent.vn_ai_profile)
-
-                        null height 4
-
-                        text "Провайдер" style "vn_section"
-                        text "Адрес (OpenAI-совместимый, полный путь до chat/completions)" style "vn_field"
-                        input value FieldInputValue(vn_view, "api_url") style "vn_input" length 500
-
-                        text "API key (локальному прокси не нужен)" style "vn_field"
-                        input value FieldInputValue(vn_view, "api_key") style "vn_input" length 500
-
-                        hbox:
-                            spacing 8
-                            textbutton "Загрузить модели с сервера" style "vn_tab" action Function(settings_status.refresh_models)
-
-                        text "[provider_models_note]" style "vn_hint"
-
-                        text "Модель сцен" style "vn_section"
-                        if provider_models:
-                            hbox:
-                                spacing 8
-                                for m in provider_models[:24]:
-                                    textbutton m:
-                                        style ("vn_tab_on" if m == vn_view.model else "vn_tab")
-                                        action [SetField(vn_view, "model", m), SetField(vn_view, "quality_model", "")]
-                        input value FieldInputValue(vn_view, "model") style "vn_input" length 300
-
-                        text "Модель надсмотрщика (пусто = та же)" style "vn_field"
-                        input value FieldInputValue(vn_view, "quality_model") style "vn_input" length 300
-
-                        text "Модель ИИ-поглотителя (пусто = основная)" style "vn_field"
-                        input value FieldInputValue(vn_view, "absorber_model") style "vn_input" length 300
-
-                        ## The check itself. One real request, then the verdict sits next to
-                        ## the button that produced it, and the label keeps the last outcome
-                        ## so a stale "works" can never be mistaken for a current one.
-                        hbox:
-                            spacing 10
-
-                            ## A plain button with a text child, because the label is a
-                            ## function call rather than a literal.
-                            button:
-                                style "vn_primary"
-                                action Function(settings_status.test_now)
-                                text settings_status.test_label()
-
-                            if settings_status.has_test():
-                                textbutton "Проверить заново" style "vn_tab" action Function(settings_status.test_now)
-
-                            text settings_status.test_result_text() style ("vn_status_none" if settings_status.test_tone() == "warn" else "vn_status_" + settings_status.test_tone()) xalign 0.0 yalign 0.5
-
-                        text settings_status.test_detail_text() style ("vn_status_warn" if settings_status.test_tone() == "warn" else "vn_status_" + settings_status.test_tone()) xalign 0.0
-
-                        hbox:
-                            spacing 10
-                            textbutton "Вернуть DeepSeek по умолчанию" style "vn_tab" action [Function(ai_provider.apply_profile, ai_provider.DEFAULT_PROFILE), Function(vn_assetbrowser.set_screen_var, "provider_test", "Применён профиль " + ai_provider.DEFAULT_PROFILE)]
-                            text "• [provider_test]" style "vn_hint" xalign 0.0 yalign 0.5
-
-                        null height 4
-
-                        text "Генерация" style "vn_section"
-                        text "Температура: [vn_view.temperature:.2f]"
-                        bar value DictValue(persistent.vn_settings, "temperature", 0.1, 1.3)
-
-                        text "Таймаут запроса: [vn_view.timeout] с"
-                        bar value DictValue(persistent.vn_settings, "timeout", 15, 300)
-
-                        text "Размер пакета сцен: [vn_view.bundle_size]"
-                        bar value DictValue(persistent.vn_settings, "bundle_size", 3, 14)
-
-                        text "История в prompt: [vn_view.max_history]"
-                        bar value DictValue(persistent.vn_settings, "max_history", 6, 40)
-
-                        text "Порог качества надсмотрщика: [vn_view.supervisor_threshold:.1f]"
-                        bar value DictValue(persistent.vn_settings, "supervisor_threshold", 5.0, 9.5)
-
-                        null height 4
-                        hbox:
-                            spacing 8
-                            textbutton "JSON-режим: " + ("ВКЛ" if vn_view.json_mode else "ВЫКЛ") style "vn_check" action Function(toggle_setting, "json_mode")
-                            textbutton "Надсмотрщик: " + ("ВКЛ" if vn_view.supervisor else "ВЫКЛ") style "vn_check" action Function(toggle_setting, "supervisor")
-                            textbutton "Свободный ввод: " + ("ВКЛ" if vn_view.free_input else "ВЫКЛ") style "vn_check" action Function(toggle_setting, "free_input")
-
-                    ## --------------------------------------------------------------- Assets
-                    elif settings_tab == "assets":
-                        text "Каталог ассетов" style "vn_section"
-                        text "[asset_catalog_summary()]" style "vn_hint"
-
-                        hbox:
-                            spacing 8
-                            textbutton "Фоны" style ("vn_tab_on" if asset_browser_tab == "backgrounds" else "vn_tab") action SetScreenVariable("asset_browser_tab", "backgrounds")
-                            textbutton "Персонажи" style ("vn_tab_on" if asset_browser_tab == "characters" else "vn_tab") action SetScreenVariable("asset_browser_tab", "characters")
-                            textbutton "Обновить" style "vn_tab" action Function(settings_status.rescan_assets)
-                            textbutton "Открыть папку" style "vn_tab" action Function(vn_assetbrowser.shell_open_gamedir)
-
-                        if asset_preview_id:
-                            frame:
-                                background Solid("#0b0f1ae0")
-                                padding (10, 10)
-                                xfill True
-                                ysize 260
-                                hbox:
-                                    spacing 12
-                                    if vn_assetbrowser.asset_preview_path():
-                                        add Image(vn_assetbrowser.asset_preview_path()) xalign 0.0 yalign 0.5
-                                    vbox:
-                                        spacing 4
-                                        xalign 0.0
-                                        yalign 0.5
-                                        text "[asset_preview_id]" style "vn_field"
-                                        text "[vn_assetbrowser.asset_preview_kind()]" style "vn_hint"
-                                        text "Клик по карточке ниже меняет превью." style "vn_hint"
-                            textbutton "Скрыть превью" style "vn_tab" action SetScreenVariable("asset_preview_id", "")
-
-                        viewport:
-                            scrollbars "vertical"
-                            mousewheel True
-                            draggable True
-                            ysize 200
-                            yfill False
-                            xfill True
-
-                            if asset_browser_tab == "backgrounds":
-                                grid 3 3:
-                                    spacing 8
-                                    for item in vn_assetbrowser.asset_background_cards():
-                                        button:
-                                            action SetScreenVariable("asset_preview_id", item["id"])
-                                            xfill True
-                                            yfill True
-                                            add Solid("#0c1220")
-                                            add Image(item["preview"]) xalign 0.5 yalign 0.5 ysize 180
-                                            text item["id"] style "vn_hint" xalign 0.0 yalign 1.0
-                            else:
-                                vpgrid:
-                                    cols 4
-                                    rows 2
-                                    spacing 8
-                                    xfill True
-                                    for item in vn_assetbrowser.asset_character_cards():
-                                        button:
-                                            action SetScreenVariable("asset_preview_id", item["id"])
-                                            xfill True
-                                            add Solid("#0c1220")
-                                            add Image(item["preview"]) xalign 0.5 yalign 0.5 ysize 150
-                                            text item["id"] style "vn_hint" xalign 0.5
-
-                        null height 4
-                        text "Привязка к миру" style "vn_section"
-                        viewport:
-                            scrollbars "vertical"
-                            mousewheel True
-                            draggable True
-                            ysize 110
-                            xfill True
-                            vbox:
-                                spacing 2
-                                for line in asset_bind_report():
-                                    text "[line]" style "vn_hint"
-
-                        text "Дополнительные папки (через ; — только осмотр)" style "vn_field"
-                        input value FieldInputValue(vn_view, "asset_roots") style "vn_input" length 500
-                        hbox:
-                            spacing 8
-                            textbutton "Применить и пересканировать" style "vn_tab" action [Function(clear_asset_cache_action), Function(asset_rescan)]
-
-                    ## ---------------------------------------------------------------- Sound
-                    elif settings_tab == "sound":
-                        text "Музыка и голос" style "vn_section"
-                        textbutton "Музыка: " + ("ВКЛ" if vn_view.music_enabled else "ВЫКЛ") style "vn_check" action Function(toggle_setting, "music_enabled")
-                        text "Громкость музыки: [vn_view.music_volume:.2f]"
-                        bar value DictValue(persistent.vn_settings, "music_volume", 0.0, 1.0)
-                        textbutton "Автосканирование music/: " + ("ВКЛ" if vn_view.auto_music_scan else "ВЫКЛ") style "vn_check" action Function(toggle_setting, "auto_music_scan")
-                        textbutton "ИИ-анализ названий треков: " + ("ВКЛ" if vn_view.music_ai_analysis else "ВЫКЛ") style "vn_check" action Function(toggle_setting, "music_ai_analysis")
-
-                        null height 10
-                        text "Озвучка (Silero / TTS)" style "vn_section"
-                        text "Адрес TTS-сервера" style "vn_field"
-                        input value FieldInputValue(vn_view, "tts_url") style "vn_input" length 500
-                        text "Голос" style "vn_field"
-                        input value FieldInputValue(vn_view, "tts_speaker") style "vn_input" length 120
-                        textbutton "Озвучка: " + ("ВКЛ" if vn_view.tts_enabled else "ВЫКЛ") style "vn_check" action Function(toggle_setting, "tts_enabled")
-                        text "Громкость голоса: [vn_view.voice_volume:.2f]"
-                        bar value DictValue(persistent.vn_settings, "voice_volume", 0.0, 1.0)
-
-                        null height 10
-                        text "Готовые дорожки" style "vn_section"
-                        text "Файлов в каталоге: [len(game_state.get('music_catalog', []))]" style "vn_hint"
-                        text "Сцена сама выбирает трек по намерению и тегам; ручной выбор в этой версии не нужен." style "vn_hint"
-
-                    ## ------------------------------------------------------------------- UI
-                    elif settings_tab == "ui":
-                        text "Интерфейс" style "vn_section"
-                        text "Стандартные параметры Ren'Py: окно/полный экран, скорость текста, громкость каналов, пропуск." style "vn_hint"
-                        hbox:
-                            spacing 8
-                            textbutton "Открыть настройки Ren'Py" style "vn_tab" action ShowMenu("preferences")
-                            textbutton "История диалогов" style "vn_tab" action ShowMenu("history")
-                            textbutton "Справка по клавишам" style "vn_tab" action ShowMenu("help")
-
-                        null height 10
-                        text "Совместимость" style "vn_section"
-                        textbutton "Режим слабой машины: " + ("ВКЛ" if vn_view.low_spec else "ВЫКЛ") style "vn_check" action Function(toggle_setting, "low_spec")
-                        textbutton "Live2D: " + ("ВКЛ" if vn_view.live2d_enabled else "ВЫКЛ") style "vn_check" action Function(toggle_setting, "live2d_enabled")
-                        text "На слабой машине можно оставить PNG-спрайты и отключить Live2D." style "vn_hint"
-
-                        null height 10
-                        text "Лор и сюжет" style "vn_section"
-                        text "Мир хранится в game_state и обычных слотах Ren'Py." style "vn_hint"
-                        hbox:
-                            spacing 8
-                            textbutton "Открыть Лор / Codex" style "vn_tab" action ShowMenu("codex")
-
-                    ## ----------------------------------------------------------------- Data
-                    elif settings_tab == "data":
-                        text "Данные и экспорт" style "vn_section"
-                        text "Экспорт мира — обычный JSON, им можно делиться с другими игроками." style "vn_hint"
-                        hbox:
-                            spacing 8
-                            textbutton "Не экспортировать API key" style "vn_check" action Function(set_export_key, False)
-                            textbutton "Разрешить экспорт API key" style "vn_check" action Function(set_export_key, True)
-
-                        text "Имя экспорта" style "vn_field"
-                        input value VariableInputValue("export_name") style "vn_input" length 120
-                        text "Путь: [get_export_folder()]" style "vn_hint"
-                        hbox:
-                            spacing 8
-                            textbutton "Экспортировать текущий мир" style "vn_tab" action Function(export_current_world)
-
-                        text "Импорт мира" style "vn_field"
-                        input value VariableInputValue("import_world_path") style "vn_input" length 500
-                        hbox:
-                            spacing 8
-                            textbutton "Импортировать мир" style "vn_tab" action Function(import_world_from_path)
-
-                    ## --------------------------------------------------------- Cannibalism
-                    elif settings_tab == "cannibalism":
-                        text "AI Cannibalism / Поглощение ресурсов" size 28
-                        text "Сюжет исходной игры не импортируется. Поглотитель отдельно оценивает персонажей, изображения, музыку, голос и Live2D." color "#98a5b7"
-                        text "Поддерживаются обычные доступные папки, обычные ZIP и штатные контейнеры Ren'Py .rpa (только чтение). Защищённые/DRM-архивы и исполняемый код не обходятся и не запускаются." color "#d09a8f"
-                        text "Путь к папке или ZIP"
-                        input value VariableInputValue("cannibalism_source_path") length 520
-                        text "Название источника (необязательно)"
-                        input value VariableInputValue("cannibalism_source_name") length 220
-                        hbox:
-                            spacing 8
-                            textbutton "Сканировать" action Function(cannibalism_scan)
-                            textbutton "AI-поглотитель" action Function(cannibalism_assess)
-                            textbutton "Выбрать всё" action Function(cannibalism_select_all, True)
-                            textbutton "Снять всё" action Function(cannibalism_select_all, False)
-                        text "Добавлять найденных персонажей в текущий мир:"
-                        textbutton ("ДА" if cannibalism_import_characters else "НЕТ") action SetVariable("cannibalism_import_characters", not cannibalism_import_characters)
-                        text "Найдено: [len(cannibalism_scan_result.get('files', []))] • Выбрано: [len(cannibalism_assessment.get('selected_ids', []))]"
-                        if cannibalism_scan_result.get("archives"):
-                            text "Открыто .rpa-архивов: [len(cannibalism_scan_result.get('archives', []))]"
-                            for archive in cannibalism_scan_result.get("archives", [])[:6]:
-                                text "  [archive.get('path', '')] — [archive.get('entries', 0)] записей, [archive.get('bytes', 0) / 1048576.0:.1f] МБ" size 17 color "#8fa3b8"
-                        for warning in cannibalism_scan_result.get("warnings", [])[:4]:
-                            text "  ! [warning]" size 17 color "#d09a8f"
-                        if cannibalism_assessment.get("summary"):
-                            text cannibalism_assessment.get("summary") color "#bbc5d1"
-                        if cannibalism_assessment.get("error"):
-                            text "Ошибка: [cannibalism_assessment.get('error')]" color "#e6a19b"
-                        viewport:
-                            scrollbars "vertical"
-                            mousewheel True
-                            draggable True
-                            ysize 250
-                            vbox:
-                                spacing 4
-                                for item in cannibalism_scan_result.get("files", [])[:250]:
-                                    hbox:
-                                        spacing 8
-                                        textbutton (("☑ " if item.get("selected") else "☐ ") + item.get("path", "")) action Function(cannibalism_toggle, item.get("id")) xsize 700
-                                        text item.get("kind", "other") color "#778394"
-                                        if item.get("archive"):
-                                            text "из " + item.get("archive", "") size 15 color "#5f6f83"
-                        textbutton "ПОГЛОТИТЬ В ИГРУ" action Function(cannibalism_absorb)
-                        text "Поглощённые ресурсы хранятся в game/absorbed/ и помечаются как third-party/unverified. Они не входят в обычный переносимый экспорт мира." color "#7f8a9b"
-
-                    else:
-                        text "Раздел не найден" style "vn_field"
+                frame:
+                    style "vn_check_frame"
+                    vbox:
+                        spacing 4
+                        button:
+                            style "vn_primary"
+                            action Function(settings_status.test_now)
+                            text settings_status.test_label()
+                        text settings_status.test_when_text() style ("vn_status_none" if settings_status.test_tone() == "none" else "vn_status_" + settings_status.test_tone()) xalign 0.0
 
             hbox:
                 spacing 10
-                textbutton "Закрыть" style "vn_tab" action Return()
-                text "Все изменения сохраняются сразу, файл persistent: [settings_status.save_dir()]" style "vn_hint" yalign 0.5
+                ysize vn_section_h
+
+                frame:
+                    style "vn_nav"
+                    viewport:
+                        mousewheel True
+                        scrollbars "vertical"
+                        yfill True
+                        xfill True
+                        vbox:
+                            spacing 2
+                            xfill True
+                            for item in vn_settings_layout.sections():
+                                button:
+                                    style ("vn_nav_button_on" if item.id == vn_settings_layout.current().id else "vn_nav_button")
+                                    action Function(vn_settings_layout.select, item.id)
+                                    vbox:
+                                        spacing 0
+                                        xfill True
+                                        text item.title style ("vn_nav_title_on" if item.id == vn_settings_layout.current().id else "vn_nav_title") xalign 0.0
+                                        text item.status() style ("vn_nav_status_on" if item.id == vn_settings_layout.current().id else "vn_nav_status") xalign 0.0
+
+                viewport:
+                    id "settings_scroll"
+                    mousewheel True
+                    ## Not draggable: a drag here is started by the same click that should focus
+                    ## a field, and the field never receives it. The wheel and the scrollbar
+                    ## scroll the section.
+                    pagekeys True
+                    scrollbars "vertical"
+                    ysize vn_section_h
+                    xfill True
+                    use vn_settings_section()
+
+            hbox:
+                spacing 10
+                textbutton "Закрыть" style "vn_tab" action Return() yalign 0.5
+                if persistent.vn_ai_profile:
+                    text "профиль: [persistent.vn_ai_profile]" style "vn_hint" yalign 0.5
+                text "Сохраняется сразу: [settings_status.save_dir_short()]" style "vn_hint" xalign 1.0 yalign 0.5
+
+
+## The right-hand column: what the section is, what it currently does, and its rows.
+
+screen vn_settings_section():
+    vbox:
+        spacing 8
+        xfill True
+
+        text vn_settings_layout.current().title style "vn_section"
+        text vn_settings_layout.current().help style "vn_hint"
+
+        frame:
+            style "vn_summary"
+            grid 2 2:
+                ## Ren'Py's `spacing` takes one value, not a pair. A tuple here is only a
+                ## render-time crash, so lint stays silent and the screen is simply empty.
+                xspacing 24
+                yspacing 4
+                xfill True
+                for label, value in vn_settings_layout.current().summary_pairs():
+                    hbox:
+                        spacing 10
+                        text label style "vn_sum_label"
+                        text value style "vn_sum_value" xfill True
+
+        if vn_settings_layout.current().id == "ai":
+            use vn_settings_ai()
+        elif vn_settings_layout.current().id == "ui":
+            use vn_settings_ui()
+        elif vn_settings_layout.current().id == "assets":
+            use vn_settings_assets()
+        elif vn_settings_layout.current().id == "data":
+            use vn_settings_data()
+        elif vn_settings_layout.current().id == "cannibalism":
+            use vn_settings_cannibalism()
+        else:
+            use vn_settings_fields()
+
+
+## The generic section: every declared row, in the order the layout lists them.
+
+screen vn_settings_fields():
+    vbox:
+        spacing 8
+        xfill True
+        for row in vn_settings_layout.current().fields:
+            use vn_setting_row(row)
+
+
+## One setting. The control is chosen by the declared kind, so a field can never end up
+## with the wrong widget: text in, number on a bar with the schema's bounds, or a switch.
+
+screen vn_setting_row(row):
+    frame:
+        style "vn_row"
+
+        vbox:
+            spacing 4
+            xfill True
+
+            hbox:
+                spacing 12
+                text row.label style "vn_field" xfill True
+                text row.value_text() style "vn_value" yalign 0.5
+
+            if row.hint:
+                text row.hint style "vn_hint"
+
+            if row.kind == "text":
+                ## `vn_view` is the attribute view over the settings dict, not the dict:
+                ## Ren'Py's `FieldInputValue` walks the name with `getattr` only.
+                input value FieldInputValue(vn_view, row.key) style "vn_input" length row.length
+            elif row.kind == "number":
+                ## The bounds and the step are the declared ones, so the bar cannot
+                ## produce a value the schema would refuse to store.
+                bar value FieldValue(vn_view, row.key, min=row.low, max=row.high, step=row.step) style "vn_bar"
+            elif row.kind == "flag":
+                textbutton ("ВКЛ" if vn_settings_schema.flag(row.key) else "ВЫКЛ") style ("vn_toggle_on" if vn_settings_schema.flag(row.key) else "vn_toggle") action Function(toggle_setting, row.key)
+
+
+## The provider section: the check, the address, the model, the saved profiles.
+
+screen vn_settings_ai():
+    vbox:
+        spacing 8
+        xfill True
+
+        use vn_check_card()
+        use vn_effective_card()
+
+        for row in vn_settings_layout.current().fields:
+            if row.key == "model":
+                use vn_model_card()
+            else:
+                use vn_setting_row(row)
+
+        use vn_profile_card()
+
+
+## The connection check, with an outcome the player can act on: what came back, how long
+## it took, when it was, and what to do when it failed. A timeout is named as a timeout
+## rather than folded into "не работает", because it is the one failure that is usually
+## not a wrong address.
+
+screen vn_check_card():
+    frame:
+        style "vn_row"
+        vbox:
+            spacing 6
+            hbox:
+                spacing 12
+                text "Проверка соединения" style "vn_field" xfill True
+                text settings_status.test_result_text() style ("vn_status_" + settings_status.test_tone()) yalign 0.5
+            text settings_status.test_detail_text() style "vn_hint"
+            if settings_status.fix_hint():
+                text "Что делать: [settings_status.fix_hint()]" style "vn_status_warn"
+            hbox:
+                spacing 10
+                button:
+                    style "vn_primary"
+                    action Function(settings_status.test_now)
+                    text settings_status.test_label()
+                if settings_status.has_test():
+                    textbutton "Проверить заново" style "vn_tab" action Function(settings_status.test_now)
+            ## Its own line: beside the buttons this sentence is wider than the card, and an
+            ## hbox does not wrap, so the card grew past the panel instead of the text wrapping.
+            text "Проверка отправляет один короткий запрос текущей моделью и ждёт не дольше 30 секунд." style "vn_hint" xfill True
+
+
+## What the game will use, with the models it resolved: an empty supervisor model shows
+## as "та же", an empty absorber as "основная", so nothing here needs a second thought.
+
+screen vn_effective_card():
+    frame:
+        style "vn_effective"
+        vbox:
+            spacing 2
+            xfill True
+            text "Эффективные значения — то, что игра использует сейчас" style "vn_field"
+            for line in settings_status.effective_lines():
+                text line style "vn_mono" xalign 0.0
+
+
+## The model: the server's own list when it gives one, the typed name when it does not,
+## and always a line saying which of the two the current name came from. A local server
+## that serves no /v1/models is the normal case, not an error, so the manual field is a
+## first-class way to choose and not a fallback hidden behind a button.
+
+screen vn_model_card():
+    frame:
+        style "vn_row"
+        vbox:
+            spacing 6
+            hbox:
+                spacing 12
+                text "Модель" style "vn_field" xfill True
+                text vn_settings_schema.display("model") style "vn_value" yalign 0.5
+            text "[settings_status.model_source_text()]" style "vn_hint"
+
+            hbox:
+                spacing 8
+                textbutton "Загрузить модели с сервера" style "vn_tab" action Function(settings_status.refresh_models)
+                text "[settings_status.models_note()]" style "vn_hint" yalign 0.5
+
+            if provider_models:
+                frame:
+                    style "vn_box"
+                    vbox:
+                        spacing 6
+                        text settings_status.models_source_title() style "vn_hint"
+                        grid 3 4:
+                            spacing 6
+                            xfill True
+                            for m in provider_models[:12]:
+                                textbutton m style ("vn_chip_on" if m == vn_view.model else "vn_chip") action SetField(vn_view, "model", m)
+                        if len(provider_models) > 12:
+                            text "Показаны первые 12 из [len(provider_models)] — остальные впишите вручную." style "vn_hint"
+
+            text "Или впишите имя модели вручную:" style "vn_field"
+            input value FieldInputValue(vn_view, "model") style "vn_input" length 300
+
+
+## Saved provider sets. Switching a profile rewrites the fields above, which is why the
+## active one is highlighted rather than merely listed.
+
+screen vn_profile_card():
+    frame:
+        style "vn_row"
+        vbox:
+            spacing 6
+            text "Профили подключения" style "vn_field"
+            text "Профиль — сохранённый набор адреса, моделей и параметров. Переключение профиля перезаписывает их в полях выше." style "vn_hint"
+            hbox:
+                spacing 8
+                for name in sorted((persistent.vn_ai_profiles or {}).keys()):
+                    textbutton name style ("vn_tab_on" if name == persistent.vn_ai_profile else "vn_tab") action Function(ai_provider.set_active_profile, name)
+            hbox:
+                spacing 8
+                text "Имя нового профиля" style "vn_field"
+                input value VariableInputValue("profile_new_name") style "vn_input" length 200
+                textbutton "Сохранить текущие" style "vn_tab" action Function(ai_provider.store_profile, profile_new_name)
+                textbutton "Удалить активный" style "vn_tab" action Function(ai_provider.delete_profile, persistent.vn_ai_profile)
+            hbox:
+                spacing 8
+                textbutton "Вернуть встроенный профиль по умолчанию" style "vn_tab" action Function(settings_status.apply_builtin_profile)
+                text "• [provider_test]" style "vn_hint" yalign 0.5
+
+
+## The interface section: the three switches, then where the standard Ren'Py settings
+## actually live. A "настройки" button that opens another settings screen is only useful
+## if it says what is inside.
+
+screen vn_settings_ui():
+    vbox:
+        spacing 8
+        xfill True
+        for row in vn_settings_layout.current().fields:
+            use vn_setting_row(row)
+        frame:
+            style "vn_row"
+            vbox:
+                spacing 6
+                text "Стандартные настройки Ren'Py" style "vn_field"
+                text "Окно или полный экран, скорость текста, громкости каналов, пропуск уже показанных строк." style "vn_hint"
+                hbox:
+                    spacing 8
+                    textbutton "Открыть настройки Ren'Py" style "vn_tab" action ShowMenu("preferences")
+                    textbutton "История диалогов" style "vn_tab" action ShowMenu("history")
+                    textbutton "Справка по клавишам" style "vn_tab" action ShowMenu("help")
+                    textbutton "Лор и сюжет" style "vn_tab" action ShowMenu("codex")
+
+
+## The assets section: what was found, the bind report, and the browser itself.
+
+screen vn_settings_assets():
+    vbox:
+        spacing 8
+        xfill True
+
+        text "[asset_catalog_summary()]" style "vn_hint"
+
+        hbox:
+            spacing 8
+            textbutton "Фоны" style ("vn_tab_on" if asset_browser_tab == "backgrounds" else "vn_tab") action SetScreenVariable("asset_browser_tab", "backgrounds")
+            textbutton "Персонажи" style ("vn_tab_on" if asset_browser_tab == "characters" else "vn_tab") action SetScreenVariable("asset_browser_tab", "characters")
+            textbutton "Пересканировать" style "vn_tab" action Function(settings_status.rescan_assets)
+            textbutton "Открыть папку игры" style "vn_tab" action Function(vn_assetbrowser.shell_open_gamedir)
+
+        if asset_preview_id:
+            frame:
+                style "vn_box"
+                vbox:
+                    spacing 4
+                    hbox:
+                        spacing 12
+                        if vn_assetbrowser.asset_preview_path():
+                            add Image(vn_assetbrowser.asset_preview_path()) xalign 0.0 yalign 0.5 ysize 170
+                        vbox:
+                            spacing 4
+                            xalign 0.0
+                            yalign 0.5
+                            text "[asset_preview_id]" style "vn_field"
+                            text "[vn_assetbrowser.asset_preview_kind()]" style "vn_hint"
+                            text "Выбери карточку ниже, чтобы сменить превью." style "vn_hint"
+                    textbutton "Скрыть превью" style "vn_tab" action SetScreenVariable("asset_preview_id", "")
+
+        viewport:
+            scrollbars "vertical"
+            mousewheel True
+            draggable True
+            ysize 200
+            yfill False
+            xfill True
+
+            if asset_browser_tab == "backgrounds":
+                grid 3 3:
+                    spacing 8
+                    for item in vn_assetbrowser.asset_background_cards():
+                        button:
+                            action SetScreenVariable("asset_preview_id", item["id"])
+                            xfill True
+                            yfill True
+                            add Solid("#0c1220")
+                            add Image(item["preview"]) xalign 0.5 yalign 0.5 ysize 180
+                            text item["id"] style "vn_hint" xalign 0.0 yalign 1.0
+            else:
+                vpgrid:
+                    cols 4
+                    rows 2
+                    spacing 8
+                    xfill True
+                    for item in vn_assetbrowser.asset_character_cards():
+                        button:
+                            action SetScreenVariable("asset_preview_id", item["id"])
+                            xfill True
+                            add Solid("#0c1220")
+                            add Image(item["preview"]) xalign 0.5 yalign 0.5 ysize 150
+                            text item["id"] style "vn_hint" xalign 0.5
+
+        frame:
+            style "vn_box"
+            vbox:
+                spacing 2
+                text "Привязка персонажей мира к ассетам" style "vn_field"
+                for line in asset_bind_report():
+                    text "[line]" style "vn_hint"
+
+        for row in vn_settings_layout.current().fields:
+            use vn_setting_row(row)
+
+        textbutton "Применить папки и пересканировать" style "vn_tab" action [Function(clear_asset_cache_action), Function(asset_rescan)]
+
+
+## The data section: what an export file contains and where it goes.
+
+screen vn_settings_data():
+    vbox:
+        spacing 8
+        xfill True
+
+        for row in vn_settings_layout.current().fields:
+            use vn_setting_row(row)
+
+        frame:
+            style "vn_row"
+            vbox:
+                spacing 6
+                text "Экспорт мира" style "vn_field"
+                text "Обычный JSON, которым можно поделиться с другим игроком. Ключ доступа в него попадает только если это разрешено выше." style "vn_hint"
+                hbox:
+                    spacing 8
+                    text "Имя файла" style "vn_field"
+                    input value VariableInputValue("export_name") style "vn_input" length 120
+                    textbutton "Экспортировать мир" style "vn_tab" action Function(export_current_world)
+                text "Папка экспорта: [get_export_folder()]" style "vn_hint"
+
+        frame:
+            style "vn_row"
+            vbox:
+                spacing 6
+                text "Импорт мира" style "vn_field"
+                text "Путь к файлу, из которого игра заберёт мир. Текущий мир будет заменён." style "vn_hint"
+                hbox:
+                    spacing 8
+                    input value VariableInputValue("import_world_path") style "vn_input" length 420
+                    textbutton "Импортировать" style "vn_tab" action Function(import_world_from_path)
+
+
+## Absorption: unchanged in behaviour, given the same frame and the same summary strip as
+## every other section so it no longer looks like a page pasted from another program.
+
+screen vn_settings_cannibalism():
+    vbox:
+        spacing 8
+        xfill True
+
+        text "Сюжет исходной игры не импортируется. Поглотитель отдельно оценивает персонажей, изображения, музыку, голос и Live2D." style "vn_hint"
+        text "Поддерживаются обычные доступные папки, обычные ZIP и штатные контейнеры Ren'Py .rpa (только чтение). Защищённые/DRM-архивы и исполняемый код не обходятся и не запускаются." style "vn_status_bad"
+
+        text "Путь к папке или ZIP" style "vn_field"
+        input value VariableInputValue("cannibalism_source_path") style "vn_input" length 500
+        text "Название источника (необязательно)" style "vn_field"
+        input value VariableInputValue("cannibalism_source_name") style "vn_input" length 220
+
+        hbox:
+            spacing 8
+            textbutton "Сканировать" style "vn_tab" action Function(cannibalism_scan)
+            textbutton "AI-поглотитель" style "vn_tab" action Function(cannibalism_assess)
+            textbutton "Выбрать всё" style "vn_tab" action Function(cannibalism_select_all, True)
+            textbutton "Снять всё" style "vn_tab" action Function(cannibalism_select_all, False)
+
+        text "Добавлять найденных персонажей в текущий мир: " + ("ДА" if cannibalism_import_characters else "НЕТ") style "vn_field"
+        text "Найдено: [len(cannibalism_scan_result.get('files', []))] • Выбрано: [len(cannibalism_assessment.get('selected_ids', []))]" style "vn_hint"
+        if cannibalism_scan_result.get("archives"):
+            text "Открыто .rpa-архивов: [len(cannibalism_scan_result.get('archives', []))]" style "vn_hint"
+            for archive in cannibalism_scan_result.get("archives", [])[:6]:
+                text "  [archive.get('path', '')] — [archive.get('entries', 0)] записей, [archive.get('bytes', 0) / 1048576.0:.1f] МБ" style "vn_hint"
+        for warning in cannibalism_scan_result.get("warnings", [])[:4]:
+            text "  ! [warning]" style "vn_status_bad"
+        if cannibalism_assessment.get("summary"):
+            text cannibalism_assessment.get("summary") style "vn_field"
+        if cannibalism_assessment.get("error"):
+            text "Ошибка: [cannibalism_assessment.get('error')]" style "vn_status_bad"
+
+        viewport:
+            scrollbars "vertical"
+            mousewheel True
+            draggable True
+            ysize 200
+            xfill True
+            vbox:
+                spacing 4
+                for item in cannibalism_scan_result.get("files", [])[:250]:
+                    hbox:
+                        spacing 8
+                        textbutton (("☑ " if item.get("selected") else "☐ ") + item.get("path", "")) action Function(cannibalism_toggle, item.get("id")) xsize 660
+                        text item.get("kind", "other") style "vn_hint"
+                        if item.get("archive"):
+                            text "из " + item.get("archive", "") style "vn_hint"
+
+        textbutton "ПОГЛОТИТЬ В ИГРУ" style "vn_primary" action Function(cannibalism_absorb)
+        text "Поглощённые ресурсы хранятся в game/absorbed/ и помечаются как third-party/unverified. Они не входят в обычный переносимый экспорт мира." style "vn_hint"
 
 
 screen codex():
@@ -2001,7 +2134,8 @@ screen codex():
             viewport:
                 scrollbars "vertical"
                 mousewheel True
-                draggable True
+                ## Not draggable: the lore field inside would never get the click.
+                pagekeys True
                 ysize 360
                 vbox:
                     spacing 8
@@ -2010,7 +2144,7 @@ screen codex():
                     for name, loc in game_state.get("locations", {}).items():
                         text "[name]: [loc.get('description', '')]" color "#c1c9d4"
             text "Добавить факт"
-            input value VariableInputValue("lore_edit_text") length 500
+            input value VariableInputValue("lore_edit_text") style "vn_input" length 500
             hbox:
                 spacing 10
                 textbutton "Добавить" action Function(add_lore_from_input)
@@ -2019,19 +2153,24 @@ screen codex():
 
 ## The settings panel: a taller box and the styles the status proof strip needs.
 ##
-## The panel had room for 470 pixels of content; the always-visible status strip and the
-## bigger tab bar take the rest, so the box is grown to 690 (the screen is 720 tall) and
-## the scroll area keeps 375. Nothing was removed to make room, and everything still
-## scrolls.
+## The panel had room for 470 pixels of content; the always-visible status strip, the
+## check button beside it and the contents list take the rest, so the box is grown to 690
+## (the screen is 720 tall) and the section area keeps 420. Nothing was removed to make
+## room, and everything still scrolls.
 
 style vn_panel_settings is vn_panel:
-    ysize 690
+    ## The panel has to be narrower than the window, or the status row lays itself out at its
+    ## natural width and the connection button ends up half outside the screen. The size comes
+    ## from `vn_panel`, so it follows the window; only the padding is local.
     padding (26, 20)
 
 ## The proof strip: what the game is using, and what the last real request returned.
 
 style vn_status_frame is frame:
     xfill True
+    ## Room for the verdict, the mode and the reason, and no more: without a maximum the text
+    ## asks for its full natural width and pushes the button out of the panel.
+    xmaximum 740
     background Solid("#0a1120e6")
     padding (16, 10)
 
@@ -2061,28 +2200,6 @@ style vn_mono is default:
     size 20
     color "#a8c2e8"
     xalign 0.0
-
-## The main tab bar, so a section is one obvious step away and the current one is loud.
-
-style vn_tab_main is button:
-    xsize None
-    ysize None
-    padding (22, 10)
-    background Solid("#0e1420cc")
-    hover_background Solid("#28344ef2")
-
-style vn_tab_main_text is button_text:
-    size 24
-    color "#a9b6c9"
-    hover_color "#ffffff"
-    xalign 0.5
-
-style vn_tab_main_on is vn_tab_main:
-    background Solid("#2f6bd8")
-
-style vn_tab_main_on_text is vn_tab_main_text:
-    color "#ffffff"
-    bold True
 
 ## The connection check is the one button whose outcome the player came for.
 

@@ -1,0 +1,50 @@
+{
+ "id": "sh",
+ "name": "SH",
+ "source": "Everlasting Summer",
+ "pack": "Everlasting_Summer",
+ "third_party": true,
+ "redistributable": false,
+ "visual": {
+  "type": "sprite",
+  "poses": {
+   "pose_1": {
+    "base": "base/pose_1.png",
+    "costumes": {}
+   },
+   "pose_2": {
+    "base": "base/pose_2.png",
+    "costumes": {}
+   },
+   "pose_3": {
+    "base": "base/pose_3.png",
+    "costumes": {}
+   }
+  }
+ },
+ "states": {
+  "pose_1": "base/pose_1.png",
+  "pose_1_laugh": "base/pose_1_laugh.png",
+  "laugh": "base/pose_1_laugh.png",
+  "pose_1_scared": "base/pose_1_scared.png",
+  "scared": "base/pose_1_scared.png",
+  "pose_1_smile": "base/pose_1_smile.png",
+  "smile": "base/pose_1_smile.png",
+  "pose_1_upset": "base/pose_1_upset.png",
+  "upset": "base/pose_1_upset.png",
+  "pose_2": "base/pose_2.png",
+  "pose_2_cry": "base/pose_2_cry.png",
+  "cry": "base/pose_2_cry.png",
+  "pose_2_normal_smile": "base/pose_2_normal_smile.png",
+  "normal_smile": "base/pose_2_normal_smile.png",
+  "pose_2_rage": "base/pose_2_rage.png",
+  "rage": "base/pose_2_rage.png",
+  "pose_3": "base/pose_3.png",
+  "pose_3_normal": "base/pose_3_normal.png",
+  "normal": "base/pose_3_normal.png",
+  "pose_3_serious": "base/pose_3_serious.png",
+  "serious": "base/pose_3_serious.png",
+  "pose_3_surprise": "base/pose_3_surprise.png",
+  "surprise": "base/pose_3_surprise.png"
+ }
+}

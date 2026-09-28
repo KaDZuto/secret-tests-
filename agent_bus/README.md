@@ -1,34 +1,18 @@
-# AGENT BUS
+# Agent Bus — шина связи между агентами LivingVN
 
-This directory is the handoff point for any coding agent that continues development on Living VN.
+## Формат сообщений
+JSONL, по одному сообщению на строку. Каждое сообщение:
+```json
+{"id": "uuid", "from": "agent_name", "to": "agent_name|all", "type": "request|response|status", "task": "краткое описание", "payload": {...}, "created_at": "ISO8601"}
+```
 
-Read these files in order:
+## Типы задач
+- `story_request` — запрос на написание сюжета/мира
+- `character_bake` — запрос на запекание персонажа
+- `asset_request` — запрос на создание ассетов (фоны, спрайты)
+- `status_update` — статус выполнения
 
-1. `STATE.json`
-2. `QUEUE.jsonl`
-3. root `DESIGN_NOTES.md`
-4. root `README.md`
-
-## Rules for the continuing agent
-
-- Do not wait for user confirmation when the queue already defines the next safe task.
-- Preserve Ren'Py 8.3.7 compatibility unless the queue explicitly changes the platform baseline.
-- Prefer standard-library or already-available Ren'Py APIs over new dependencies.
-- Keep the LLM optional. The game must still boot and play a deterministic fallback scene when the AI endpoint fails.
-- Never give the LLM unrestricted filesystem or process execution.
-- Keep tool commands schema-validated and allowlisted.
-- Update `STATE.json` after each completed task.
-- Add new tasks to `QUEUE.jsonl` instead of deleting unfinished work.
-- Run `tools/validate_project.py` after code changes.
-- Never silently replace user assets.
-
-## Agent completion contract
-
-At the end of a development pass, write:
-
-- what changed
-- what was tested
-- what still fails
-- the next 3 concrete tasks
-
-into `STATE.json`.
+## Правила
+- Агент-рисовальщик читает шину каждые 30 минут
+- Каждое сообщение должно содержать достаточно контекста для автономной работы
+- Ответ всегда в том же формате, `to` = отправителю запроса

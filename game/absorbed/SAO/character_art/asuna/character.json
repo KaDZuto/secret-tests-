@@ -70,14 +70,14 @@
    },
    "pose_01_090": {
     "base": "base/pose_01_090.png",
-    "eyes_set": "",
+    "eyes_set": "e0c79_mnone",
     "mouth_set": "",
     "options": {}
    },
    "pose_01_100": {
     "base": "base/pose_01_100.png",
-    "eyes_set": "",
-    "mouth_set": "",
+    "eyes_set": "e5eb2_m0d8d",
+    "mouth_set": "e5eb2_m0d8d",
     "options": {
      "option0": "base/option0.png",
      "option1": "base/option1.png",
@@ -86,8 +86,8 @@
    },
    "pose_01_103": {
     "base": "base/pose_01_103.png",
-    "eyes_set": "",
-    "mouth_set": "",
+    "eyes_set": "e5eb2_m0d8d",
+    "mouth_set": "e5eb2_m0d8d",
     "options": {
      "option0": "base/option0.png",
      "option1": "base/option1.png",
@@ -96,8 +96,8 @@
    },
    "pose_01_104": {
     "base": "base/pose_01_104.png",
-    "eyes_set": "",
-    "mouth_set": "",
+    "eyes_set": "e5eb2_m0d8d",
+    "mouth_set": "e5eb2_m0d8d",
     "options": {
      "option0": "base/option0.png",
      "option1": "base/option1.png",
@@ -106,8 +106,8 @@
    },
    "pose_01_105": {
     "base": "base/pose_01_105.png",
-    "eyes_set": "",
-    "mouth_set": "",
+    "eyes_set": "e5eb2_m0d8d",
+    "mouth_set": "e5eb2_m0d8d",
     "options": {
      "option0": "base/option0.png",
      "option1": "base/option1.png",
@@ -116,8 +116,8 @@
    },
    "pose_01_108": {
     "base": "base/pose_01_108.png",
-    "eyes_set": "",
-    "mouth_set": "",
+    "eyes_set": "e5eb2_m0d8d",
+    "mouth_set": "e5eb2_m0d8d",
     "options": {
      "option0": "base/option0.png",
      "option1": "base/option1.png",
@@ -126,8 +126,8 @@
    },
    "pose_01_109": {
     "base": "base/pose_01_109.png",
-    "eyes_set": "",
-    "mouth_set": "",
+    "eyes_set": "e5eb2_m0d8d",
+    "mouth_set": "e5eb2_m0d8d",
     "options": {
      "option0": "base/option0.png",
      "option1": "base/option1.png",
@@ -217,12 +217,75 @@
    "pose_01_009_surprised": "base/pose_01_009_surprised.png",
    "pose_01_009_think": "base/pose_01_009_think.png",
    "pose_01_090": "base/pose_01_090.png",
+   "pose_01_090_closed": "base/pose_01_090_closed.png",
+   "pose_01_090_happy": "base/pose_01_090_happy.png",
+   "pose_01_090_laugh": "base/pose_01_090_laugh.png",
+   "pose_01_090_neutral": "base/pose_01_090_neutral.png",
+   "pose_01_090_sad": "base/pose_01_090_sad.png",
+   "pose_01_090_shy": "base/pose_01_090_shy.png",
+   "pose_01_090_smile": "base/pose_01_090_smile.png",
+   "pose_01_090_surprised": "base/pose_01_090_surprised.png",
+   "pose_01_090_think": "base/pose_01_090_think.png",
    "pose_01_100": "base/pose_01_100.png",
+   "pose_01_100_closed": "base/pose_01_100_closed.png",
+   "pose_01_100_happy": "base/pose_01_100_happy.png",
+   "pose_01_100_laugh": "base/pose_01_100_laugh.png",
+   "pose_01_100_neutral": "base/pose_01_100_neutral.png",
+   "pose_01_100_sad": "base/pose_01_100_sad.png",
+   "pose_01_100_shy": "base/pose_01_100_shy.png",
+   "pose_01_100_smile": "base/pose_01_100_smile.png",
+   "pose_01_100_surprised": "base/pose_01_100_surprised.png",
+   "pose_01_100_think": "base/pose_01_100_think.png",
    "pose_01_103": "base/pose_01_103.png",
+   "pose_01_103_closed": "base/pose_01_103_closed.png",
+   "pose_01_103_happy": "base/pose_01_103_happy.png",
+   "pose_01_103_laugh": "base/pose_01_103_laugh.png",
+   "pose_01_103_neutral": "base/pose_01_103_neutral.png",
+   "pose_01_103_sad": "base/pose_01_103_sad.png",
+   "pose_01_103_shy": "base/pose_01_103_shy.png",
+   "pose_01_103_smile": "base/pose_01_103_smile.png",
+   "pose_01_103_surprised": "base/pose_01_103_surprised.png",
+   "pose_01_103_think": "base/pose_01_103_think.png",
    "pose_01_104": "base/pose_01_104.png",
+   "pose_01_104_closed": "base/pose_01_104_closed.png",
+   "pose_01_104_happy": "base/pose_01_104_happy.png",
+   "pose_01_104_laugh": "base/pose_01_104_laugh.png",
+   "pose_01_104_neutral": "base/pose_01_104_neutral.png",
+   "pose_01_104_sad": "base/pose_01_104_sad.png",
+   "pose_01_104_shy": "base/pose_01_104_shy.png",
+   "pose_01_104_smile": "base/pose_01_104_smile.png",
+   "pose_01_104_surprised": "base/pose_01_104_surprised.png",
+   "pose_01_104_think": "base/pose_01_104_think.png",
    "pose_01_105": "base/pose_01_105.png",
+   "pose_01_105_closed": "base/pose_01_105_closed.png",
+   "pose_01_105_happy": "base/pose_01_105_happy.png",
+   "pose_01_105_laugh": "base/pose_01_105_laugh.png",
+   "pose_01_105_neutral": "base/pose_01_105_neutral.png",
+   "pose_01_105_sad": "base/pose_01_105_sad.png",
+   "pose_01_105_shy": "base/pose_01_105_shy.png",
+   "pose_01_105_smile": "base/pose_01_105_smile.png",
+   "pose_01_105_surprised": "base/pose_01_105_surprised.png",
+   "pose_01_105_think": "base/pose_01_105_think.png",
    "pose_01_108": "base/pose_01_108.png",
-   "pose_01_109": "base/pose_01_109.png"
+   "pose_01_108_closed": "base/pose_01_108_closed.png",
+   "pose_01_108_happy": "base/pose_01_108_happy.png",
+   "pose_01_108_laugh": "base/pose_01_108_laugh.png",
+   "pose_01_108_neutral": "base/pose_01_108_neutral.png",
+   "pose_01_108_sad": "base/pose_01_108_sad.png",
+   "pose_01_108_shy": "base/pose_01_108_shy.png",
+   "pose_01_108_smile": "base/pose_01_108_smile.png",
+   "pose_01_108_surprised": "base/pose_01_108_surprised.png",
+   "pose_01_108_think": "base/pose_01_108_think.png",
+   "pose_01_109": "base/pose_01_109.png",
+   "pose_01_109_closed": "base/pose_01_109_closed.png",
+   "pose_01_109_happy": "base/pose_01_109_happy.png",
+   "pose_01_109_laugh": "base/pose_01_109_laugh.png",
+   "pose_01_109_neutral": "base/pose_01_109_neutral.png",
+   "pose_01_109_sad": "base/pose_01_109_sad.png",
+   "pose_01_109_shy": "base/pose_01_109_shy.png",
+   "pose_01_109_smile": "base/pose_01_109_smile.png",
+   "pose_01_109_surprised": "base/pose_01_109_surprised.png",
+   "pose_01_109_think": "base/pose_01_109_think.png"
   }
  },
  "states": {
@@ -296,18 +359,97 @@
   "pose_01_009_surprised": "base/pose_01_009_surprised.png",
   "pose_01_009_think": "base/pose_01_009_think.png",
   "pose_01_090": "base/pose_01_090.png",
+  "pose_01_090_closed": "base/pose_01_090_closed.png",
+  "pose_01_090_happy": "base/pose_01_090_happy.png",
+  "pose_01_090_laugh": "base/pose_01_090_laugh.png",
+  "pose_01_090_neutral": "base/pose_01_090_neutral.png",
+  "pose_01_090_sad": "base/pose_01_090_sad.png",
+  "pose_01_090_shy": "base/pose_01_090_shy.png",
+  "pose_01_090_smile": "base/pose_01_090_smile.png",
+  "pose_01_090_surprised": "base/pose_01_090_surprised.png",
+  "pose_01_090_think": "base/pose_01_090_think.png",
   "pose_01_100": "base/pose_01_100.png",
+  "pose_01_100_closed": "base/pose_01_100_closed.png",
+  "pose_01_100_happy": "base/pose_01_100_happy.png",
+  "pose_01_100_laugh": "base/pose_01_100_laugh.png",
+  "pose_01_100_neutral": "base/pose_01_100_neutral.png",
+  "pose_01_100_sad": "base/pose_01_100_sad.png",
+  "pose_01_100_shy": "base/pose_01_100_shy.png",
+  "pose_01_100_smile": "base/pose_01_100_smile.png",
+  "pose_01_100_surprised": "base/pose_01_100_surprised.png",
+  "pose_01_100_think": "base/pose_01_100_think.png",
   "pose_01_103": "base/pose_01_103.png",
+  "pose_01_103_closed": "base/pose_01_103_closed.png",
+  "pose_01_103_happy": "base/pose_01_103_happy.png",
+  "pose_01_103_laugh": "base/pose_01_103_laugh.png",
+  "pose_01_103_neutral": "base/pose_01_103_neutral.png",
+  "pose_01_103_sad": "base/pose_01_103_sad.png",
+  "pose_01_103_shy": "base/pose_01_103_shy.png",
+  "pose_01_103_smile": "base/pose_01_103_smile.png",
+  "pose_01_103_surprised": "base/pose_01_103_surprised.png",
+  "pose_01_103_think": "base/pose_01_103_think.png",
   "pose_01_104": "base/pose_01_104.png",
+  "pose_01_104_closed": "base/pose_01_104_closed.png",
+  "pose_01_104_happy": "base/pose_01_104_happy.png",
+  "pose_01_104_laugh": "base/pose_01_104_laugh.png",
+  "pose_01_104_neutral": "base/pose_01_104_neutral.png",
+  "pose_01_104_sad": "base/pose_01_104_sad.png",
+  "pose_01_104_shy": "base/pose_01_104_shy.png",
+  "pose_01_104_smile": "base/pose_01_104_smile.png",
+  "pose_01_104_surprised": "base/pose_01_104_surprised.png",
+  "pose_01_104_think": "base/pose_01_104_think.png",
   "pose_01_105": "base/pose_01_105.png",
+  "pose_01_105_closed": "base/pose_01_105_closed.png",
+  "pose_01_105_happy": "base/pose_01_105_happy.png",
+  "pose_01_105_laugh": "base/pose_01_105_laugh.png",
+  "pose_01_105_neutral": "base/pose_01_105_neutral.png",
+  "pose_01_105_sad": "base/pose_01_105_sad.png",
+  "pose_01_105_shy": "base/pose_01_105_shy.png",
+  "pose_01_105_smile": "base/pose_01_105_smile.png",
+  "pose_01_105_surprised": "base/pose_01_105_surprised.png",
+  "pose_01_105_think": "base/pose_01_105_think.png",
   "pose_01_108": "base/pose_01_108.png",
-  "pose_01_109": "base/pose_01_109.png"
+  "pose_01_108_closed": "base/pose_01_108_closed.png",
+  "pose_01_108_happy": "base/pose_01_108_happy.png",
+  "pose_01_108_laugh": "base/pose_01_108_laugh.png",
+  "pose_01_108_neutral": "base/pose_01_108_neutral.png",
+  "pose_01_108_sad": "base/pose_01_108_sad.png",
+  "pose_01_108_shy": "base/pose_01_108_shy.png",
+  "pose_01_108_smile": "base/pose_01_108_smile.png",
+  "pose_01_108_surprised": "base/pose_01_108_surprised.png",
+  "pose_01_108_think": "base/pose_01_108_think.png",
+  "pose_01_109": "base/pose_01_109.png",
+  "pose_01_109_closed": "base/pose_01_109_closed.png",
+  "pose_01_109_happy": "base/pose_01_109_happy.png",
+  "pose_01_109_laugh": "base/pose_01_109_laugh.png",
+  "pose_01_109_neutral": "base/pose_01_109_neutral.png",
+  "pose_01_109_sad": "base/pose_01_109_sad.png",
+  "pose_01_109_shy": "base/pose_01_109_shy.png",
+  "pose_01_109_smile": "base/pose_01_109_smile.png",
+  "pose_01_109_surprised": "base/pose_01_109_surprised.png",
+  "pose_01_109_think": "base/pose_01_109_think.png"
  },
  "layer_sets": {
   "e0c79_mnone": {
    "poses": [
     "pose_01_090"
-   ]
+   ],
+   "eyes": {
+    "dir": "e0c79_mnone",
+    "names": [
+     "closed",
+     "open",
+     "wide"
+    ],
+    "offset": [
+     327,
+     207
+    ],
+    "offset_measured": [
+     260,
+     221
+    ]
+   }
   },
   "e1807_mbfa8": {
    "poses": [
@@ -351,11 +493,11 @@
      "surprise"
     ],
     "offset": [
-     336,
+     338,
      329
     ],
     "offset_measured": [
-     336,
+     338,
      329
     ]
    }
@@ -368,7 +510,48 @@
     "pose_01_105",
     "pose_01_108",
     "pose_01_109"
-   ]
+   ],
+   "eyes": {
+    "dir": "e5eb2_m0d8d",
+    "names": [
+     "closed",
+     "down",
+     "half",
+     "happy",
+     "open",
+     "up",
+     "wide"
+    ],
+    "offset": [
+     213,
+     206
+    ],
+    "offset_measured": [
+     249,
+     171
+    ]
+   },
+   "mouth": {
+    "dir": "e5eb2_m0d8d",
+    "names": [
+     "frown",
+     "grin",
+     "laugh",
+     "neutral",
+     "open",
+     "small",
+     "smile",
+     "surprise"
+    ],
+    "offset": [
+     309,
+     313
+    ],
+    "offset_measured": [
+     333,
+     315
+    ]
+   }
   }
  },
  "expressions": {
@@ -409,5 +592,5 @@
    "mouth": "small"
   }
  },
- "state_count": 76
+ "state_count": 139
 }

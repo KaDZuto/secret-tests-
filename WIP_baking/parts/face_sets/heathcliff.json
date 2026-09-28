@@ -1,0 +1,77 @@
+{
+ "ef473_m2a01": {
+  "poses": [
+   "pose_10_000"
+  ],
+  "eyes": {
+   "frame": [
+    176,
+    114
+   ],
+   "margin": [
+    0,
+    6
+   ],
+   "frames": {
+    "open": 2,
+    "closed": 0,
+    "half": 1
+   }
+  },
+  "mouth": {
+   "frame": [
+    128,
+    78
+   ],
+   "margin": [
+    0,
+    2
+   ],
+   "frames": {
+    "neutral": 5,
+    "smile": 1,
+    "open": 3,
+    "frown": 2,
+    "small": 7
+   }
+  },
+  "emotions": {
+   "neutral": {
+    "eyes": "open",
+    "mouth": "neutral"
+   },
+   "smile": {
+    "eyes": "open",
+    "mouth": "smile"
+   },
+   "happy": {
+    "eyes": "half",
+    "mouth": "smile"
+   },
+   "laugh": {
+    "eyes": "half",
+    "mouth": "open"
+   },
+   "surprised": {
+    "eyes": "open",
+    "mouth": "open"
+   },
+   "sad": {
+    "eyes": "half",
+    "mouth": "frown"
+   },
+   "closed": {
+    "eyes": "closed",
+    "mouth": "neutral"
+   },
+   "think": {
+    "eyes": "open",
+    "mouth": "small"
+   },
+   "shy": {
+    "eyes": "half",
+    "mouth": "small"
+   }
+  }
+ }
+}

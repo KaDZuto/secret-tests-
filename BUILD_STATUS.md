@@ -132,3 +132,51 @@ three smoke suites pass, distributions rebuilt (819M Linux / 805M Windows x86_64
 Still open: two of the three layer sets have no measured geometry, so those 7 poses show a
 body without a face; the Cubism 2 models remain unusable in Ren'Py 8; and there is no 32-bit
 Windows runtime, so a Windows 7 target would need a Ren'Py 7.x port.
+
+## 2026-09-28 — the model's answer finally reaches the game
+
+Two defects sat on the same path, and each one alone produced the identical symptom
+("the request finished with no answer"): the model responded, and the game threw the
+response away. Only a live run against the DeepSeek proxy exposed them.
+
+**1. The waiting screen returned an action instead of a value.** `StoryPollAction.__call__`
+was `return Return(story_wait_take())` — the `Return` *action object*. Ren'Py hands a timer's
+action result to the interaction, and `_call_story_screen` could not read an object: it saw an
+outcome it did not recognise, fell through to `"wait"`, and `story_world_request` converted
+that into `"error"` *after* `take_result()` had already consumed the real answer. Fixed at
+`game/story_generating.rpy:42` → `return Return(story_wait_take())()`.
+
+**2. `from renpy.store import *` poisoned `dict`.** `engine.py` pulled the store's
+`RevertableDict` into its module namespace, so every `isinstance(x, dict)` there rejected the
+plain dicts that `json.loads` produces. In `_story_request` that filtered all nine steps to
+zero and returned `"error"`; in `story_world_request` the creator check refused the world the
+same way. The builtins are now restored once at the top of `engine.py`. Note the corollary:
+inside any Ren'Py `python:` block the name `dict` is `RevertableDict`, so a check written
+there must reach for `builtins.dict` — this is what made the first diagnostics look
+contradictory.
+
+**3. Screen outcomes hardened.** `"cancel"` (the answer could not be handed over) is now
+reported as a visible error instead of being read as `"wait"`, `story_world_request` re-shows
+the screen through a bounded `_wait_for_story_screen` (the old loop was unbounded, and any
+other outcome fell straight into `"error"`), and `_story_request` uses the same helper.
+
+Verified end-to-end against `http://127.0.0.1:9655/v1` (`deepseek-chat`): world request
+`done` in 4.4 s with a three-person cast; scene request `done` in 3.0 s, 9 steps in the
+buffer, 3 real choices ("Сесть рядом с Кирой на край пирса", "Спросить Лену, откуда она
+приехала", "Молчать и смотреть на отражение сосен") and narration/dialogue in Russian.
+
+Also fixed: `style property border is not known` (removed in Ren'Py 8 — the input fields now
+use a 9-slice Frame, `game/images/ui/input_field*.png`); the settings and creator chrome now
+count their panel padding, so the last settings row no longer runs off the edge (720p: panel
+634 / status 108 / sections 372 / form 388). `tools/validate_project.py` stopped requiring
+`renpy.fetch` (it does not exist in Ren'Py 8.3.7 and was removed on purpose) and now checks
+`ai_client.py` for the transport, the chat call, and the TTS bytes, plus that `engine.py`
+reaches the client.
+
+Tests: `validate_project.py` OK (11 RPY), all smoke suites green (assets, cannibalism,
+logic, importer, story_parser, story_flow, layout), `renpy.sh . lint` clean.
+
+Still open and assigned in `PARALLEL_TASKS.md`: real window sizing for 720p/1080p/1440p
+(`options.rpy`, `vn_layout.py` — `fit_window()` is written but not wired, and
+`config.window` on init measured 1229×691), and the black `char_demo` placeholder behind the
+three-layer characters.

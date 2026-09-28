@@ -1,0 +1,23 @@
+{
+ "id": "pi",
+ "name": "PI",
+ "source": "Everlasting Summer",
+ "pack": "Everlasting_Summer",
+ "third_party": true,
+ "redistributable": false,
+ "visual": {
+  "type": "sprite",
+  "poses": {
+   "pose_1": {
+    "base": "base/pose_1.png",
+    "costumes": {
+     "pioneer_smile": "base/pose_1_pioneer_smile.png"
+    }
+   }
+  }
+ },
+ "states": {
+  "pose_1": "base/pose_1.png",
+  "pose_1_pioneer_smile": "base/pose_1_pioneer_smile.png"
+ }
+}

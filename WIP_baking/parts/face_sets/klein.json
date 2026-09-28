@@ -1,0 +1,144 @@
+{
+ "e36c6_mbf67": {
+  "poses": [
+   "pose_08_000",
+   "pose_08_008"
+  ],
+  "eyes": {
+   "frame": [
+    184,
+    94
+   ],
+   "margin": [
+    0,
+    6
+   ],
+   "frames": {
+    "open": 1,
+    "closed": 0,
+    "happy": 7,
+    "wide": 2
+   },
+   "offset": [
+    450,
+    196
+   ],
+   "misses": 337
+  },
+  "mouth": {
+   "frame": [
+    120,
+    94
+   ],
+   "margin": [
+    0,
+    0
+   ],
+   "frames": {
+    "neutral": 2,
+    "smile": 19,
+    "small": 6,
+    "open": 0
+   },
+   "offset": [
+    474,
+    306
+   ],
+   "misses": 564
+  },
+  "emotions": {
+   "neutral": {
+    "eyes": "open",
+    "mouth": "neutral"
+   },
+   "smile": {
+    "eyes": "open",
+    "mouth": "smile"
+   },
+   "happy": {
+    "eyes": "happy",
+    "mouth": "smile"
+   },
+   "laugh": {
+    "eyes": "happy",
+    "mouth": "open"
+   },
+   "surprised": {
+    "eyes": "wide",
+    "mouth": "open"
+   },
+   "sad": {
+    "eyes": "open",
+    "mouth": "neutral"
+   },
+   "closed": {
+    "eyes": "closed",
+    "mouth": "neutral"
+   },
+   "think": {
+    "eyes": "open",
+    "mouth": "small"
+   },
+   "shy": {
+    "eyes": "open",
+    "mouth": "small"
+   }
+  },
+  "geometry": "measured"
+ },
+ "e3c85_mnone": {
+  "poses": [
+   "pose_08_090"
+  ],
+  "eyes": {
+   "frame": [
+    184,
+    94
+   ],
+   "margin": [
+    0,
+    6
+   ],
+   "frames": {
+    "open": 1,
+    "closed": 0,
+    "wide": 2
+   },
+   "offset": [
+    448,
+    235
+   ],
+   "misses": 0
+  },
+  "emotions": {
+   "neutral": {
+    "eyes": "open"
+   },
+   "smile": {
+    "eyes": "open"
+   },
+   "happy": {
+    "eyes": "wide"
+   },
+   "laugh": {
+    "eyes": "wide"
+   },
+   "surprised": {
+    "eyes": "wide"
+   },
+   "sad": {
+    "eyes": "open"
+   },
+   "closed": {
+    "eyes": "closed"
+   },
+   "think": {
+    "eyes": "open"
+   },
+   "shy": {
+    "eyes": "open"
+   }
+  },
+  "geometry": "measured"
+ }
+}

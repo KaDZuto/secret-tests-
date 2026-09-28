@@ -1,0 +1,1413 @@
+{
+ "title": "Сорок два дома",
+ "genre": [
+  "мистический детектив",
+  "триллер"
+ ],
+ "tone": "тихий быт, который медленно перестаёт быть бытом",
+ "premise": "Лагерь «Сосны» четыре года назад перестал быть местом отдыха: в сорок первом доме появился сорок второй, которого нет ни на одной карте. Приезжие получают письма без отправителя, игрок приезжает по записке незнакомого человека, а в подвале старого корпуса лежит тетрадь, в которой имена заканчиваются за день до того, как человек исчезает.",
+ "characters": [
+  {
+   "id": "nika",
+   "name": "Ника",
+   "role": "провожатая",
+   "personality": "прямая, усталая, верит в списки больше, чем в людей",
+   "background": "Приехала в лагерь две недели назад, письмо получила четыре года назад. Два года работала в сортировочном почтовом отделении и знает, что участок «Марина» перестал работать в тот же год, когда её сестра исчезла.",
+   "goals": [
+    "выяснить, что за участок «Марина» и кто его закрыл"
+   ],
+   "secrets": [
+    "её сестра была в списке приезжих, и фамилия стёрта"
+   ],
+   "visual": {
+    "type": "sprite",
+    "states": {
+     "neutral": "images/char_demo.png",
+     "happy": "images/char_demo_happy.png",
+     "sad": "images/char_demo_sad.png"
+    }
+   }
+  },
+  {
+   "id": "egor",
+   "name": "Егор",
+   "role": "местный",
+   "personality": "дерзкий с виду, упрямый, привязан к лагерю больше, чем сам",
+   "background": "Живёт в лагере всю жизнь. Ему десять, на фотографии четырёхлетней давности ему было шесть. Его старший брат работал в старом корпусе и четыре года назад исчез вместе с архивом.",
+   "goals": [
+    "найти брата",
+    "разобраться, что значит «Марина»"
+   ],
+   "secrets": [
+    "он трижды находил жестяную коробку и трижды её отдавал"
+   ],
+   "visual": {
+    "type": "sprite",
+    "states": {
+     "neutral": "images/char_demo.png",
+     "happy": "images/char_demo_happy.png",
+     "sad": "images/char_demo_sad.png"
+    }
+   }
+  },
+  {
+   "id": "vera",
+   "name": "Вера",
+   "role": "хранительница почты",
+   "personality": "ровная, внимательная, говорит фактами, когда боится",
+   "background": "Приехала три месяца назад, чтобы разобраться с письмами, которые нельзя отправить. Ведёт тетрадь: каждое письмо появляется утром двадцатого числа.",
+   "goals": [
+    "дождаться сорок второго письма и не вычеркнуть его"
+   ],
+   "secrets": [
+    "она видела сорок второе письмо, но не показывает его"
+   ],
+   "visual": {
+    "type": "sprite",
+    "states": {
+     "neutral": "images/char_demo.png",
+     "happy": "images/char_demo_happy.png",
+     "sad": "images/char_demo_sad.png"
+    }
+   }
+  },
+  {
+   "id": "gleb",
+   "name": "Глеб",
+   "role": "бывший почтовик",
+   "personality": "невозмутимый, сухой, четыре года не спавший спокойно",
+   "background": "Сорок лет, последние четыре — в лагере. Работал на участке «Марина» и знает, что почтовый маршрут нельзя закрыть: письма приходят адресно, и адресат всегда найдётся, пока система помнит, кто он.",
+   "goals": [
+    "не дать лагерю принять сорок второе письмо"
+   ],
+   "secrets": [
+    "он знает, что брат Егора ушёл в систему добровольно"
+   ],
+   "visual": {
+    "type": "sprite",
+    "states": {
+     "neutral": "images/char_demo.png",
+     "happy": "images/char_demo_happy.png",
+     "sad": "images/char_demo_sad.png"
+    }
+   }
+  },
+  {
+   "id": "mila",
+   "name": "Мила",
+   "role": "приезжая",
+   "personality": "вспыльчивая, быстрая, говорит раньше, чем подумает",
+   "background": "Пришла в лагерь с письмом в руках, которое адресовано ей, хотя отправитель неизвестен. Знает фотографию лагеря с воздуха — ту самую, что лежит в её конверте.",
+   "goals": [
+    "узнать, кто прислал ей снимок из будущего"
+   ],
+   "secrets": [
+    "она уже была в лагере четыре года назад и этого не помнит"
+   ],
+   "visual": {
+    "type": "sprite",
+    "states": {
+     "neutral": "images/char_demo.png",
+     "happy": "images/char_demo_happy.png",
+     "sad": "images/char_demo_sad.png"
+    }
+   }
+  },
+  {
+   "id": "player",
+   "name": "Ты",
+   "role": "игрок",
+   "personality": "молчит, пока не спросят",
+   "background": "Четыреста километров от дома, рюкзак и записка без адреса.",
+   "goals": [
+    "понять, кто такой Марина"
+   ],
+   "secrets": [],
+   "visual": {
+    "type": "sprite",
+    "states": {
+     "neutral": "images/char_demo.png"
+    }
+   }
+  }
+ ],
+ "locations": {
+  "ext_road_sunset": {
+   "description": "Развилка у сосновой тропы"
+  },
+  "ext_camp_entrance_day": {
+   "description": "Ворота лагеря «Сосны»"
+  },
+  "int_dining_hall_day": {
+   "description": "Столовая"
+  },
+  "ext_square_sunset": {
+   "description": "Площадь у доски объявлений"
+  },
+  "int_library_day": {
+   "description": "Лагерная библиотека"
+  },
+  "ext_path_sunset": {
+   "description": "Тропа к старому корпусу"
+  },
+  "int_house_of_mt_night": {
+   "description": "Коридор подвала"
+  },
+  "int_library_night": {
+   "description": "Архив, вид из окна"
+  }
+ },
+ "lore": [
+  "Участок «Марина» — не человек, а почтовая линия. Её название можно прочитать в старой картотеке, но не в списке приезжих.",
+  "Письма приходят утром двадцатого числа, и в каждом одна и та же фраза: «Место, где тебя ждали, свободно. Подходи».",
+  "На площади стоят часы без циферблата. Каждые семь минут механизм щёлкает один раз.",
+  "На фотографии четырёхлетней давности четверо подростков. Один смотрит не в камеру.",
+  "В подвале старого корпуса лежит тетрадь: сорок одна фамилия, и на второй странице одно пустое место.",
+  "Система «Марина» умеет помнить человека после того, как он исчез. Имя помнится дольше, чем человек."
+ ],
+ "scenes": [
+  {
+   "id": "ch1",
+   "title": "Глава 1. Место, которого нет",
+   "background": "ext_road_sunset",
+   "music_intent": "nostalgia",
+   "steps": [
+    {
+     "type": "scene",
+     "background": "ext_road_sunset",
+     "characters": [
+      {
+       "id": "player",
+       "emotion": "neutral",
+       "position": "center"
+      }
+     ],
+     "music_intent": "nostalgia"
+    },
+    {
+     "type": "narration",
+     "speaker": null,
+     "text": "Автобус высадил тебя на развилке, где асфальт заканчивался слишком резко, будто дорогу однажды просто забыли продолжить. Дальше начиналась сосновая тропа. Ветер шёл от озера и приносил запах хвои, сырой земли и чего-то металлического."
+    },
+    {
+     "type": "narration",
+     "speaker": null,
+     "text": "В кармане лежала записка, сложенная вчетверо. Ни имени отправителя, ни адреса. Только короткая инструкция: «Приезжай к началу второй недели. У ворот спроси девушку с рыжими волосами. Скажи, что ты от Марина»."
+    },
+    {
+     "type": "narration",
+     "speaker": null,
+     "text": "Марина ты не знал. Вторую неделю — тоже. Зато знал, что четыреста километров от дома выглядят именно так: чужая дорога, рюкзак на плече и ощущение, будто кто-то уже сделал первый ход за тебя."
+    },
+    {
+     "type": "dialogue",
+     "speaker": "nika",
+     "character": "nika",
+     "emotion": "neutral",
+     "position": "center",
+     "text": "«Ты всё-таки приехал»."
+    },
+    {
+     "type": "narration",
+     "speaker": null,
+     "text": "Девушка у ворот оттолкнулась от столба. Рыжеватые волосы выбились из хвоста, на лице застыло выражение человека, который две недели ждал ответа и теперь не уверен, что хочет его услышать."
+    },
+    {
+     "type": "dialogue",
+     "speaker": "nika",
+     "character": "nika",
+     "emotion": "neutral",
+     "position": "center",
+     "text": "«Только не говори, что ты от Марина»."
+    },
+    {
+     "type": "dialogue",
+     "speaker": "player",
+     "character": "player",
+     "emotion": "neutral",
+     "position": "center",
+     "text": "«А если от него?»"
+    },
+    {
+     "type": "narration",
+     "speaker": null,
+     "text": "На секунду в её глазах мелькнуло облегчение. Тут же исчезло."
+    },
+    {
+     "type": "dialogue",
+     "speaker": "nika",
+     "character": "nika",
+     "emotion": "neutral",
+     "position": "center",
+     "text": "«Тогда у нас проблемы. Потому что Марина не существует»."
+    },
+    {
+     "type": "narration",
+     "speaker": null,
+     "text": "Она забрала у тебя записку, пробежалась глазами и вернула обратно."
+    },
+    {
+     "type": "scene",
+     "background": "ext_camp_entrance_day",
+     "characters": [
+      {
+       "id": "player",
+       "emotion": "neutral",
+       "position": "center"
+      }
+     ],
+     "music_intent": "nostalgia"
+    },
+    {
+     "type": "dialogue",
+     "speaker": "nika",
+     "character": "nika",
+     "emotion": "neutral",
+     "position": "center",
+     "text": "«Я Ника. И прежде чем мы войдём, запомни одну вещь: здесь никто не приходит случайно»."
+    },
+    {
+     "type": "narration",
+     "speaker": null,
+     "text": "За воротами тянулась дорожка к лагерным домикам. На площади стоял столб с часами без циферблата. Стрелок не было, но механизм работал — каждые семь минут часы издавали один короткий металлический щелчок."
+    },
+    {
+     "type": "dialogue",
+     "speaker": "player",
+     "character": "player",
+     "emotion": "neutral",
+     "position": "center",
+     "text": "«Что это за место?»"
+    },
+    {
+     "type": "dialogue",
+     "speaker": "nika",
+     "character": "nika",
+     "emotion": "neutral",
+     "position": "center",
+     "text": "«Лагерь „Сосны“. Официально — место для тех, кому нужен отдых. Неофициально — место, куда приезжают люди, получившие одинаковые письма»."
+    },
+    {
+     "type": "narration",
+     "speaker": null,
+     "text": "Она помедлила."
+    },
+    {
+     "type": "dialogue",
+     "speaker": "nika",
+     "character": "nika",
+     "emotion": "neutral",
+     "position": "center",
+     "text": "«Я получила своё четыре года назад. А приехала только две недели назад»."
+    },
+    {
+     "type": "narration",
+     "speaker": null,
+     "text": "Вместо дальнейших объяснений Ника сунула тебе половину тёплой булки."
+    },
+    {
+     "type": "dialogue",
+     "speaker": "nika",
+     "character": "nika",
+     "emotion": "neutral",
+     "position": "center",
+     "text": "«Ешь. Загадки на голодный желудок выглядят убедительнее, чем они есть»."
+    },
+    {
+     "type": "narration",
+     "speaker": null,
+     "text": "Ужин начался шумно. За длинным столом спорили о лодках, сломанном генераторе и том, кто опять украл последний кусок пирога. Единственным свободным местом оказалось рядом с худощавым парнем в зелёной куртке."
+    },
+    {
+     "type": "dialogue",
+     "speaker": "egor",
+     "character": "egor",
+     "emotion": "neutral",
+     "position": "center",
+     "text": "«Если сядешь сюда, считай, место твоё до конца недели»."
+    },
+    {
+     "type": "scene",
+     "background": "int_dining_hall_day",
+     "characters": [
+      {
+       "id": "player",
+       "emotion": "neutral",
+       "position": "center"
+      }
+     ],
+     "music_intent": "comedy"
+    },
+    {
+     "type": "narration",
+     "speaker": null,
+     "text": "Он отодвинул кружку и ухмыльнулся."
+    },
+    {
+     "type": "dialogue",
+     "speaker": "egor",
+     "character": "egor",
+     "emotion": "neutral",
+     "position": "center",
+     "text": "«Я Егор. Местный комитет по плохим решениям»."
+    },
+    {
+     "type": "dialogue",
+     "speaker": "nika",
+     "character": "nika",
+     "emotion": "neutral",
+     "position": "center",
+     "text": "«Не слушай его. Он просто любит делать вид, что знает больше остальных»."
+    },
+    {
+     "type": "dialogue",
+     "speaker": "egor",
+     "character": "egor",
+     "emotion": "neutral",
+     "position": "center",
+     "text": "«Я не делаю вид»."
+    },
+    {
+     "type": "narration",
+     "speaker": null,
+     "text": "Егор постучал пальцем по столу три раза."
+    },
+    {
+     "type": "dialogue",
+     "speaker": "egor",
+     "character": "egor",
+     "emotion": "neutral",
+     "position": "center",
+     "text": "«Я действительно знаю»."
+    },
+    {
+     "type": "narration",
+     "speaker": null,
+     "text": "На четвёртый удар — а Егор ударил ещё раз, отдельно и громко — в столовой погас свет."
+    },
+    {
+     "type": "narration",
+     "speaker": null,
+     "text": "Тишина длилась всего две секунды. Потом где-то под полом раздался звон — такой же, как у часов на площади."
+    },
+    {
+     "type": "dialogue",
+     "speaker": "egor",
+     "character": "egor",
+     "emotion": "neutral",
+     "position": "center",
+     "text": "«Вот теперь ужин закончился»."
+    },
+    {
+     "type": "narration",
+     "speaker": null,
+     "text": "Он перестал улыбаться."
+    }
+   ]
+  },
+  {
+   "id": "ch2",
+   "title": "Глава 2. Четвёртая строка",
+   "background": "ext_square_sunset",
+   "music_intent": "mystery",
+   "steps": [
+    {
+     "type": "scene",
+     "background": "ext_square_sunset",
+     "characters": [
+      {
+       "id": "player",
+       "emotion": "neutral",
+       "position": "center"
+      }
+     ],
+     "music_intent": "mystery"
+    },
+    {
+     "type": "narration",
+     "speaker": null,
+     "text": "После отбоя лагерь менялся. Днём здесь всё казалось почти уютным: озеро, сосны, деревянные домики. Ночью между фонарями становились слишком длинными тени, а старый корпус за деревьями будто придвигался ближе."
+    },
+    {
+     "type": "narration",
+     "speaker": null,
+     "text": "Ника привела тебя к доске объявлений. Под стеклом висел список приезжих. Шестнадцать фамилий. Семнадцать строк."
+    },
+    {
+     "type": "dialogue",
+     "speaker": "nika",
+     "character": "nika",
+     "emotion": "neutral",
+     "position": "center",
+     "text": "«Посмотри на седьмую»."
+    },
+    {
+     "type": "narration",
+     "speaker": null,
+     "text": "Седьмая строка была стёрта. Не зачёркнута — именно стёрта. Бумага в этом месте стала тонкой и серой."
+    },
+    {
+     "type": "dialogue",
+     "speaker": "player",
+     "character": "player",
+     "emotion": "neutral",
+     "position": "center",
+     "text": "«Кто здесь был записан?»"
+    },
+    {
+     "type": "dialogue",
+     "speaker": "nika",
+     "character": "nika",
+     "emotion": "neutral",
+     "position": "center",
+     "text": "«Не знаю. Но каждый раз, когда я спрашивала, список переписывали»."
+    },
+    {
+     "type": "narration",
+     "speaker": null,
+     "text": "Позади вас скрипнула дверь."
+    },
+    {
+     "type": "dialogue",
+     "speaker": "egor",
+     "character": "egor",
+     "emotion": "neutral",
+     "position": "center",
+     "text": "«Потому что спрашивать здесь — плохая привычка»."
+    },
+    {
+     "type": "narration",
+     "speaker": null,
+     "text": "Егор стоял в нескольких шагах. В руке у него была старая жестяная коробка."
+    },
+    {
+     "type": "dialogue",
+     "speaker": "egor",
+     "character": "egor",
+     "emotion": "neutral",
+     "position": "center",
+     "text": "«Нашёл это на складе»."
+    },
+    {
+     "type": "narration",
+     "speaker": null,
+     "text": "Внутри лежали ключ, кассета и фотография. На снимке стояли четверо подростков перед старым корпусом. Троих ты не знал. Четвёртый был похож на Егор так сильно, что шутка про «местный комитет» вдруг перестала казаться смешной."
+    },
+    {
+     "type": "dialogue",
+     "speaker": "player",
+     "character": "player",
+     "emotion": "neutral",
+     "position": "center",
+     "text": "«Это твой брат?»"
+    },
+    {
+     "type": "dialogue",
+     "speaker": "egor",
+     "character": "egor",
+     "emotion": "neutral",
+     "position": "center",
+     "text": "«Не знаю»."
+    },
+    {
+     "type": "narration",
+     "speaker": null,
+     "text": "Он перевернул фотографию."
+    },
+    {
+     "type": "dialogue",
+     "speaker": "egor",
+     "character": "egor",
+     "emotion": "neutral",
+     "position": "center",
+     "text": "«Мне было шесть лет, когда его увезли»."
+    },
+    {
+     "type": "narration",
+     "speaker": null,
+     "text": "На обороте стояла дата — двадцать третье число, ровно четыре года назад."
+    },
+    {
+     "type": "dialogue",
+     "speaker": "nika",
+     "character": "nika",
+     "emotion": "neutral",
+     "position": "center",
+     "text": "«Егор, почему ты сказал, что не знаешь фотографию?»"
+    },
+    {
+     "type": "dialogue",
+     "speaker": "egor",
+     "character": "egor",
+     "emotion": "neutral",
+     "position": "center",
+     "text": "«Потому что не знаю»."
+    },
+    {
+     "type": "narration",
+     "speaker": null,
+     "text": "Он посмотрел на старый корпус."
+    },
+    {
+     "type": "dialogue",
+     "speaker": "egor",
+     "character": "egor",
+     "emotion": "neutral",
+     "position": "center",
+     "text": "«Но знаю человека, который сделал снимок»."
+    }
+   ]
+  },
+  {
+   "id": "ch3",
+   "title": "Глава 3. Вера",
+   "background": "int_library_day",
+   "music_intent": "tension",
+   "steps": [
+    {
+     "type": "scene",
+     "background": "int_library_day",
+     "characters": [
+      {
+       "id": "player",
+       "emotion": "neutral",
+       "position": "center"
+      }
+     ],
+     "music_intent": "tension"
+    },
+    {
+     "type": "narration",
+     "speaker": null,
+     "text": "В библиотеке вас встретила девушка в тёмно-синем свитере. Она сидела на подоконнике и листала толстую тетрадь, исписанную чужими почерками."
+    },
+    {
+     "type": "dialogue",
+     "speaker": "vera",
+     "character": "vera",
+     "emotion": "neutral",
+     "position": "center",
+     "text": "«Вы опоздали»."
+    },
+    {
+     "type": "dialogue",
+     "speaker": "nika",
+     "character": "nika",
+     "emotion": "neutral",
+     "position": "center",
+     "text": "«Мы не знали, что нас ждут»."
+    },
+    {
+     "type": "dialogue",
+     "speaker": "vera",
+     "character": "vera",
+     "emotion": "neutral",
+     "position": "center",
+     "text": "«Здесь это не имеет значения»."
+    },
+    {
+     "type": "narration",
+     "speaker": null,
+     "text": "Она закрыла тетрадь. На обложке было написано одно слово: «Почта»."
+    },
+    {
+     "type": "dialogue",
+     "speaker": "vera",
+     "character": "vera",
+     "emotion": "neutral",
+     "position": "center",
+     "text": "«Меня зовут Вера. Я приехала сюда три месяца назад и с тех пор собираю письма, которые никто не отправлял»."
+    },
+    {
+     "type": "dialogue",
+     "speaker": "player",
+     "character": "player",
+     "emotion": "neutral",
+     "position": "center",
+     "text": "«Письма без отправителя?»"
+    },
+    {
+     "type": "dialogue",
+     "speaker": "vera",
+     "character": "vera",
+     "emotion": "neutral",
+     "position": "center",
+     "text": "«Хуже. Письма без получателя»."
+    },
+    {
+     "type": "narration",
+     "speaker": null,
+     "text": "Она раскрыла тетрадь. Сорок одна запись. Даты совпадали с датами из блокнота её деда."
+    },
+    {
+     "type": "dialogue",
+     "speaker": "vera",
+     "character": "vera",
+     "emotion": "neutral",
+     "position": "center",
+     "text": "«Каждое письмо появляется утром двадцатого числа. В каждом одна и та же фраза: „Место, где тебя ждали, свободно. Подходи“»."
+    },
+    {
+     "type": "narration",
+     "speaker": null,
+     "text": "Егор резко выпрямился."
+    },
+    {
+     "type": "dialogue",
+     "speaker": "egor",
+     "character": "egor",
+     "emotion": "neutral",
+     "position": "center",
+     "text": "«А сорок второе?»"
+    },
+    {
+     "type": "narration",
+     "speaker": null,
+     "text": "Вера посмотрела на него."
+    },
+    {
+     "type": "dialogue",
+     "speaker": "vera",
+     "character": "vera",
+     "emotion": "neutral",
+     "position": "center",
+     "text": "«Ты тоже его видел?»"
+    },
+    {
+     "type": "narration",
+     "speaker": null,
+     "text": "Егор ничего не ответил."
+    },
+    {
+     "type": "narration",
+     "speaker": null,
+     "text": "В этот момент в библиотеке погасла настольная лампа. Из коридора донёсся звук шагов. Один. Второй. Третий."
+    },
+    {
+     "type": "dialogue",
+     "speaker": "nika",
+     "character": "nika",
+     "emotion": "neutral",
+     "position": "center",
+     "text": "«Нас кто-то запер?»"
+    },
+    {
+     "type": "narration",
+     "speaker": null,
+     "text": "Дверь действительно не открывалась."
+    },
+    {
+     "type": "dialogue",
+     "speaker": "vera",
+     "character": "vera",
+     "emotion": "neutral",
+     "position": "center",
+     "text": "«Нет»."
+    },
+    {
+     "type": "narration",
+     "speaker": null,
+     "text": "Она достала из кармана маленький ключ."
+    },
+    {
+     "type": "dialogue",
+     "speaker": "vera",
+     "character": "vera",
+     "emotion": "neutral",
+     "position": "center",
+     "text": "«Нас закрыли снаружи»."
+    }
+   ]
+  },
+  {
+   "id": "ch4",
+   "title": "Глава 4. Старый корпус",
+   "background": "ext_path_sunset",
+   "music_intent": "tension",
+   "steps": [
+    {
+     "type": "scene",
+     "background": "ext_path_sunset",
+     "characters": [
+      {
+       "id": "player",
+       "emotion": "neutral",
+       "position": "center"
+      }
+     ],
+     "music_intent": "tension"
+    },
+    {
+     "type": "narration",
+     "speaker": null,
+     "text": "Ключ подошёл к запасной двери. За ней начиналась лестница вниз."
+    },
+    {
+     "type": "narration",
+     "speaker": null,
+     "text": "На стенах сохранились старые номера комнат. Между ними попадались свежие отметки карандашом: даты, инициалы, стрелки. Кто-то продолжал пользоваться этим местом."
+    },
+    {
+     "type": "dialogue",
+     "speaker": "egor",
+     "character": "egor",
+     "emotion": "neutral",
+     "position": "center",
+     "text": "«Я говорил, что знаю человека, который сделал фотографию»."
+    },
+    {
+     "type": "narration",
+     "speaker": null,
+     "text": "Он остановился на третьей ступеньке."
+    },
+    {
+     "type": "dialogue",
+     "speaker": "egor",
+     "character": "egor",
+     "emotion": "neutral",
+     "position": "center",
+     "text": "«Это был мой брат»."
+    },
+    {
+     "type": "narration",
+     "speaker": null,
+     "text": "Ника посмотрела на него без привычной насмешки."
+    },
+    {
+     "type": "dialogue",
+     "speaker": "nika",
+     "character": "nika",
+     "emotion": "neutral",
+     "position": "center",
+     "text": "«Он здесь работал?»"
+    },
+    {
+     "type": "dialogue",
+     "speaker": "egor",
+     "character": "egor",
+     "emotion": "neutral",
+     "position": "center",
+     "text": "«Он здесь исчез»."
+    },
+    {
+     "type": "narration",
+     "speaker": null,
+     "text": "Снизу донёсся металлический скрежет."
+    },
+    {
+     "type": "narration",
+     "speaker": null,
+     "text": "Все четверо замерли."
+    },
+    {
+     "type": "scene",
+     "background": "int_house_of_mt_night",
+     "characters": [
+      {
+       "id": "player",
+       "emotion": "neutral",
+       "position": "center"
+      }
+     ],
+     "music_intent": "horror"
+    },
+    {
+     "type": "dialogue",
+     "speaker": "vera",
+     "character": "vera",
+     "emotion": "neutral",
+     "position": "center",
+     "text": "«Мы не одни»."
+    },
+    {
+     "type": "narration",
+     "speaker": null,
+     "text": "В подвале горела одна лампа. Под ней стоял письменный стол, а на столе — свежая тетрадь."
+    },
+    {
+     "type": "narration",
+     "speaker": null,
+     "text": "Первая страница была заполнена сорока одним именем. На второй странице оставалось одно место."
+    },
+    {
+     "type": "dialogue",
+     "speaker": "nika",
+     "character": "nika",
+     "emotion": "neutral",
+     "position": "center",
+     "text": "«Твоё»."
+    },
+    {
+     "type": "narration",
+     "speaker": null,
+     "text": "Твоё имя там ещё не было написано. Но чернила на кончике пера оставались влажными."
+    },
+    {
+     "type": "dialogue",
+     "speaker": "egor",
+     "character": "egor",
+     "emotion": "neutral",
+     "position": "center",
+     "text": "«Отойдите от стола»."
+    },
+    {
+     "type": "narration",
+     "speaker": null,
+     "text": "Он достал из коробки найденный ключ."
+    },
+    {
+     "type": "dialogue",
+     "speaker": "egor",
+     "character": "egor",
+     "emotion": "neutral",
+     "position": "center",
+     "text": "«Я наконец понял, зачем он мне понадобился»."
+    },
+    {
+     "type": "narration",
+     "speaker": null,
+     "text": "Щёлкнул замок."
+    },
+    {
+     "type": "narration",
+     "speaker": null,
+     "text": "За книжным шкафом открылась узкая дверь."
+    }
+   ]
+  },
+  {
+   "id": "ch5",
+   "title": "Глава 5. Человек за дверью",
+   "background": "int_library_night",
+   "music_intent": "mystery",
+   "steps": [
+    {
+     "type": "scene",
+     "background": "int_library_night",
+     "characters": [
+      {
+       "id": "player",
+       "emotion": "neutral",
+       "position": "center"
+      }
+     ],
+     "music_intent": "mystery"
+    },
+    {
+     "type": "narration",
+     "speaker": null,
+     "text": "За дверью оказался небольшой архив. Ни окон, ни мебели — только металлические шкафы. На каждом лежала табличка с датой."
+    },
+    {
+     "type": "narration",
+     "speaker": null,
+     "text": "Вера открыла ближайший шкаф."
+    },
+    {
+     "type": "dialogue",
+     "speaker": "vera",
+     "character": "vera",
+     "emotion": "neutral",
+     "position": "center",
+     "text": "«Здесь документы всех, кто когда-либо жил в лагере»."
+    },
+    {
+     "type": "dialogue",
+     "speaker": "nika",
+     "character": "nika",
+     "emotion": "neutral",
+     "position": "center",
+     "text": "«Тогда найдём Марина»."
+    },
+    {
+     "type": "narration",
+     "speaker": null,
+     "text": "Папка с этим именем оказалась пустой."
+    },
+    {
+     "type": "narration",
+     "speaker": null,
+     "text": "Не было ни фотографии, ни анкеты, ни подписи. Только конверт."
+    },
+    {
+     "type": "narration",
+     "speaker": null,
+     "text": "Ника разорвала его по краю."
+    },
+    {
+     "type": "narration",
+     "speaker": null,
+     "text": "Внутри лежал лист бумаги, исписанный от руки."
+    },
+    {
+     "type": "dialogue",
+     "speaker": "nika",
+     "character": "nika",
+     "emotion": "neutral",
+     "position": "center",
+     "text": "«Не ищите Марина. Ищите того, кто писал от его имени»."
+    },
+    {
+     "type": "narration",
+     "speaker": null,
+     "text": "Подпись отсутствовала."
+    },
+    {
+     "type": "narration",
+     "speaker": null,
+     "text": "Егор вдруг рассмеялся. Один раз, коротко и совсем без веселья."
+    },
+    {
+     "type": "dialogue",
+     "speaker": "egor",
+     "character": "egor",
+     "emotion": "neutral",
+     "position": "center",
+     "text": "«Вот теперь всё сходится»."
+    },
+    {
+     "type": "dialogue",
+     "speaker": "player",
+     "character": "player",
+     "emotion": "neutral",
+     "position": "center",
+     "text": "«Что именно?»"
+    },
+    {
+     "type": "dialogue",
+     "speaker": "egor",
+     "character": "egor",
+     "emotion": "neutral",
+     "position": "center",
+     "text": "«Марина не человек»."
+    },
+    {
+     "type": "narration",
+     "speaker": null,
+     "text": "Он поднял фотографию из жестяной коробки."
+    },
+    {
+     "type": "dialogue",
+     "speaker": "egor",
+     "character": "egor",
+     "emotion": "neutral",
+     "position": "center",
+     "text": "«„Марина“ — так в почтовой картотеке называется участок, откуда идёт всё, что приходит в лагерь. Мой брат искал не человека. Он искал маршрут, по которому письма приходили сюда ещё до того, как лагерь построили»."
+    },
+    {
+     "type": "narration",
+     "speaker": null,
+     "text": "Из дальнего шкафа донёсся щелчок."
+    },
+    {
+     "type": "narration",
+     "speaker": null,
+     "text": "Папка сама выдвинулась на несколько сантиметров."
+    },
+    {
+     "type": "narration",
+     "speaker": null,
+     "text": "На её корешке было написано сегодняшнее число."
+    },
+    {
+     "type": "dialogue",
+     "speaker": "vera",
+     "character": "vera",
+     "emotion": "neutral",
+     "position": "center",
+     "text": "«Её не было здесь минуту назад»."
+    }
+   ]
+  },
+  {
+   "id": "ch6",
+   "title": "Глава 6. После полуночи",
+   "background": "int_house_of_mt_night",
+   "music_intent": "horror",
+   "steps": [
+    {
+     "type": "scene",
+     "background": "int_house_of_mt_night",
+     "characters": [
+      {
+       "id": "player",
+       "emotion": "neutral",
+       "position": "center"
+      }
+     ],
+     "music_intent": "horror"
+    },
+    {
+     "type": "narration",
+     "speaker": null,
+     "text": "Папку открыли прямо на полу."
+    },
+    {
+     "type": "narration",
+     "speaker": null,
+     "text": "Внутри находилась карта местности. На ней были отмечены сорок два дома — не сорок один. Последняя точка находилась за пределами лагеря."
+    },
+    {
+     "type": "dialogue",
+     "speaker": "nika",
+     "character": "nika",
+     "emotion": "neutral",
+     "position": "center",
+     "text": "«Вот почему в списке была пустая строка»."
+    },
+    {
+     "type": "dialogue",
+     "speaker": "egor",
+     "character": "egor",
+     "emotion": "neutral",
+     "position": "center",
+     "text": "«Не пустая»."
+    },
+    {
+     "type": "narration",
+     "speaker": null,
+     "text": "Он провёл пальцем по карте."
+    },
+    {
+     "type": "dialogue",
+     "speaker": "egor",
+     "character": "egor",
+     "emotion": "neutral",
+     "position": "center",
+     "text": "«Её оставили для человека, который ещё не приехал»."
+    },
+    {
+     "type": "narration",
+     "speaker": null,
+     "text": "В дальнем конце коридора вспыхнул свет."
+    },
+    {
+     "type": "narration",
+     "speaker": null,
+     "text": "Кто-то прошёл мимо двери архива. Медленно. Без попытки скрыть шаги."
+    },
+    {
+     "type": "dialogue",
+     "speaker": "vera",
+     "character": "vera",
+     "emotion": "neutral",
+     "position": "center",
+     "text": "«Если это тот, кто пишет письма, почему он не прячется?»"
+    },
+    {
+     "type": "dialogue",
+     "speaker": "egor",
+     "character": "egor",
+     "emotion": "neutral",
+     "position": "center",
+     "text": "«Потому что теперь ему незачем»."
+    },
+    {
+     "type": "narration",
+     "speaker": null,
+     "text": "Дверь архива распахнулась."
+    },
+    {
+     "type": "narration",
+     "speaker": null,
+     "text": "На пороге стоял мужчина лет сорока в мокром плаще. В руках он держал связку ключей."
+    },
+    {
+     "type": "dialogue",
+     "speaker": "gleb",
+     "character": "gleb",
+     "emotion": "neutral",
+     "position": "center",
+     "text": "«Вы долго»."
+    },
+    {
+     "type": "narration",
+     "speaker": null,
+     "text": "Ника инстинктивно встала между ним и тобой."
+    },
+    {
+     "type": "dialogue",
+     "speaker": "gleb",
+     "character": "gleb",
+     "emotion": "neutral",
+     "position": "center",
+     "text": "«Спокойно. Я не тот, кого вы ищете»."
+    },
+    {
+     "type": "dialogue",
+     "speaker": "player",
+     "character": "player",
+     "emotion": "neutral",
+     "position": "center",
+     "text": "«Тогда кто вы?»"
+    },
+    {
+     "type": "narration",
+     "speaker": null,
+     "text": "Мужчина положил ключи на пол."
+    },
+    {
+     "type": "dialogue",
+     "speaker": "gleb",
+     "character": "gleb",
+     "emotion": "neutral",
+     "position": "center",
+     "text": "«Тот, кто четыре года пытался не дать этому месту снова принять письма»."
+    },
+    {
+     "type": "narration",
+     "speaker": null,
+     "text": "Он посмотрел на Егора."
+    },
+    {
+     "type": "dialogue",
+     "speaker": "gleb",
+     "character": "gleb",
+     "emotion": "neutral",
+     "position": "center",
+     "text": "«А ты слишком похож на своего брата»."
+    },
+    {
+     "type": "narration",
+     "speaker": null,
+     "text": "Егор застыл."
+    },
+    {
+     "type": "dialogue",
+     "speaker": "gleb",
+     "character": "gleb",
+     "emotion": "neutral",
+     "position": "center",
+     "text": "«Поэтому я и боялся, что ты однажды сюда придёшь»."
+    },
+    {
+     "type": "narration",
+     "speaker": null,
+     "text": "Снаружи ударил колокол."
+    },
+    {
+     "type": "narration",
+     "speaker": null,
+     "text": "На этот раз он прозвучал сорок два раза."
+    },
+    {
+     "type": "narration",
+     "speaker": null,
+     "text": "После последнего удара в коридоре появился ещё один человек."
+    },
+    {
+     "type": "narration",
+     "speaker": null,
+     "text": "Девушка в белой куртке стояла у лестницы и держала в руках свежий конверт."
+    },
+    {
+     "type": "dialogue",
+     "speaker": "mila",
+     "character": "mila",
+     "emotion": "neutral",
+     "position": "center",
+     "text": "«Письмо пришло»."
+    },
+    {
+     "type": "narration",
+     "speaker": null,
+     "text": "Она посмотрела прямо на тебя."
+    },
+    {
+     "type": "dialogue",
+     "speaker": "mila",
+     "character": "mila",
+     "emotion": "neutral",
+     "position": "center",
+     "text": "«И в этот раз оно адресовано не тебе»."
+    },
+    {
+     "type": "narration",
+     "speaker": null,
+     "text": "Мила не стала протягивать конверт — просто прижала его к груди и посмотрела на Нику."
+    },
+    {
+     "type": "dialogue",
+     "speaker": "mila",
+     "character": "mila",
+     "emotion": "neutral",
+     "position": "center",
+     "text": "«Оно для меня»."
+    }
+   ]
+  },
+  {
+   "id": "ch7",
+   "title": "Глава 7. Письмо Милы",
+   "background": "int_library_night",
+   "music_intent": "tension",
+   "steps": [
+    {
+     "type": "scene",
+     "background": "int_library_night",
+     "characters": [
+      {
+       "id": "player",
+       "emotion": "neutral",
+       "position": "center"
+      }
+     ],
+     "music_intent": "tension"
+    },
+    {
+     "type": "narration",
+     "speaker": null,
+     "text": "Конверт был тёплым, будто его только что прогрели."
+    },
+    {
+     "type": "narration",
+     "speaker": null,
+     "text": "Мила вскрыла его ножом. Внутри лежала фотография лагеря, сделанная с воздуха."
+    },
+    {
+     "type": "dialogue",
+     "speaker": "mila",
+     "character": "mila",
+     "emotion": "neutral",
+     "position": "center",
+     "text": "«Это невозможно»."
+    },
+    {
+     "type": "dialogue",
+     "speaker": "egor",
+     "character": "egor",
+     "emotion": "neutral",
+     "position": "center",
+     "text": "«Почему?»"
+    },
+    {
+     "type": "dialogue",
+     "speaker": "mila",
+     "character": "mila",
+     "emotion": "neutral",
+     "position": "center",
+     "text": "«Потому что фотография датирована завтрашним днём»."
+    },
+    {
+     "type": "narration",
+     "speaker": null,
+     "text": "На обратной стороне было всего три слова: «Не открывайте ворота»."
+    },
+    {
+     "type": "narration",
+     "speaker": null,
+     "text": "За окнами послышался двигатель."
+    },
+    {
+     "type": "narration",
+     "speaker": null,
+     "text": "На подъездной дороге появился автомобиль. Один. Потом второй."
+    },
+    {
+     "type": "narration",
+     "speaker": null,
+     "text": "Глеб выглянул наружу и впервые за всё время потерял спокойствие."
+    },
+    {
+     "type": "dialogue",
+     "speaker": "gleb",
+     "character": "gleb",
+     "emotion": "neutral",
+     "position": "center",
+     "text": "«Уходим через озеро»."
+    },
+    {
+     "type": "dialogue",
+     "speaker": "nika",
+     "character": "nika",
+     "emotion": "neutral",
+     "position": "center",
+     "text": "«Кто приехал?»"
+    },
+    {
+     "type": "dialogue",
+     "speaker": "gleb",
+     "character": "gleb",
+     "emotion": "neutral",
+     "position": "center",
+     "text": "«Те, кто четыре года назад уже пытались забрать архив»."
+    },
+    {
+     "type": "narration",
+     "speaker": null,
+     "text": "Егор сжал фотографию в руке."
+    },
+    {
+     "type": "dialogue",
+     "speaker": "egor",
+     "character": "egor",
+     "emotion": "neutral",
+     "position": "center",
+     "text": "«А мой брат?»"
+    },
+    {
+     "type": "narration",
+     "speaker": null,
+     "text": "Глеб ответил не сразу."
+    },
+    {
+     "type": "dialogue",
+     "speaker": "gleb",
+     "character": "gleb",
+     "emotion": "neutral",
+     "position": "center",
+     "text": "«Твой брат не исчез»."
+    },
+    {
+     "type": "narration",
+     "speaker": null,
+     "text": "Тишина стала тяжелее любой угрозы."
+    },
+    {
+     "type": "dialogue",
+     "speaker": "gleb",
+     "character": "gleb",
+     "emotion": "neutral",
+     "position": "center",
+     "text": "«Он добровольно остался внутри системы»."
+    },
+    {
+     "type": "narration",
+     "speaker": null,
+     "text": "Вера подняла голову."
+    },
+    {
+     "type": "dialogue",
+     "speaker": "vera",
+     "character": "vera",
+     "emotion": "neutral",
+     "position": "center",
+     "text": "«Какой системы?»"
+    },
+    {
+     "type": "narration",
+     "speaker": null,
+     "text": "Глеб посмотрел на старый стол, где лежала тетрадь с сорока двумя строками."
+    },
+    {
+     "type": "dialogue",
+     "speaker": "gleb",
+     "character": "gleb",
+     "emotion": "neutral",
+     "position": "center",
+     "text": "«Системы, которая умеет помнить людей после того, как они исчезают»."
+    },
+    {
+     "type": "narration",
+     "speaker": null,
+     "text": "Снаружи хлопнула дверца машины."
+    },
+    {
+     "type": "narration",
+     "speaker": null,
+     "text": "Кто-то вошёл в лагерь."
+    }
+   ]
+  }
+ ]
+}

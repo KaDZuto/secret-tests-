@@ -1,0 +1,29 @@
+{
+  "e36c6_mbf67": {
+    "eyes": {"open": 1, "closed": 0, "happy": 7, "wide": 2},
+    "mouth": {"neutral": 2, "smile": 19, "small": 6, "open": 0}
+  },
+  "e3c85_mnone": {"eyes": {"open": 1, "closed": 0, "wide": 2}},
+  "e8ac3_m966b": {
+    "eyes": {"open": 1, "closed": 0, "wide": 2},
+    "mouth": {"neutral": 2, "smile": 11, "grin": 6, "laugh": 0, "open": 18}
+  },
+  "ea9b4_mnone": {"eyes": {"open": 1, "closed": 0, "wide": 2}},
+  "e4498_md61f": {
+    "eyes": {"open": 1, "closed": 0, "happy": 12, "wide": 2},
+    "mouth": {"neutral": 11, "smile": 2, "grin": 13, "open": 1, "small": 4, "surprise": 0, "laugh": 18, "frown": 14}
+  },
+  "e75ea_m6bdb": {
+    "eyes": {"open": 1, "closed": 0, "happy": 9, "wide": 2},
+    "mouth": {"neutral": 14, "smile": 2, "grin": 10, "open": 1, "small": 13, "surprise": 0, "laugh": 9}
+  },
+  "e97ec_mec32": {
+    "eyes": {"open": 1, "closed": 0, "happy": 9, "wide": 2},
+    "mouth": {"neutral": 14, "smile": 2, "grin": 10, "open": 1, "small": 13, "surprise": 0, "laugh": 9}
+  },
+  "ec432_m8fa3": {
+    "eyes": {"open": 1, "closed": 0, "happy": 12, "wide": 2},
+    "mouth": {"neutral": 11, "smile": 2, "grin": 13, "open": 1, "small": 4, "surprise": 0, "laugh": 18, "frown": 14}
+  },
+  "ef70d_mnone": {"eyes": {"open": 1, "closed": 0, "wide": 2}}
+}

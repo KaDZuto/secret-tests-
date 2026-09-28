@@ -1,0 +1,95 @@
+{
+ "ec5bd_m7770": {
+  "poses": [
+   "pose_09_000",
+   "pose_09_002",
+   "pose_09_008"
+  ],
+  "eyes": {
+   "frame": [
+    208,
+    100
+   ],
+   "margin": [
+    0,
+    4
+   ],
+   "frames": {
+    "open": 1,
+    "closed": 3,
+    "half": 7,
+    "wide": 2,
+    "up": 14
+   },
+   "offset": [
+    380,
+    111
+   ],
+   "misses": 200
+  },
+  "mouth": {
+   "frame": [
+    136,
+    102
+   ],
+   "margin": [
+    0,
+    4
+   ],
+   "frames": {
+    "neutral": 7,
+    "smile": 4,
+    "grin": 3,
+    "laugh": 2,
+    "open": 0,
+    "frown": 10,
+    "small": 5,
+    "surprise": 8
+   },
+   "offset": [
+    420,
+    231
+   ],
+   "misses": 61
+  },
+  "emotions": {
+   "neutral": {
+    "eyes": "open",
+    "mouth": "neutral"
+   },
+   "smile": {
+    "eyes": "open",
+    "mouth": "smile"
+   },
+   "happy": {
+    "eyes": "wide",
+    "mouth": "grin"
+   },
+   "laugh": {
+    "eyes": "wide",
+    "mouth": "laugh"
+   },
+   "surprised": {
+    "eyes": "wide",
+    "mouth": "surprise"
+   },
+   "sad": {
+    "eyes": "half",
+    "mouth": "frown"
+   },
+   "closed": {
+    "eyes": "closed",
+    "mouth": "neutral"
+   },
+   "think": {
+    "eyes": "up",
+    "mouth": "small"
+   },
+   "shy": {
+    "eyes": "half",
+    "mouth": "small"
+   }
+  },
+  "geometry": "measured"
+ }
+}

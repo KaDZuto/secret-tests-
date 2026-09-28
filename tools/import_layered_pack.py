@@ -137,43 +137,8 @@ def load_rgba(path):
     return result.stdout
 
 
-def rank_offsets(base_pixels, base_w, base_h, layer_pixels, layer_w, layer_h, seed, window, step):
-    """Score every candidate offset by how much the base changes under the layer.
-
-    Comparing the layer against the base directly does not work: the layer *replaces* the
-    face rather than matching it, so the error is minimised by sliding the layer onto the
-    cheek. Scoring the *result* instead rewards the offset where the hair strands fall on
-    the same hair strands, which is the one that is actually correct.
-
-    The score is the number of differing bytes, reached with a big-integer XOR per row.
-    That is a ranking proxy, not a pixel count, and the winner is re-measured properly
-    afterwards; the point is that this runs in seconds instead of one ImageMagick process
-    per candidate, which is what made the first version unusable.
-    """
-    row_bytes = layer_w * 4
-    ranked = []
-    for dy in range(max(0, int(seed[1]) - window), int(seed[1]) + window + 1, step):
-        if dy + layer_h > base_h:
-            continue
-        for dx in range(max(0, int(seed[0]) - window), int(seed[0]) + window + 1, step):
-            if dx + layer_w > base_w:
-                continue
-            score = 0
-            for row in range(layer_h):
-                start = ((dy + row) * base_w + dx) * 4
-                here = base_pixels[start:start + row_bytes]
-                there = layer_pixels[row * row_bytes:(row + 1) * row_bytes]
-                if here == there:
-                    continue
-                merged = (int.from_bytes(here, "big") ^ int.from_bytes(there, "big"))
-                score += row_bytes - merged.to_bytes(row_bytes, "big").count(0)
-            ranked.append((score, dx, dy))
-    ranked.sort()
-    return ranked
-
-
 def changed_pixels(base, layer, dx, dy, scratch):
-    """Exact count of pixels that differ, used to confirm the ranking's winner."""
+    """Exact count of pixels that differ, used to confirm the search's winner."""
     subprocess.run(["magick", base, layer, "-geometry", "+%d+%d" % (dx, dy),
                     "-composite", scratch],
                    stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, check=True)
@@ -185,34 +150,123 @@ def changed_pixels(base, layer, dx, dy, scratch):
         return float("inf")
 
 
-def find_offset(base, layer, guess, scratch, window=20, step=1):
-    """Measure where a face part belongs on this pose, and return (pixels, x, y).
+def varying_mask(frames, width, height):
+    """Which pixels of a face strip the animation actually changes.
 
-    The search is seeded from the previous pose of the same set, because poses of one outfit
-    share a head position; a narrow window around that seed is both faster and safer than a
-    blind full-image scan, which can otherwise lock onto a cheek.
+    Every frame of an eyes or mouth strip carries the same face around the moving part, so
+    the pixels that differ from frame to frame are the expression and everything else is
+    background. That split is what makes the offset measurable: the background has to land
+    on the body *exactly*, and the expression is free to differ, because it is supposed to.
+    """
+
+    def row_bytes(buf, r):
+        start = r * width * 4
+        return buf[start:start + width * 4]
+
+    mask = bytearray(width * height)
+    reference = frames[0]
+    for other in frames[1:]:
+        for r in range(height):
+            left = row_bytes(reference, r)
+            right = row_bytes(other, r)
+            if left == right:
+                continue
+            for c in range(width):
+                if left[c * 4:c * 4 + 4] != right[c * 4:c * 4 + 4]:
+                    mask[r * width + c] = 1
+    return mask
+
+
+def background_misses(base, base_w, layer, layer_w, layer_h, mask, dx, dy):
+    """Pixels outside the face that the layer would cover wrongly at this offset.
+
+    This is the metric that works, and it is worth being precise about why the earlier ones
+    did not. Comparing the layer against the body rewards the offset where the hair strands
+    fall on the same hair strands, which is usually right; but it is a soft signal, and with
+    a seed more than a few pixels off it settles on a local optimum and stays there. Counting
+    only the *background* makes the signal sharp instead: at the true offset the count is
+    exactly zero, because the layer's unchanged face is the same artwork as the body's face.
+    """
+    misses = 0
+    for r in range(layer_h):
+        start = ((dy + r) * base_w + dx) * 4
+        here = base[start:start + layer_w * 4]
+        there = layer[r * layer_w * 4:(r + 1) * layer_w * 4]
+        if here == there:
+            continue
+        merged = (int.from_bytes(here, "big") ^ int.from_bytes(there, "big")).to_bytes(
+            layer_w * 4, "big")
+        row = r * layer_w
+        for c in range(layer_w):
+            if merged[c * 4:c * 4 + 4] == b"\0\0\0\0":
+                continue
+            if not mask[row + c]:
+                misses += 1
+    return misses
+
+
+def find_offset(base, layer_path, frames, guess, scratch, window, step=2, fine=3):
+    """Where a face part belongs on this body, measured instead of guessed.
+
+    `frames` are the strip's own frames, used to tell the expression from the background.
+    The search is coarse then fine, and the winner is confirmed with an exact pixel count
+    against the composited result. `window` is wide for the first pose of a set, where
+    nothing is known yet, and narrow afterwards: poses of one outfit share a head position,
+    so the first correct answer is the best seed for the rest.
     """
     base_w, base_h = image_size(base)
-    layer_w, layer_h = image_size(layer)
-    ranked = rank_offsets(load_rgba(base), base_w, base_h,
-                          load_rgba(layer), layer_w, layer_h, guess, window, step)
-    if not ranked:
+    layer_w, layer_h = image_size(layer_path)
+    layer = load_rgba(layer_path)
+    mask = varying_mask(frames, layer_w, layer_h)
+
+    base_pixels = load_rgba(base)
+    best = None
+    for dy in range(max(0, int(guess[1]) - window), min(base_h - layer_h, int(guess[1]) + window) + 1, step):
+        for dx in range(max(0, int(guess[0]) - window), min(base_w - layer_w, int(guess[0]) + window) + 1, step):
+            value = background_misses(base_pixels, base_w, layer, layer_w, layer_h, mask, dx, dy)
+            if best is None or value < best[0]:
+                best = (value, dx, dy)
+    if best:
+        for dy in range(best[2] - fine, best[2] + fine + 1):
+            for dx in range(max(0, best[1] - fine), best[1] + fine + 1):
+                value = background_misses(base_pixels, base_w, layer, layer_w, layer_h, mask, dx, dy)
+                if value < best[0]:
+                    best = (value, dx, dy)
+    if not best:
         return None
-    confirmed = []
-    for score, dx, dy in ranked[:3]:
-        exact = changed_pixels(base, layer, dx, dy, scratch)
-        confirmed.append((exact, dx, dy))
-    confirmed.sort()
-    return confirmed[0]
+    exact = changed_pixels(base, layer_path, best[1], best[2], scratch)
+    return (exact, best[1], best[2])
 
 
-def _frame_on_disk(pack_dir, part, entry, expressions):
-    """A sliced frame to measure against: the first one any expression asks for."""
+def _layer_files(pack_dir, part, entry, expressions):
+    """The layer's own frames on disk, which is what the offset is measured against."""
     names = entry.get("names") or []
+    picked = []
     for value in expressions.values():
-        if value.get(part) and value[part] in names:
-            return os.path.join(pack_dir, part, entry["dir"], value[part] + ".png")
-    return os.path.join(pack_dir, part, entry["dir"], names[0] + ".png") if names else None
+        name = value.get(part)
+        if name and name in names and name not in picked:
+            picked.append(name)
+    return [os.path.join(pack_dir, part, entry["dir"], name + ".png") for name in picked]
+
+
+def _available_frame(wanted, part, available):
+    """The frame to paste for this expression, or None when the set has none.
+
+    The expression table is shared by every layer set, but the sets do not carry the same
+    frames: one outfit has three eye shapes and no mouth strip at all, so the frame the table
+    asks for is simply not on disk. Asking for the one it does have keeps every pose
+    expressible, and skipping the part entirely leaves the body's own face in place, which is
+    what happened when the missing file was handed to the compositor instead.
+    """
+    name = wanted.get(part)
+    if not name or not available:
+        return None
+    if name in available:
+        return name
+    for fallback in (("open", "closed") if part == "eyes" else ("neutral", "smile")):
+        if fallback in available:
+            return fallback
+    return None
 
 
 def bake_pose(base_path, pack_dir, layers, expressions, dest_dir, pose):
@@ -231,10 +285,10 @@ def bake_pose(base_path, pack_dir, layers, expressions, dest_dir, pose):
             entry = layers.get(part)
             if not entry:
                 continue
-            name = (expressions.get(emotion) or {}).get(part)
+            name = _available_frame(expressions.get(emotion) or {}, part, entry[2])
             if not name:
                 continue
-            set_dir, offset = entry
+            set_dir, offset = entry[0], entry[1]
             path = os.path.join(pack_dir, part, set_dir, name + ".png")
             command += ["(", path, ")",
                         "-geometry", "+%d+%d" % (int(offset[0]), int(offset[1])),
@@ -258,7 +312,10 @@ def main():
     parser.add_argument("--no-auto-offset", dest="auto_offset", action="store_false",
                         help="trust the offsets in the config instead of measuring each pose")
     parser.set_defaults(auto_offset=True)
-    parser.add_argument("--offset-window", type=int, default=20)
+    parser.add_argument("--offset-window", type=int, default=12,
+                        help="search radius around a known offset, in pixels")
+    parser.add_argument("--first-offset-window", type=int, default=56,
+                        help="search radius for the first pose of a layer set")
     parser.add_argument("--dry-run", action="store_true")
     args = parser.parse_args()
 
@@ -355,17 +412,24 @@ def main():
             if args.auto_offset:
                 # Seed from the first pose of the set: the head sits in the same place on
                 # every pose of one outfit, so the search only has to correct a little.
-                seed = measured.setdefault(key, {}).get(part) or offset or (200, 150)
-                layer_path = _frame_on_disk(pack_dir, part, entry, expressions)
-                if layer_path and os.path.exists(layer_path):
-                    found_offset = find_offset(found["base"], layer_path, seed, scratch,
-                                               window=args.offset_window)
+                known = measured.setdefault(key, {}).get(part)
+                seed = known or offset or (200, 150)
+                # The first pose of a set has nothing to trust, so it gets a wide search.
+                # A narrow one is not a shortcut here: it is what left the first pose stuck
+                # in a local optimum while the poses after it walked onto the right answer.
+                window = args.offset_window if known else args.first_offset_window
+                layer_files = [p for p in _layer_files(pack_dir, part, entry, expressions)
+                               if os.path.exists(p)]
+                if layer_files:
+                    found_offset = find_offset(found["base"], layer_files[0],
+                                               [load_rgba(p) for p in layer_files],
+                                               seed, scratch, window=window)
                     if found_offset:
                         measured[key][part] = [found_offset[1], found_offset[2]]
                         offset = [found_offset[1], found_offset[2]]
                         entry["offset_measured"] = offset
             if offset:
-                layers[part] = (entry["dir"], offset)
+                layers[part] = (entry["dir"], offset, set(entry.get("names") or ()))
         if not layers:
             continue
         written = bake_pose(found["base"], pack_dir, layers, expressions,

@@ -1,0 +1,161 @@
+{
+ "e3b38_md38f": {
+  "poses": [
+   "pose_06_100",
+   "pose_06_103",
+   "pose_06_104"
+  ],
+  "eyes": {
+   "frame": [
+    224,
+    126
+   ],
+   "margin": [
+    0,
+    6
+   ],
+   "frames": {
+    "open": 0,
+    "closed": 2,
+    "half": 6,
+    "wide": 1,
+    "happy": 11
+   }
+  },
+  "mouth": {
+   "frame": [
+    72,
+    66
+   ],
+   "margin": [
+    0,
+    0
+   ],
+   "frames": {
+    "neutral": 2,
+    "smile": 8,
+    "grin": 6,
+    "laugh": 3,
+    "open": 4,
+    "small": 0
+   }
+  },
+  "emotions": {
+   "neutral": {
+    "eyes": "open",
+    "mouth": "neutral"
+   },
+   "smile": {
+    "eyes": "open",
+    "mouth": "smile"
+   },
+   "happy": {
+    "eyes": "happy",
+    "mouth": "grin"
+   },
+   "laugh": {
+    "eyes": "happy",
+    "mouth": "laugh"
+   },
+   "surprised": {
+    "eyes": "wide",
+    "mouth": "open"
+   },
+   "sad": {
+    "eyes": "half",
+    "mouth": "neutral"
+   },
+   "closed": {
+    "eyes": "closed",
+    "mouth": "neutral"
+   },
+   "think": {
+    "eyes": "open",
+    "mouth": "small"
+   },
+   "shy": {
+    "eyes": "half",
+    "mouth": "small"
+   }
+  }
+ },
+ "e88c8_m6d0c": {
+  "poses": [
+   "pose_06_000",
+   "pose_06_003",
+   "pose_06_004"
+  ],
+  "eyes": {
+   "frame": [
+    240,
+    136
+   ],
+   "margin": [
+    0,
+    0
+   ],
+   "frames": {
+    "open": 0,
+    "closed": 2,
+    "wide": 1,
+    "happy": 14
+   }
+  },
+  "mouth": {
+   "frame": [
+    80,
+    78
+   ],
+   "margin": [
+    0,
+    4
+   ],
+   "frames": {
+    "neutral": 2,
+    "smile": 10,
+    "grin": 8,
+    "laugh": 3,
+    "open": 0,
+    "small": 1
+   }
+  },
+  "emotions": {
+   "neutral": {
+    "eyes": "open",
+    "mouth": "neutral"
+   },
+   "smile": {
+    "eyes": "open",
+    "mouth": "smile"
+   },
+   "happy": {
+    "eyes": "happy",
+    "mouth": "grin"
+   },
+   "laugh": {
+    "eyes": "happy",
+    "mouth": "laugh"
+   },
+   "surprised": {
+    "eyes": "wide",
+    "mouth": "open"
+   },
+   "sad": {
+    "eyes": "open",
+    "mouth": "neutral"
+   },
+   "closed": {
+    "eyes": "closed",
+    "mouth": "neutral"
+   },
+   "think": {
+    "eyes": "open",
+    "mouth": "small"
+   },
+   "shy": {
+    "eyes": "open",
+    "mouth": "small"
+   }
+  }
+ }
+}

@@ -35,20 +35,45 @@ import renpy
 TEST_KEY = "vn_last_test"
 SCAN_KEY = "vn_last_scan"
 
-# Widths chosen for the panel: the status line is one line, the inline test result is one
-# line next to its button, and the detail line below them is two.
+# Widths chosen for the panel: the status strip is three fixed lines (the verdict, the
+# reason, the advice), the inline test result is one line next to its button, and the
+# detail line under the check card is two.
+STRIP_LIMIT = 78
 INLINE_LIMIT = 64
 DETAIL_LIMIT = 200
 ERROR_LIMIT = 90
 
-SECTION_HELP = {
-    "ai": "ИИ — адрес сервера, модель и параметры генерации; здесь же настоящая проверка соединения.",
-    "assets": "Ассеты — персонажи и фоны, которые игра берёт из папок и паков, и привязка их к миру.",
-    "sound": "Звук — музыка, громкости каналов и локальная озвучка через Silero/TTS.",
-    "ui": "Интерфейс — стандартные настройки Ren'Py, Live2D и режим слабой машины.",
-    "data": "Данные — экспорт и импорт мира в JSON, которым можно поделиться с другим игроком.",
-    "cannibalism": "Поглощение — разбор чужой игры и перенос её ресурсов сюда, с оценкой ИИ.",
-}
+# A check must not freeze the panel for the whole generation timeout, which is two
+# minutes on purpose: the request it sends is the same one the generator sends, and for
+# an answer that means "not listening" a dead socket is the normal case, not a slow model.
+CHECK_TIMEOUT = 30
+
+# What a check can end as is named in the layout module (`VERDICTS`); the advice for a
+# failure is keyed by a fragment of the message the server or the socket actually said.
+# The server's own words are shown above these, and without a next step they read as a
+# dead end, which is how "настройки не факт что работают" starts.
+#
+# Every line is kept under `STRIP_LIMIT` characters on purpose: the status strip has a
+# fixed height, so one wrapped line would push the panel out of its box. The full
+# message is one scroll away, in the check card of the provider section.
+ADVICE = (
+    ("connection refused", "Сервер не слушает этот порт. Запусти модель "
+                           "(Ollama, LM Studio, llama.cpp)."),
+    ("timed out", "Ответа не было. Повтори проверку или подними таймаут."),
+    ("timeout", "Ответа не было. Проверь, что модель загрузилась, или подними таймаут."),
+    ("name or service not known", "Адрес не найден. Проверь имя хоста и порт модели."),
+    ("404", "Нужен путь до /v1/chat/completions, например "
+            "http://127.0.0.1:11434/v1/chat/completions"),
+    ("401", "Ключ отвергнут. Локальному серверу ключ не нужен — очисти поле."),
+    ("403", "Сервер не пускает с этим ключом. Проверь ключ или права."),
+    ("503", "Модель не загружена или сервер перегружен. Подожди и повтори."),
+    ("502", "Прокси не получил ответ от модели. Подожди загрузки и повтори."),
+    ("connection reset", "Сервер оборвал соединение — это перезапуск модели. Повтори."),
+    ("без choices", "Сервер ответил не как OpenAI-совместимый. Включи режим /v1."),
+    ("не задан", "Впиши адрес сервера выше и повтори проверку."),
+    ("не выбрана", "Выбери или впиши модель выше и повтори проверку."),
+)
+
 
 
 # ----------------------------------------------------------------------- helpers
@@ -81,14 +106,6 @@ def _plural(number, one, few, many):
     if 2 <= number % 10 <= 4 and not 12 <= number % 100 <= 14:
         return few
     return many
-
-
-def _characters(count):
-    return "%d %s" % (count, _plural(count, "персонаж", "персонажа", "персонажей"))
-
-
-def _backgrounds(count):
-    return "%d %s" % (count, _plural(count, "фон", "фона", "фонов"))
 
 
 def _clock(epoch):
@@ -168,7 +185,7 @@ def _headers():
     return result
 
 
-def _direct_test(url, model):
+def _direct_test(url, model, timeout=None):
     """The provider's own request, issued from a module that can reach the transport."""
     from renpy.exports.fetchexports import fetch
 
@@ -182,13 +199,15 @@ def _direct_test(url, model):
         "max_tokens": 24,
         "temperature": 0.0,
     }
+    if timeout is None:
+        timeout = CHECK_TIMEOUT
     try:
         result = fetch(
             url,
             method="POST",
             json=payload,
             headers=_headers(),
-            timeout=int(_settings().get("timeout", 60) or 60),
+            timeout=int(timeout),
             result="json",
         )
     except Exception as exc:
@@ -201,9 +220,26 @@ def _direct_test(url, model):
     return True, text or "(пусто)"
 
 
-def _remember(ok, text, elapsed_ms, model, url):
+# How a failure ended. A timeout is its own verdict: it is the one failure that is
+# usually not a mistake in the address, and the advice differs from the other errors.
+_TIMEOUT_WORDS = ("timed out", "timeout", "таймаут", "превышено время")
+
+
+def classify(message, ok):
+    """"ok", "timeout" or "error", from what the server or the socket actually said."""
+    if ok:
+        return "ok"
+    lowered = str(message or "").lower()
+    for word in _TIMEOUT_WORDS:
+        if word in lowered:
+            return "timeout"
+    return "error"
+
+
+def _remember(ok, text, elapsed_ms, model, url, kind=None):
     record = {
         "ok": bool(ok),
+        "kind": kind or classify(text, ok),
         "text": text,
         "elapsed_ms": int(elapsed_ms),
         "model": model,
@@ -227,42 +263,89 @@ def _remember(ok, text, elapsed_ms, model, url):
 
 
 def test_now():
-    """Send one real request and remember what came back. Returns (ok, text, elapsed_ms)."""
-    import ai_provider
+    """Send one real request and remember what came back. Returns (ok, text, elapsed_ms).
 
+    The request is issued from here rather than from `ai_provider`, for two reasons that
+    used to live in a try/except: `ai_provider` reaches for `renpy.fetch`, which is not an
+    attribute of the `renpy` package, so that path always fell through; and the check
+    needs a shorter ceiling than the two-minute generation timeout, because a settings
+    panel that hangs for two minutes is indistinguishable from a crashed game. The
+    request itself is the same one the generator makes, to the same address, with the
+    same key and the same model.
+    """
     settings = _settings()
     model = str(settings.get("model", "") or "")
     url = str(settings.get("api_url", "") or "")
 
     started = time.time()
     try:
-        ok, message = ai_provider.test_connection()
-    except AttributeError:
-        # The provider module cannot reach renpy.fetch. Measure the same endpoint here
-        # rather than reporting our own plumbing as a broken server.
-        ok, message = _direct_test(url, model)
+        ok, message = _direct_test(url, model, timeout=CHECK_TIMEOUT)
     except Exception as exc:
         ok, message = False, "Ошибка проверки: " + _clip(exc, ERROR_LIMIT)
     elapsed_ms = int((time.time() - started) * 1000)
 
     words = _clip(_reply_words(message, ok), ERROR_LIMIT)
-    _remember(ok, words, elapsed_ms, model or "не выбрана", url or "не задан")
+    _remember(ok, words, elapsed_ms, model or "не выбрана", url or "не задан",
+              kind=classify(message, ok))
     return (bool(ok), words, elapsed_ms)
+
+
+def test_kind():
+    """"none", "ok", "timeout" or "error" -- what the panel colours and names."""
+    record = last_test()
+    if not record.get("at"):
+        return "none"
+    if record.get("ok"):
+        return "ok"
+    # A record written before the verdict existed still classifies from its own text.
+    return str(record.get("kind") or classify(record.get("text", ""), False))
 
 
 def test_label():
     """The button says what is known, so the screen never guesses on the player's behalf."""
-    record = last_test()
-    if not record.get("at"):
+    kind = test_kind()
+    if kind == "none":
         return "Проверить соединение"
-    return "Проверено: работает" if record.get("ok") else "Проверено: не работает"
+    if kind == "timeout":
+        return "Проверено: таймаут"
+    return "Проверено: работает" if kind == "ok" else "Проверено: не работает"
 
 
 def test_tone():
+    kind = test_kind()
+    if kind == "none":
+        return "warn"
+    if kind == "ok":
+        return "good"
+    if kind == "timeout":
+        return "warn"
+    return "bad"
+
+
+def test_when_text():
+    """One line for the always-visible strip: when it was checked and how fast it answered."""
     record = last_test()
     if not record.get("at"):
-        return "warn"
-    return "good" if record.get("ok") else "bad"
+        return "Ещё не проверялось"
+    return "Проверено %s • ответ за %d мс" % (
+        _clock(record.get("at")), int(record.get("elapsed_ms", 0) or 0),
+    )
+
+
+def fix_hint():
+    """What to do next, in Russian, for the failure the server reported.
+
+    A message with no next step is a dead end, and "настройки не факт что работают" is
+    exactly what a player concludes when the only information on screen is an exception.
+    """
+    record = last_test()
+    if not record.get("at") or record.get("ok"):
+        return ""
+    text = str(record.get("text", "") or "").lower()
+    for needle, advice in ADVICE:
+        if needle in text and advice:
+            return _clip(advice, STRIP_LIMIT)
+    return "Проверь адрес и что сервер запущен."
 
 
 def test_result_text():
@@ -270,7 +353,8 @@ def test_result_text():
     record = last_test()
     if not record.get("at"):
         return "Кнопка делает настоящий запрос и показывает ответ сервера."
-    mark = "Ответ" if record.get("ok") else "Ошибка"
+    marks = {"ok": "Ответ", "timeout": "Таймаут", "error": "Ошибка"}
+    mark = marks.get(test_kind(), "Ошибка")
     return _clip(
         "%s: %s • %d мс • %s" % (mark, record.get("text", ""), int(record.get("elapsed_ms", 0) or 0), record.get("model", "?")),
         INLINE_LIMIT,
@@ -292,6 +376,28 @@ def test_detail_text():
         ),
         DETAIL_LIMIT,
     )
+
+
+# ------------------------------------------------------------------- the profiles
+
+def apply_builtin_profile():
+    """Put the built-in profile back and leave the outcome on the line under the buttons.
+
+    The button used to say "профиль применён" whether or not anything happened, because
+    the message was written into the screen before the profile was applied. The return
+    value of `apply_profile` is the truth, so it is what the player is shown.
+    """
+    import ai_provider
+
+    try:
+        message = ai_provider.apply_profile(ai_provider.DEFAULT_PROFILE)
+    except Exception as exc:
+        message = "Не удалось применить профиль: " + _clip(exc, ERROR_LIMIT)
+    try:
+        renpy.store.provider_test = str(message or "")
+    except Exception:
+        pass
+    return message
 
 
 # ------------------------------------------------------------------- the models
@@ -330,22 +436,85 @@ def _direct_models(url):
 
 
 def refresh_models():
-    """Ask the endpoint for its model list, with the same transport fallback as the check."""
+    """Ask the endpoint for its model list, with the same transport fallback as the check.
+
+    Whether the list came from the server or from the built-in fallback is recorded, so
+    the panel can say where a chosen model name came from instead of showing a chip list
+    that looks authoritative and is only a guess.
+    """
     import ai_provider
 
     url = str(_settings().get("api_url", "") or "")
+    from_server = False
     try:
         models, note = ai_provider.model_ids()
     except AttributeError:
+        # The provider module cannot reach renpy.fetch, so the same GET is issued here.
         models, note = _direct_models(url)
     except Exception as exc:
         models, note = [], "Список моделей недоступен: " + _clip(exc, ERROR_LIMIT)
+    note = str(note or "")
+    from_server = note.startswith("Модели загружены")
     try:
         renpy.store.provider_models = list(models or [])
-        renpy.store.provider_models_note = str(note or "")
+        renpy.store.provider_models_note = note
+        renpy.store.provider_models_from_server = bool(from_server)
     except Exception:
         pass
     return note
+
+
+def models_note():
+    """The last note about the model list, in the player's words."""
+    try:
+        return str(getattr(renpy.store, "provider_models_note", "") or "")
+    except Exception:
+        return ""
+
+
+def models_from_server():
+    """True only when the list on screen really came from the server."""
+    try:
+        if bool(getattr(renpy.store, "provider_models_from_server", False)):
+            return True
+    except Exception:
+        pass
+    return str(models_note()).startswith("Модели загружены")
+
+
+def models_source_title():
+    """What the list of names on screen really is, so a fallback is not passed off as fact."""
+    try:
+        if models_from_server():
+            return "Список с сервера — нажми на модель, чтобы выбрать её"
+    except Exception:
+        pass
+    return ("Сервер свой список не отдал: это встроенный набор имён. Если нужной модели "
+            "среди них нет — впиши её вручную.")
+
+
+def model_source_text():
+    """Where the current model name came from, in one line.
+
+    A local server that does not publish a list leaves the player typing an id by hand,
+    and then a stale chip list from another server looks like a promise. This says which
+    of the two it is, from the stored value and the last list, not from an assumption.
+    """
+    model = str(_settings().get("model", "") or "").strip()
+    if not model:
+        return "Модель не выбрана: выберите из списка или впишите имя вручную."
+    models = []
+    try:
+        models = [str(item) for item in (getattr(renpy.store, "provider_models", []) or [])]
+    except Exception:
+        models = []
+    if model in models:
+        if models_from_server():
+            return "Модель «%s» выбрана из списка, который отдал сервер." % model
+        return ("Модель «%s» выбрана из встроенного списка: сервер свой список не отдал, "
+                "проверь имя по «Загрузить модели с сервера»." % model)
+    return ("Модель «%s» вписана вручную: сервер её не подтвердил. Если сцены не "
+            "генерируются, сверь имя со списком моделей сервера." % model)
 
 
 # ------------------------------------------------------------------- the catalog
@@ -387,7 +556,13 @@ def rescan_assets():
 # ------------------------------------------------------------------ what is used
 
 def effective_lines():
-    """The values the game will actually use, re-read on every screen update."""
+    """The values the game will actually use, re-read on every screen update.
+
+    Everything here is formatted by the schema, the same code the sliders and the row
+    labels use, so the proof strip cannot show a number the engine does not have.
+    """
+    import vn_settings_schema
+
     settings = _settings()
     url = str(settings.get("api_url", "") or "не задан")
     model = str(settings.get("model", "") or "не выбрана")
@@ -398,18 +573,16 @@ def effective_lines():
     except Exception:
         profile = "не выбран"
     try:
-        timeout = int(settings.get("timeout", 0) or 0)
+        timeout = vn_settings_schema.display("timeout")
+        temperature = vn_settings_schema.display("temperature")
+        json_mode = vn_settings_schema.display("json_mode")
     except Exception:
-        timeout = 0
-    try:
-        temperature = float(settings.get("temperature", 0.0) or 0.0)
-    except Exception:
-        temperature = 0.0
+        timeout, temperature, json_mode = "?", "?", "?"
     return [
         "Модель: %s  •  надсмотрщик: %s  •  поглотитель: %s" % (model, quality, absorber),
         "Адрес: %s" % _clip(url, 96),
-        "Таймаут: %d с  •  температура: %.2f  •  JSON-режим: %s  •  профиль: %s"
-        % (timeout, temperature, "ВКЛ" if settings.get("json_mode") else "ВЫКЛ", profile),
+        "Таймаут: %s  •  температура: %s  •  JSON-режим: %s  •  профиль: %s"
+        % (timeout, temperature, json_mode, profile),
     ]
 
 
@@ -446,6 +619,11 @@ def save_dir():
     return folder
 
 
+def save_dir_short(limit=78):
+    """The same path on one line, for a footer that has a fixed height."""
+    return _clip(save_dir(), limit)
+
+
 # ------------------------------------------------------------------ the panel
 
 def headline():
@@ -456,49 +634,58 @@ def headline():
 
 
 def status_lines():
-    """(tone, text) rows for the always-visible status block at the top of the panel."""
-    record = last_test()
-    try:
-        settings = _settings()
-        model = str(settings.get("model", "") or "не выбрана")
-        url = str(settings.get("api_url", "") or "не задан")
-    except Exception:
-        model, url = "неизвестно", "неизвестно"
+    """(tone, text) rows for the always-visible status block at the top of the panel.
 
-    if record.get("at"):
+    Three lines at most, because this block has a fixed height and must not push the
+    rest of the panel out of its box: the verdict, the mode if the game fell back to its
+    own story, and the reason with the advice on one line. The address, the model and the
+    catalog counts are not repeated here -- every section shows its own real values in its
+    "итог" strip, and the check card of the provider section carries the whole message.
+    """
+    record = last_test()
+    kind = test_kind()
+    if kind == "none":
+        tone = "warn"
+        head = "ИИ: ещё не проверялось — нажмите «Проверить соединение»"
+    else:
         when = "%s (%s)" % (_clock(record.get("at")), _ago(record.get("at")) or "только что")
-        if record.get("ok"):
+        if kind == "ok":
             tone = "good"
             head = "ИИ: работает • проверено %s" % when
+        elif kind == "timeout":
+            tone = "warn"
+            head = "ИИ: ответ не пришёл за %d с • проверено %s" % (
+                int(record.get("elapsed_ms", 0) or 0) // 1000 + 1, when,
+            )
         else:
             tone = "bad"
             head = "ИИ: не работает • проверено %s" % when
-    else:
-        tone = "warn"
-        head = "ИИ: ещё не проверялось — нажмите «Проверить соединение»"
+
+    lines = [(tone, head)]
 
     if local_mode():
+        # The mode is the reason "the model works but nothing changes": the game stopped
+        # asking it and writes its own story instead, so it is a failure worth a line.
+        lines.append(("bad", "Режим: %s" % _clip(mode_text(), STRIP_LIMIT)))
         tone = "bad" if tone == "good" else tone
-    lines = [(tone, "%s  •  Режим: %s" % (head, mode_text()))]
+        lines[0] = (tone, lines[0][1])
 
-    if record.get("at") and not record.get("ok"):
-        lines.append(("bad", "Причина: %s" % _clip(record.get("text", ""), DETAIL_LIMIT)))
-
-    lines.append(("none", "Адрес: %s  •  модель: %s" % (_clip(url, 78), _clip(model, 40))))
-
-    characters, backgrounds, scanned = catalog_info()
-    lines.append(("none", "Каталог: %s / %s%s" % (
-        _characters(characters),
-        _backgrounds(backgrounds),
-        " • просканирован %s" % scanned if scanned else " • ещё не сканировался",
-    )))
+    if kind in ("error", "timeout"):
+        reason = record.get("text", "")
+        lines.append(("bad", _clip("Причина: %s. Что делать: %s" % (reason, fix_hint()), STRIP_LIMIT)))
     return lines
 
 
 def section_help():
-    """The one line that says what the visible section is for."""
+    """The one line that says what the visible section is for.
+
+    The wording lives with the section itself, in the layout module, so the contents
+    list, the section header and this helper can never describe different things.
+    """
     try:
+        import vn_settings_layout
+
         tab = str(getattr(renpy.store, "settings_tab", "") or "")
+        return vn_settings_layout.help_of(tab)
     except Exception:
-        tab = ""
-    return SECTION_HELP.get(tab, "Раздел не найден.")
+        return "Раздел не найден."

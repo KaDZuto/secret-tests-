@@ -7,11 +7,17 @@ one click instead of retyping a URL. Model ids are read from the live server thr
 
 Nothing here is required for the game to run: a provider is optional, and a failure in
 this module is reported in the settings screen instead of raising into the dialogue.
+
+The requests go through `ai_client`, which uses `urllib` rather than `renpy.fetch`. That
+function is not an attribute of the `renpy` package in this project -- display and fetch
+helpers live in `renpy.exports` -- so a call written as `renpy.fetch(...)` raised
+`AttributeError` and every check here reported a broken module instead of a working server.
+Both calls below still block the thread they are made on, which is why the settings screen's
+check has a short ceiling and the story's request runs on a worker.
 """
 
-import renpy
-
 from vn_settings_schema import DEFAULTS, view
+import ai_client
 
 PROVIDER_KEYS = (
     "api_url",
@@ -79,6 +85,7 @@ def headers():
 
 def model_ids(url=None):
     """Model ids from the live server, or the built-in list when it does not answer."""
+    settings = {k: view.get(k) for k in ("api_key",)}
     root = base_url(url or view.get("api_url"))
     if not root:
         return list(_FALLBACK_MODELS), "Не задан адрес сервера"
@@ -87,7 +94,7 @@ def model_ids(url=None):
     problems = []
     for target in (root + "/models", root + "/v1/models"):
         try:
-            result = renpy.fetch(target, method="GET", headers=headers(), timeout=8, result="json")
+            result = ai_client.get_json(target, settings, timeout=8)
         except Exception as exc:
             problems.append(str(exc)[:60])
             continue
@@ -187,19 +194,17 @@ def test_connection(url=None, model=None):
         "temperature": 0.0,
     }
     try:
-        result = renpy.fetch(
+        result = ai_client.post_json(
             endpoint,
-            method="POST",
-            json=payload,
-            headers=headers(),
+            payload,
+            {"api_key": view.get("api_key")},
             timeout=int(view.get("timeout", 60) or 60),
-            result="json",
         )
     except Exception as exc:
-        return False, "Ошибка запроса: " + str(exc)[:120]
-    choices = (result or {}).get("choices") if isinstance(result, dict) else None
-    if not choices:
+        message = getattr(exc, "message", str(exc))
+        advice = getattr(exc, "advice", "")
+        return False, ("Ошибка запроса: " + str(message)[:120]) + ((" — " + advice) if advice else "")
+    text = ai_client.message_text(result)
+    if text is None:
         return False, "Ответ без choices"
-    message = choices[0].get("message") or {}
-    text = str(message.get("content") or message.get("reasoning_content") or "").strip()
     return True, "Ответ: " + (text[:80] if text else "(пусто)")

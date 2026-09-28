@@ -1,0 +1,97 @@
+{
+ "id": "mt",
+ "name": "MT",
+ "source": "Everlasting Summer",
+ "pack": "Everlasting_Summer",
+ "third_party": true,
+ "redistributable": false,
+ "visual": {
+  "type": "sprite",
+  "poses": {
+   "pose_1": {
+    "base": "base/pose_1.png",
+    "costumes": {
+     "dress": "base/pose_1_dress.png",
+     "panama": "base/pose_1_panama.png",
+     "pioneer": "base/pose_1_pioneer.png",
+     "swim": "base/pose_1_swim.png"
+    }
+   },
+   "pose_2": {
+    "base": "base/pose_2.png",
+    "costumes": {
+     "dress": "base/pose_2_dress.png",
+     "panama": "base/pose_2_panama.png",
+     "pioneer": "base/pose_2_pioneer.png",
+     "swim": "base/pose_2_swim.png"
+    }
+   },
+   "pose_3": {
+    "base": "base/pose_3.png",
+    "costumes": {
+     "panama": "base/pose_3_panama.png",
+     "pioneer": "base/pose_3_pioneer.png"
+    }
+   }
+  }
+ },
+ "states": {
+  "pose_1": "base/pose_1.png",
+  "pose_1_dress": "base/pose_1_dress.png",
+  "pose_1_dress_normal": "base/pose_1_dress_normal.png",
+  "normal": "base/pose_1_dress_normal.png",
+  "pose_1_dress_sad": "base/pose_1_dress_sad.png",
+  "sad": "base/pose_1_dress_sad.png",
+  "pose_1_dress_smile": "base/pose_1_dress_smile.png",
+  "smile": "base/pose_1_dress_smile.png",
+  "pose_1_dress_surprise": "base/pose_1_dress_surprise.png",
+  "surprise": "base/pose_1_dress_surprise.png",
+  "pose_1_panama": "base/pose_1_panama.png",
+  "pose_1_panama_normal": "base/pose_1_panama_normal.png",
+  "pose_1_panama_sad": "base/pose_1_panama_sad.png",
+  "pose_1_panama_smile": "base/pose_1_panama_smile.png",
+  "pose_1_panama_surprise": "base/pose_1_panama_surprise.png",
+  "pose_1_pioneer": "base/pose_1_pioneer.png",
+  "pose_1_pioneer_normal": "base/pose_1_pioneer_normal.png",
+  "pose_1_pioneer_sad": "base/pose_1_pioneer_sad.png",
+  "pose_1_pioneer_smile": "base/pose_1_pioneer_smile.png",
+  "pose_1_pioneer_surprise": "base/pose_1_pioneer_surprise.png",
+  "pose_1_swim": "base/pose_1_swim.png",
+  "pose_1_swim_normal": "base/pose_1_swim_normal.png",
+  "pose_1_swim_sad": "base/pose_1_swim_sad.png",
+  "pose_1_swim_smile": "base/pose_1_swim_smile.png",
+  "pose_1_swim_surprise": "base/pose_1_swim_surprise.png",
+  "pose_2": "base/pose_2.png",
+  "pose_2_dress": "base/pose_2_dress.png",
+  "pose_2_dress_angry": "base/pose_2_dress_angry.png",
+  "angry": "base/pose_2_dress_angry.png",
+  "pose_2_dress_rage": "base/pose_2_dress_rage.png",
+  "rage": "base/pose_2_dress_rage.png",
+  "pose_2_dress_shocked": "base/pose_2_dress_shocked.png",
+  "shocked": "base/pose_2_dress_shocked.png",
+  "pose_2_panama": "base/pose_2_panama.png",
+  "pose_2_panama_angry": "base/pose_2_panama_angry.png",
+  "pose_2_panama_rage": "base/pose_2_panama_rage.png",
+  "pose_2_panama_shocked": "base/pose_2_panama_shocked.png",
+  "pose_2_pioneer": "base/pose_2_pioneer.png",
+  "pose_2_pioneer_angry": "base/pose_2_pioneer_angry.png",
+  "pose_2_pioneer_rage": "base/pose_2_pioneer_rage.png",
+  "pose_2_pioneer_shocked": "base/pose_2_pioneer_shocked.png",
+  "pose_2_swim": "base/pose_2_swim.png",
+  "pose_2_swim_angry": "base/pose_2_swim_angry.png",
+  "pose_2_swim_rage": "base/pose_2_swim_rage.png",
+  "pose_2_swim_shocked": "base/pose_2_swim_shocked.png",
+  "pose_3": "base/pose_3.png",
+  "pose_3_panama": "base/pose_3_panama.png",
+  "pose_3_panama_grin": "base/pose_3_panama_grin.png",
+  "grin": "base/pose_3_panama_grin.png",
+  "pose_3_panama_laugh": "base/pose_3_panama_laugh.png",
+  "laugh": "base/pose_3_panama_laugh.png",
+  "pose_3_panama_scared": "base/pose_3_panama_scared.png",
+  "scared": "base/pose_3_panama_scared.png",
+  "pose_3_pioneer": "base/pose_3_pioneer.png",
+  "pose_3_pioneer_grin": "base/pose_3_pioneer_grin.png",
+  "pose_3_pioneer_laugh": "base/pose_3_pioneer_laugh.png",
+  "pose_3_pioneer_scared": "base/pose_3_pioneer_scared.png"
+ }
+}

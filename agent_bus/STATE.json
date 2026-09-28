@@ -1,73 +1,79 @@
 {
- "project": "Living VN",
- "version": "MVP-0.1",
- "engine": "RenPy 8.3.7",
- "status": "implemented_template",
- "current_focus": "Stock Ren'Py GUI, Russian settings with AI profiles, layered sprite format (Asuna)",
- "completed": [
-  "portable RenPy baseline",
-  "story bootstrap modes",
-  "OpenAI-compatible client",
-  "micro-scene buffer",
-  "plot supervisor",
-  "fallback mode",
-  "world/lore editing",
-  "music catalog",
-  "Silero TTS adapter",
-  "Live2D optional adapter",
-  "world JSON export/import",
-  "agent handoff bus",
-  "AI Cannibalism importer / absorber pipeline",
-  "LVN-001 desktop asset manager: real folder scan, pack manifest, state resolution, binding, inspector tab",
-  "LVN-002 Live2D pack loader: expressions/motions/outfits/aliases with sprite fallback",
-  "read-only .rpa archive support in the Поглотитель",
-  "RenPy 8.3.7 lint clean (0 menus, 0 images, 5 screens)",
-  "Vendored unrpa 2.3.0 (GPL-3.0) fallback reader with licence and provenance for .rpi, RPA-3.2, RPA-4.0, zix and alt containers",
-  "Per-character sprite packs: one character.json per character folder, minimum-state rule, scene folder folds into its character",
-  "Structure-based asset classification: gui_art, scene_art, character_art, background, music, live2d2 (Cubism 2), other_model (MMD)",
-  "Real absorb run: Everlasting Summer 1434 files / 556.7 MB / 12 character packs, DDLC 383 files / 163.7 MB / 5 character packs",
-  "Byte-exact verification of the real absorb: 1817 archive entries compared, 0 missing, 0 size mismatches, 0 byte mismatches",
-  "Real asset catalog from the absorbed packs: 17 characters, 1724 states, 157 backgrounds, broken: 0"
- ],
- "next_tasks": [
-  "LVN-003 optional provider audio-input analysis for music",
-  "LVN-004 non-blocking background generation/prefetch",
-  "LVN-005 CI headless boot (needs a display or Xvfb; lint is already green)",
-  "LVN-006 polish creator UI into a multi-tab project editor"
- ],
- "last_agent_note": "Use ASSET_PACK_SCHEMA.md and WORLD_SCHEMA.md as compatibility contracts. Keep AI/TTS/music/Live2D optional and preserve fallback mode. Packs outside game/ are inspect-only: never bind an absolute external path as a sprite. Asuna is Live2D Cubism 2 (.moc + .model.json + .mtn), not MMD, and Ren'Py 8.3.7 only loads Cubism 4 (.model3.json + .moc3), so those models are catalogued and never copied; the 225 PNG textures are the usable part. .pmx/.pmd/.vmd/.vpd are MMD and equally not displayable. unrpa 2.3.0 is vendored under game/vendor/unrpa/ (GPL-3.0) as a fallback reader for .rpi, RPA-3.2, RPA-4.0, zix and alt; the built-in reader stays first and unknown containers are refused. Third-party game assets live in game/absorbed/ with third_party=true and redistributable=false; normal world export copies their metadata only.",
- "implemented_features": [
-  "AI Cannibalism asset importer and absorber pipeline (folders, ZIP, and standard .rpa containers, read-only)",
-  "Real asset discovery in game/characters, game/locations, game/live2d, game/assets, game/absorbed, game/images, with archive-aware scanning",
-  "Asset inspector tab in the creator settings screen with rescan, binding report and Live2D report",
-  "Live2D pack loader with Ren'Py-compatible motion/expression naming and no-Cubism fallback"
- ],
- "verification": {
-  "validate_project": "OK: 7 RPY files, Python/JSON/WAV checks passed",
-  "smoke_test_logic": "SMOKE OK",
-  "smoke_test_cannibalism": "CANNIBALISM SMOKE OK (folders, zip, rpa archives, refusals, byte-exact absorb)",
-  "smoke_test_assets": "ASSETS SMOKE OK (catalog, state fallback, binding, live2d naming, no-Cubism fallback)",
-  "renpy_lint": "Ren'Py 8.3.7.25031702 lint clean",
-  "renpy_boot": "NOT RUN: SDL dummy driver fails the GL test with 'error: Invalid window'; Xvfb is not installed"
- },
- "cannibalism_field_test": {
-  "Everlasting Summer": "before .rpa support: 236 files / 2.1 MB. after: 2142 files / 717.0 MB (821 character_art, 421 scene_art, 348 gui_art, 296 audio, 115 background, 77 music, 64 text) from game/archive.rpa (1906 entries)",
-  "Doki Doki Literature Club": "before: 59 files / 0.8 MB. after: 581 files / 194.7 MB (231 character_art, 72 scene_art, 117 gui_art, 60 background, 39 music, 26 audio, 55 text) from images.rpa 455, audio.rpa 64, scripts.rpa 42, fonts.rpa 12",
-  "Asuna models (own)": "3659 files / 44.5 MB, no .rpa. Live2D Cubism 2 (.moc + .model.json + .mtn); Ren'Py 8.3.7 needs Cubism 4, so only the 225 PNG textures are usable in the MVP",
-  "absorbed copies": "Everlasting_Summer 1434 files / 556.7 MB / 12 packs; Doki_Doki_Literature_Club 383 files / 163.7 MB / 5 packs. Copy scope: character art, scene art, backgrounds, music. Voice and text catalogued only",
-  "absorbed verification": "1817 archive entries re-read and compared byte for byte: 0 missing, 0 size mismatches, 0 byte mismatches. Catalog: 17 characters, 1724 states, 157 backgrounds, broken 0, all third_party"
- },
- "last_change": "Per-character sprite packs, structure-based classification (gui_art/scene_art/live2d2), vendored unrpa fallback reader, and a real absorb of Everlasting Summer + DDLC (1817 archive entries verified byte-exact). Docs corrected: Asuna is Cubism 2, not MMD; the reader chain and the unofficial variants are described as implemented.",
- "last_verified": [
-  "renpy lint clean: 28 screens, no errors",
-  "tools/validate_project.py OK",
-  "smoke_test_assets / smoke_test_cannibalism / smoke_test_logic OK",
-  "demo opening runs without a traceback (settings + stage + layered Asuna)",
-  "catalog: 18 characters, 157 backgrounds, 0 broken; asuna type=layered, 13 states"
- ],
- "known_open": [
-  "two Asuna layer sets still need their face offsets measured (imported as plain bodies)",
-  "which Everlasting Summer pack is Slavya: sl or us",
-  "grim cannot capture this compositor, so screens are checked in game or by the player"
- ]
+  "project": "Living VN",
+  "version": "MVP-0.1",
+  "engine": "RenPy 8.3.7",
+  "status": "implemented_template",
+  "current_focus": "Stock Ren'Py GUI, Russian settings with AI profiles, layered sprite format (Asuna)",
+  "completed": [
+    "portable RenPy baseline",
+    "story bootstrap modes",
+    "OpenAI-compatible client",
+    "micro-scene buffer",
+    "plot supervisor",
+    "fallback mode",
+    "world/lore editing",
+    "music catalog",
+    "Silero TTS adapter",
+    "Live2D optional adapter",
+    "world JSON export/import",
+    "agent handoff bus",
+    "AI Cannibalism importer / absorber pipeline",
+    "LVN-001 desktop asset manager: real folder scan, pack manifest, state resolution, binding, inspector tab",
+    "LVN-002 Live2D pack loader: expressions/motions/outfits/aliases with sprite fallback",
+    "read-only .rpa archive support in the Поглотитель",
+    "RenPy 8.3.7 lint clean (0 menus, 0 images, 5 screens)",
+    "Vendored unrpa 2.3.0 (GPL-3.0) fallback reader with licence and provenance for .rpi, RPA-3.2, RPA-4.0, zix and alt containers",
+    "Per-character sprite packs: one character.json per character folder, minimum-state rule, scene folder folds into its character",
+    "Structure-based asset classification: gui_art, scene_art, character_art, background, music, live2d2 (Cubism 2), other_model (MMD)",
+    "Real absorb run: Everlasting Summer 1434 files / 556.7 MB / 12 character packs, DDLC 383 files / 163.7 MB / 5 character packs",
+    "Byte-exact verification of the real absorb: 1817 archive entries compared, 0 missing, 0 size mismatches, 0 byte mismatches",
+    "Real asset catalog from the absorbed packs: 17 characters, 1724 states, 157 backgrounds, broken: 0",
+    "Text review bus: agent_bus/qa_lang, machine rules in tools/ru_qa.py, editor system instruction in agent_bus/qa_lang/SYSTEM.md, guarded patch flow in tools/ru_patch.py",
+    "Story «Сорок два дома» (data/story_pines.json) rebuilt with an original cast (Ника, Егор, Вера, Глеб, Мила), 166 lines, 0 ru_qa errors, readable export in data/story_pines.html, editorial log in data/story_pines_editor_log.md"
+  ],
+  "next_tasks": [
+    "LVN-007 player name input at the first launch, editable in settings, substituted as {player}",
+    "LVN-008 integrate data/story_pines.json into the play loop, sprite fallback, quiet rollback",
+    "LVN-003 optional provider audio-input analysis for music",
+    "LVN-004 non-blocking background generation/prefetch",
+    "LVN-005 CI headless boot (needs a display or Xvfb; lint is already green)",
+    "LVN-006 polish creator UI into a multi-tab project editor"
+  ],
+  "last_agent_note": "Use ASSET_PACK_SCHEMA.md and WORLD_SCHEMA.md as compatibility contracts. Keep AI/TTS/music/Live2D optional and preserve fallback mode. Packs outside game/ are inspect-only: never bind an absolute external path as a sprite. Asuna is Live2D Cubism 2 (.moc + .model.json + .mtn), not MMD, and Ren'Py 8.3.7 only loads Cubism 4 (.model3.json + .moc3), so those models are catalogued and never copied; the 225 PNG textures are the usable part. .pmx/.pmd/.vmd/.vpd are MMD and equally not displayable. unrpa 2.3.0 is vendored under game/vendor/unrpa/ (GPL-3.0) as a fallback reader for .rpi, RPA-3.2, RPA-4.0, zix and alt; the built-in reader stays first and unknown containers are refused. Third-party game assets live in game/absorbed/ with third_party=true and redistributable=false; normal world export copies their metadata only.",
+  "implemented_features": [
+    "AI Cannibalism asset importer and absorber pipeline (folders, ZIP, and standard .rpa containers, read-only)",
+    "Real asset discovery in game/characters, game/locations, game/live2d, game/assets, game/absorbed, game/images, with archive-aware scanning",
+    "Asset inspector tab in the creator settings screen with rescan, binding report and Live2D report",
+    "Live2D pack loader with Ren'Py-compatible motion/expression naming and no-Cubism fallback"
+  ],
+  "verification": {
+    "validate_project": "OK: 7 RPY files, Python/JSON/WAV checks passed",
+    "smoke_test_logic": "SMOKE OK",
+    "smoke_test_cannibalism": "CANNIBALISM SMOKE OK (folders, zip, rpa archives, refusals, byte-exact absorb)",
+    "smoke_test_assets": "ASSETS SMOKE OK (catalog, state fallback, binding, live2d naming, no-Cubism fallback)",
+    "renpy_lint": "Ren'Py 8.3.7.25031702 lint clean",
+    "renpy_boot": "NOT RUN: SDL dummy driver fails the GL test with 'error: Invalid window'; Xvfb is not installed"
+  },
+  "cannibalism_field_test": {
+    "Everlasting Summer": "before .rpa support: 236 files / 2.1 MB. after: 2142 files / 717.0 MB (821 character_art, 421 scene_art, 348 gui_art, 296 audio, 115 background, 77 music, 64 text) from game/archive.rpa (1906 entries)",
+    "Doki Doki Literature Club": "before: 59 files / 0.8 MB. after: 581 files / 194.7 MB (231 character_art, 72 scene_art, 117 gui_art, 60 background, 39 music, 26 audio, 55 text) from images.rpa 455, audio.rpa 64, scripts.rpa 42, fonts.rpa 12",
+    "Asuna models (own)": "3659 files / 44.5 MB, no .rpa. Live2D Cubism 2 (.moc + .model.json + .mtn); Ren'Py 8.3.7 needs Cubism 4, so only the 225 PNG textures are usable in the MVP",
+    "absorbed copies": "Everlasting_Summer 1434 files / 556.7 MB / 12 packs; Doki_Doki_Literature_Club 383 files / 163.7 MB / 5 packs. Copy scope: character art, scene art, backgrounds, music. Voice and text catalogued only",
+    "absorbed verification": "1817 archive entries re-read and compared byte for byte: 0 missing, 0 size mismatches, 0 byte mismatches. Catalog: 17 characters, 1724 states, 157 backgrounds, broken 0, all third_party"
+  },
+  "last_change": "Per-character sprite packs, structure-based classification (gui_art/scene_art/live2d2), vendored unrpa fallback reader, and a real absorb of Everlasting Summer + DDLC (1817 archive entries verified byte-exact). Docs corrected: Asuna is Cubism 2, not MMD; the reader chain and the unofficial variants are described as implemented.",
+  "last_verified": [
+    "renpy lint clean: 28 screens, no errors",
+    "tools/validate_project.py OK",
+    "smoke_test_assets / smoke_test_cannibalism / smoke_test_logic OK",
+    "demo opening runs without a traceback (settings + stage + layered Asuna)",
+    "catalog: 18 characters, 157 backgrounds, 0 broken; asuna type=layered, 13 states"
+  ],
+  "known_open": [
+    "two Asuna layer sets still need their face offsets measured (imported as plain bodies)",
+    "which Everlasting Summer pack is Slavya: sl or us",
+    "grim cannot capture this compositor, so screens are checked in game or by the player",
+    "data/story_pines.json has no choice steps: the player never decides anything (QAL-006 asks the author)",
+    "Ника's grandfather appears once and is never mentioned again; the brother of Егор is never named"
+  ]
 }

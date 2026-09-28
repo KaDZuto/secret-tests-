@@ -1,13 +1,23 @@
 import json
 import os
 import random
+import threading
 import traceback
 
 import renpy
 import renpy.store as store
 from renpy.store import *
+## The store defines `dict` and `list` as their revertable subclasses, and the star import
+## above pulled them into this module's namespace. Every `isinstance(x, dict)` here would then
+## reject the plain dicts that come out of JSON: the model writes a world, the answer is taken
+## off the waiting screen, and the game discards it as unreadable -- which looks exactly like
+## "the model answered but nothing happened". The subclasses accept the builtins, so putting the
+## builtins back is safe in both directions and is done once instead of at every check.
+import builtins as _builtins
+dict = _builtins.dict
+list = _builtins.list
 
-from ai_client import generate_bundle, generate_free_response, supervise
+import story_pipeline
 from music import analyze_catalog_with_ai, choose_track, save_catalog, scan_music
 from world import bootstrap_world, default_world
 from cannibalism import assess_absorption, absorb_selected, import_characters_into_world, scan_source, list_absorbed_packs, portable_absorbed_manifest
@@ -54,10 +64,13 @@ def initialize_game(world):
     world.setdefault("flags", {})
     world.setdefault("history", [])
     world.setdefault("buffer", [])
+    world.setdefault("player_choices", [])
     world.setdefault("turn", 0)
     world.setdefault("time", "08:30")
     world.setdefault("location", next(iter(world["locations"]), "camp"))
     world.setdefault("memory_summary", "История только начинается.")
+    ## Nothing is on screen yet: the first background must be shown without a dissolve.
+    world["bg_shown"] = ""
     world["supervisor_command"] = ""
     world["last_supervisor"] = {}
     _state().clear()
@@ -81,9 +94,21 @@ def initialize_game(world):
         pass
     bind_assets()
 
-    # Make a small deterministic starting scene so the game works without AI.
-    if not _state()["buffer"]:
-        _state()["buffer"] = fallback_bundle()
+    # Where the story comes from. With a model configured the buffer starts empty on purpose:
+    # the first `next_step` sends a real request and the player watches a real wait, instead of
+    # reading a two-line stub that pretends to be a scene. Without a model the hand-written
+    # chapter starts immediately, so the game is playable the moment it is launched.
+    _state()["ai_error"] = ""
+    _state()["ai_failed_at"] = -1
+    _state()["buffer"] = []
+    if ai_configured():
+        _state()["story_mode"] = str(_state().get("story_mode") or "ai")
+    else:
+        _state()["story_mode"] = "chapter"
+        import story_chapter
+
+        _state()["chapter"] = story_chapter.new_cursor()
+        _extend_chapter(_state(), 2)
 
 
 def bind_assets():
@@ -244,82 +269,474 @@ def cannibalism_info():
     return len(packs)
 
 
+def ai_configured():
+    """True when there is an endpoint and a model to talk to. Read from the live settings."""
+    settings = _settings()
+    return bool(str(settings.get("api_url", "") or "").strip()
+                and str(settings.get("model", "") or "").strip())
+
+
+## Посылки для «Полного рандома». Собираются локально, без единого запроса: модель получает
+## готовый краткий бриф и разворачивает из него мир ровно так же, как в режиме краткого
+## описания. Пулы лежат в коде, а не в мире, потому что посылка должна быть разной при каждом
+## запуске, а не одинаковой, как один записанный JSON.
+_RANDOM_TITLES = (
+    "Двадцатое число", "Станция после полуночи", "Письмо без адреса", "Лагерь на третьей смене",
+    "Тот, кто ждёт у ворот", "Комната с окном на север", "Гудок в час перерыва",
+    "Дорога, которой нет на карте", "Соседи сверху не спят", "Последний автобус в Медный",
+    "Ключ от чердака", "Кто-то пишет на полях", "Тише, чем нужно", "Всё, что осталось на поляне",
+)
+
+_RANDOM_GENRES = (
+    "тайна", "романтика", "драма", "мистика", "повседневность", "триллер",
+    "фантастика", "комедия", "историческая драма", "детектив",
+)
+
+_RANDOM_TONES = (
+    "тёплая повседневность с постепенным напряжением",
+    "тихо и сосредоточенно, звук важнее слова",
+    "светлая грусть с юмором на заднем плане",
+    "нарастающее беспокойство под ровным ритмом дня",
+    "ирония и нежность, без пафоса",
+    "холодная сосредоточенность, детали важнее эмоций",
+    "ностальгия, которая постепенно становится тревогой",
+    "игриво, но у каждой шутки есть дно",
+)
+
+_RANDOM_PLACES = (
+    "маленький приморский город",
+    "заброшенная станция в двадцати километрах от районного центра",
+    "общежитие старого университета",
+    "сельская школа, где учатся три класса",
+    "ночная смена на хлебозаводе",
+    "дачный посёлок, где все друг другу родственники",
+    "картографическая станция на северном берегу",
+    "рынок, который закрывается в четыре утра",
+    "пансионат, открытый только для своих",
+    "библиотека в здании старой почты",
+)
+
+_RANDOM_TIMES = (
+    "на рассвете", "в жаркое утро", "в день, когда неожиданно пошёл дождь",
+    "на золотом закате", "в глубокий вечер", "после полуночи",
+    "в последний день лета", "в первый день после каникул",
+)
+
+_RANDOM_PREMISES = (
+    "Кто-то оставляет записки, которые появляются раньше, чем событие, о котором они "
+    "предупреждают. {place} {time}.",
+    "Герой находит вещь, которая доказывает: здесь уже кто-то жил этой же жизнью, только "
+    "лучше. {place} {time}.",
+    "Раз в неделю одно и то же происходит чуть иначе, и замечает это только новенький. "
+    "{place} {time}.",
+    "Между двумя людьми есть то, о чём не принято говорить вслух, и место, где это можно "
+    "сказать. {place} {time}.",
+    "Кто-то исчез, но его продолжают звать по имени, будто он просто вышел за угол. "
+    "{place} {time}.",
+    "У обещания, данного давно, наконец наступает срок, и никто не готов его держать. "
+    "{place} {time}.",
+    "Список того, что нельзя делать в этом месте, растёт быстрее, чем кто-то успевает его "
+    "читать. {place} {time}.",
+    "Нужно продержаться до конца смены, не сказав того, что уже почти сказано. {place} {time}.",
+)
+
+
+def random_brief():
+    """A random premise for the «Полный рандом» mode, built without a single request.
+
+    The same dict shape `story_world_request` already takes for the brief mode, so both
+    modes run through one chain and the model sees one kind of input.
+    """
+    title = random.choice(_RANDOM_TITLES)
+    genres = random.sample(_RANDOM_GENRES, k=random.randint(2, 3))
+    tone = random.choice(_RANDOM_TONES)
+    place = random.choice(_RANDOM_PLACES)
+    when = random.choice(_RANDOM_TIMES)
+    premise = random.choice(_RANDOM_PREMISES).format(place=place, time=when)
+    return {
+        "title": title,
+        "genre": ", ".join(genres),
+        "tone": tone,
+        "description": premise,
+        "place": place,
+        "time": when,
+    }
+
+
+def _adopt_brief(world, brief):
+    """Put the generated premise on the fallback world, so it is never the old template."""
+    if not isinstance(world, dict) or not isinstance(brief, dict):
+        return world
+    for key in ("title", "genre", "tone"):
+        value = str(brief.get(key) or "").strip()
+        if value:
+            world[key] = value
+    if str(brief.get("description") or "").strip():
+        world["premise"] = str(brief["description"]).strip()
+    world["random_premise"] = True
+    return world
+
+
 def create_game_from_creator():
+    creator = {
+        "title": store.creator_title,
+        "genre": store.creator_genre,
+        "tone": store.creator_tone,
+        "description": store.creator_description,
+        "character_count": int(store.creator_character_count or 3),
+        "json_path": store.creator_json_path,
+    }
+    mode = store.creator_mode
+    world = None
+    ## The brief mode asks the model for the world itself. That request is two minutes long on a
+    ## local model, so it goes through the same worker and the same waiting screen as the story:
+    ## a creator screen that freezes for two minutes with no way to leave is a hang, not a wait.
+    ## «Полный рандом» идёт той же дорогой: посылка собирается здесь, локально, а мир по ней
+    ## пишет модель. Рукописный мир остаётся только запасным вариантом -- когда модели нет или
+    ## когда запрос не прошёл.
+    brief = None
+    if mode in ("brief", "random") and ai_configured():
+        if mode == "random":
+            brief = random_brief()
+        else:
+            brief = {
+                "title": creator["title"] or "Living VN",
+                "genre": creator["genre"] or "драма",
+                "tone": creator["tone"] or "естественно и атмосферно",
+                "description": creator["description"] or "",
+            }
+        if story_world_request(brief, creator["character_count"]) == "done":
+            payload = getattr(store, "story_payload", None) or []
+            if payload and isinstance(payload[0], dict) and payload[0].get("characters"):
+                world = payload[0]
+    if world is None:
+        try:
+            world = bootstrap_world(mode, creator, _settings())
+        except Exception as exc:
+            renpy.notify("Не удалось создать мир: " + str(exc)[:120])
+            world = default_world()
+        # The random mode fell back: the world must still carry the premise that was rolled,
+        # not one of the four templates the model was supposed to replace.
+        if brief is not None and mode == "random":
+            _adopt_brief(world, brief)
     try:
-        mode = store.creator_mode
-        creator = {
-            "title": store.creator_title,
-            "genre": store.creator_genre,
-            "tone": store.creator_tone,
-            "description": store.creator_description,
-            "character_count": int(store.creator_character_count or 3),
-            "json_path": store.creator_json_path,
-        }
-        world = bootstrap_world(mode, creator, _settings())
         initialize_game(world)
-        renpy.hide_screen("creator")
-        renpy.jump("play")
     except Exception as exc:
-        renpy.notify("Не удалось создать мир: " + str(exc))
+        renpy.notify("Мир не загрузился: " + str(exc)[:120])
         initialize_game(default_world())
-        renpy.hide_screen("creator")
-        renpy.jump("play")
+    renpy.hide_screen("creator")
+    renpy.jump("play")
 
 
-def _repair_bundle(bundle, feedback):
-    world = _state()
-    old = world.get("supervisor_command", "")
-    world["supervisor_command"] = str(feedback.get("director_command", ""))[:2500]
+# ------------------------------------------------------------- the story request
+
+# What the waiting screen shows. These are flat store variables rather than a dict because a
+# screen condition is safer than a subscript, and because the screen must never be able to read
+# a half-written object while the worker is still going.
+def story_job_reset(title="Модель пишет сюжет"):
+    store.story_phase = "running"
+    store.story_title = str(title or "")
+    store.story_error = ""
+    store.story_advice = ""
+    store.story_detail = ""
+    store.story_kind = ""
+    store.story_elapsed = 0.0
+    store.story_attempt = 1
+    store.story_progress = 0.0
     try:
-        repaired = generate_bundle(world, _settings())
-        return repaired
-    except Exception:
-        world["supervisor_command"] = old
-        return bundle
-    finally:
-        world["supervisor_command"] = old
+        store.story_timeout = max(5, int(float(_settings().get("timeout", 120) or 120)))
+    except (TypeError, ValueError):
+        store.story_timeout = 120
+    store.story_timeout_text = "%d с" % store.story_timeout
+    store.story_elapsed_text = "0 с"
+    store.story_payload = []
+
+
+def story_job_cancel():
+    """Drop the answer of a request the player stopped waiting for."""
+    story_pipeline.cancel_job()
+    store.story_phase = "idle"
+
+
+def story_wait_tick():
+    """Called by the screen's timer. Copies the job's state onto the screen, then returns.
+
+    Nothing here blocks: the socket is in a worker thread, so this runs a few times a second
+    while the model is thinking, and the game keeps drawing and keeps answering ESC.
+    """
+    job = story_pipeline.current_job()
+    if job is None:
+        return True
+    info = job.snapshot()
+    store.story_phase = info["state"]
+    store.story_elapsed = round(float(info["elapsed"]), 1)
+    store.story_elapsed_text = "%d с" % int(store.story_elapsed)
+    store.story_attempt = int(info["attempt"] or 1)
+    store.story_progress = min(1.0, store.story_elapsed / max(1.0, float(store.story_timeout)))
+    if info["state"] == "error":
+        store.story_error = info["error"]
+        store.story_advice = info["advice"]
+        store.story_kind = info["kind"]
+        # Recorded on the world at once, not when the player presses a button: a save made from
+        # the failure screen has to say why the scene is missing.
+        world = _state()
+        world["ai_error"] = str(info["error"] or "")[:200]
+        world["ai_failed_at"] = int(world.get("turn", 0))
+    return True
+
+
+def story_wait_take():
+    """Called by the screen when the job left the running state. Returns the outcome.
+
+    The answer itself leaves through `store.story_payload`, because a screen action can carry a
+    value but the caller of `call_screen` is three frames deeper and needs the steps, not a flag.
+    """
+    state, payload, job = story_pipeline.take_result()
+    ## The phase is deliberately left alone here. It is reset by `story_job_reset` when the
+    ## next request starts, and clearing it here meant the screen's timer could fire once more
+    ## before Ren'Py had taken the screen down, see "idle" and show "the request ended without
+    ## an answer" about a request the model had already answered.
+    if state == "done":
+        store.story_payload = payload
+        if job is not None:
+            _keep_review(job.review)
+        _state()["ai_error"] = ""
+        return "done"
+    if state == "error":
+        store.story_payload = []
+        if job is not None:
+            info = job.snapshot()
+            store.story_error = info["error"]
+            store.story_advice = info["advice"]
+            store.story_kind = info["kind"]
+        _state()["ai_error"] = str(store.story_error or "")[:200]
+        _state()["ai_failed_at"] = int(_state().get("turn", 0))
+        return "error"
+    return "cancel"
+
+
+def _call_story_screen(title):
+    """Show the waiting screen and return what the player decided there."""
+    try:
+        outcome = renpy.call_screen("story_generating")
+    except Exception as exc:
+        story_pipeline.cancel_job()
+        store.story_error = "Экран ожидания закрылся: " + str(exc)[:120]
+        store.story_advice = "Повтори запрос из главного меню."
+        store.story_phase = "idle"
+        return "error"
+    if outcome in ("retry", "offline", "done", "error"):
+        return outcome
+    if outcome == "cancel":
+        ## The screen asked for the answer and the slot was already empty: the model had
+        ## replied, but the reply could not be handed over. Reporting this as "wait" would put
+        ## the screen back up over an answer that no longer exists, so it is an error a player
+        ## can see and retry.
+        store.story_error = "Ответ модели был получен, но не доехал до игры."
+        store.story_advice = "Повтори запрос — обычно это решается сразу."
+        store.story_kind = "empty"
+        return "error"
+    # ESC opens the save menu over this screen; coming back means the player chose to wait.
+    return "wait"
+
+
+def _wait_for_story_screen(title):
+    """The waiting screen, shown again after a round trip through the save menu.
+
+    "wait" is what the screen returns when it came back from ESC without an answer, and it is
+    the one outcome the callers below would otherwise turn into a false failure about a request
+    that is still in flight. The bound exists for the other case -- a screen that closes with no
+    value at all, where nobody is there to click anything: an unbounded loop here would hang the
+    game where a visible failure would at least be actionable.
+    """
+    outcome = _call_story_screen(title)
+    for _ in range(8):
+        if outcome != "wait":
+            break
+        outcome = _call_story_screen(title)
+    return outcome
+
+
+def story_world_request(brief, character_count):
+    """Ask the model for a world, off the main thread, and wait for it on the waiting screen."""
+    settings = _settings()
+    story_job_reset("Модель создаёт мир…")
+    story_pipeline.start_world_job(brief, int(character_count or 3), settings)
+    outcome = _wait_for_story_screen("Модель создаёт мир…")
+    if outcome == "done":
+        return "done"
+    if outcome == "retry":
+        story_job_reset("Модель создаёт мир…")
+        story_pipeline.start_world_job(brief, int(character_count or 3), settings)
+        outcome = _wait_for_story_screen("Модель создаёт мир…")
+    if outcome == "offline":
+        _state()["story_mode"] = "chapter"
+        return "error"
+    if outcome == "done":
+        return "done"
+    return "error"
+
+
+def _story_request(player_text=None, title="Модель пишет продолжение…", min_items=2):
+    """One real request, with the screen, and the player's decision about a failure.
+
+    Returns the outcome. On "done" the steps are already in the buffer.
+    """
+    world = _state()
+    for _attempt in range(2):
+        story_job_reset(title)
+        story_pipeline.start_job(world, _settings(), player_text=player_text,
+                                 supervise=supervise_bundle)
+        # The player can leave through the save menu and come back; the request is still the
+        # one in flight, so the screen is simply shown again over it.
+        outcome = _wait_for_story_screen(title)
+        if outcome == "done":
+            steps = [x for x in (getattr(store, "story_payload", None) or []) if isinstance(x, dict)]
+            if steps:
+                world["buffer"].extend(steps)
+                return "done"
+            continue
+        if outcome == "retry":
+            continue
+        if outcome == "offline":
+            world["story_mode"] = "chapter"
+            return "offline"
+        return "error"
+    return "error"
+
+
+def supervise_bundle(world, bundle, settings):
+    """The plot supervisor: one second opinion about a bundle.
+
+    The request itself is issued from the worker thread, because it is a socket call like any
+    other. What lives here is the decision -- which bundle, which model, and what happens to
+    the verdict -- so that the engine stays the place where "does the supervisor run" is
+    answered, and `story_pipeline` stays the place where the thread is.
+    """
+    import ai_client
+
+    if not _settings().get("supervisor", True):
+        return {}
+    return ai_client.supervise(world, bundle, settings)
+
+
+def _keep_review(review):
+    """The verdict on the world, and a shorter memory line when the editor gave one."""
+    if not isinstance(review, dict) or not review:
+        return
+    world = _state()
+    world["last_supervisor"] = review
+    summary = str(review.get("summary") or "").strip()
+    if summary:
+        world["memory_summary"] = summary[:4000]
+
+
+def story_start_chapter():
+    """Put the hand-written chapter into the world and make it the source of the story.
+
+    It is a real `initialize_game`: the same catalog scan, the same asset binding, the same
+    buffer. Nothing about the chapter is drawn by a second code path.
+    """
+    import story_chapter
+
+    world = story_chapter.chapter_world()
+    initialize_game(world)
+    # `initialize_game` decides the mode from the settings, and a player who deliberately asked
+    # for the written chapter must not be pushed onto the model by that decision.
+    _state()["story_mode"] = "chapter"
+    _state()["chapter"] = story_chapter.new_cursor()
+    _state()["chapter_locked"] = True
+    _extend_chapter(_state(), 3)
+    return _state()
+
+
+def _extend_chapter(world, min_items):
+    """Fill the buffer from the hand-written chapter, which needs no model at all."""
+    import story_chapter
+
+    cursor = world.setdefault("chapter", None) or story_chapter.new_cursor()
+    world["chapter"] = cursor
+    guard = 0
+    while len(world.get("buffer", [])) < min_items and guard < 40:
+        steps = story_chapter.next_steps(world, max(1, min_items - len(world["buffer"])))
+        if not steps:
+            break
+        world["buffer"].extend(steps)
+        guard += 1
+        # A choice is a question to the player: the scene behind it is not queued until the
+        # answer is known, so topping the buffer up past a question would pick the branch for
+        # the player.
+        if steps[-1].get("choices") or story_chapter.waiting_for_answer(world):
+            break
+    return world["buffer"]
+
+
+def _chapter_is_over(world):
+    """True when the written chapter has no blocks left. The ending screen uses it."""
+    import story_chapter
+
+    return story_chapter.chapter_finished(world)
 
 
 def ensure_buffer(min_items=2):
+    """Make sure the buffer has something to show, and say out loud when it could not."""
     world = _state()
-    turn = int(world.get("turn", 0))
     if len(world.get("buffer", [])) >= min_items:
         return
 
-    try:
-        bundle = generate_bundle(world, _settings())
-        if _settings().get("supervisor", True):
-            try:
-                review = supervise(world, bundle, _settings())
-                world["last_supervisor"] = review
-                world["memory_summary"] = review.get("summary", world.get("memory_summary", ""))
-                threshold = float(_settings().get("supervisor_threshold", 7.0))
-                if review.get("repair") or not review.get("approved", True) or float(review.get("score", 10)) < threshold:
-                    bundle = _repair_bundle(bundle, review)
-            except Exception as exc:
-                world["last_supervisor"] = {"score": 0, "approved": True, "summary": "Supervisor unavailable", "error": str(exc)}
+    mode = str(world.get("story_mode") or ("ai" if ai_configured() else "chapter"))
+    if mode == "chapter" or world.get("chapter_locked"):
+        _extend_chapter(world, min_items)
+        return
+    if mode == "offline":
+        _extend_local(world, min_items)
+        return
+    if not ai_configured():
+        # No endpoint is not a story: the chapter is the honest answer, and the notice at the
+        # start of `play` says why the model was not used.
+        world["story_mode"] = "chapter"
+        _extend_chapter(world, min_items)
+        return
 
-        beats = bundle.get("beats", []) if isinstance(bundle, dict) else []
-        if beats:
-            world["buffer"].extend(beats)
-            return
-    except Exception as exc:
-        # Kept, not swallowed: an endpoint that is off has to be visible, or a silent
-        # fallback looks like the game refusing to write a story.
-        world["ai_error"] = str(exc)[:200]
-        world["ai_failed_at"] = turn
-        return _extend_local(world, min_items)
-
-    world["ai_error"] = ""
-    _extend_local(world, min_items)
+    outcome = _story_request(min_items=min_items)
+    if outcome == "done":
+        return
+    if outcome == "offline":
+        _extend_chapter(world, min_items)
+        return
+    # A failure is never turned into a stub behind the player's back: the buffer keeps whatever
+    # it already had, and `next_step` shows the reason on screen instead of inventing a scene.
+    world.setdefault("ai_error", "")
 
 
 def next_step():
     ensure_buffer(2)
     world = _state()
-    if not world.get("buffer"):
-        world["buffer"] = fallback_bundle()
-    return world["buffer"].pop(0)
+    buffer = world.get("buffer") or []
+    if buffer:
+        return buffer.pop(0)
+    mode = str(world.get("story_mode")) == "chapter" or world.get("chapter_locked")
+    if mode:
+        import story_chapter
+
+        if story_chapter.waiting_for_answer(world):
+            # The chapter is on a question and the answer has not come yet. `script.rpy` shows
+            # the question and applies it in the same interaction, so this is only reachable
+            # from a caller that asks for a step between those two halves; a two-tenths pause
+            # keeps that caller alive without inventing anything.
+            return {"type": "wait", "seconds": 0.2}
+        # The written text ran out. That is an ending, not a hang, and it gets an ending screen
+        # instead of an empty scene repeated forever.
+        renpy.jump("story_chapter_finished")
+    # Nothing came back and the player did not agree to anything else: say so on screen rather
+    # than showing a scene nobody wrote.
+    return {
+        "type": "narration",
+        "speaker": None,
+        "text": "Сцена не пришла. %s Открой настройки ИИ и проверь соединение." % (
+            str(world.get("ai_error") or "Модель не ответила."),
+        ),
+    }
 
 
 def _character_by_id(cid):
@@ -361,6 +778,22 @@ def _transform_for(position):
     return getattr(store, name, None)
 
 
+def _background_dissolve():
+    """Queue a short dissolve for a real change of scenery.
+
+    `renpy.transition` applies to the next interaction, and `apply_visuals` runs right before
+    the line is said, so the fade covers exactly the frame where the place changes. The
+    transition honours the player's «переходы» preference and is skipped while the game is
+    being skipped through, which is what a transition is supposed to do.
+    """
+    try:
+        from renpy.display.transition import Dissolve
+
+        renpy.transition(Dissolve(0.35))
+    except Exception:
+        pass
+
+
 def _show_background(step):
     bg = step.get("background")
     if not bg:
@@ -386,7 +819,15 @@ def _show_background(step):
         path = "images/bg_demo.png"
         path = path if renpy.loadable(path) else None
     if path:
+        # `bg_shown` lives in the world, not in a module global, so a save, a rollback and a
+        # restart all still know what is on screen. The first background of a game is not a
+        # change and is shown without a transition.
+        previous = str(world.get("bg_shown") or "")
+        changed = bool(previous) and previous != path
         renpy.show("vn_background", what=Image(path), at_list=[])
+        world["bg_shown"] = path
+        if changed:
+            _background_dissolve()
 
 
 def _draw_layered(tag, record, transform, emotion, pose=None):
@@ -396,7 +837,53 @@ def _draw_layered(tag, record, transform, emotion, pose=None):
     return layered_sprite.draw_layered(tag, record, transform, emotion=emotion, pose=pose)
 
 
-def _visual_character(spec):
+def _declared_costumes(*visuals):
+    """Every pose/outfit name the character's packs really declare.
+
+    The world's own `visual` and the catalog record are both read: `visual_for_world` copies
+    a subset of keys, so a pack's poses can be present in one of the two and absent in the
+    other. Nothing outside this set may change how a character looks.
+    """
+    names = set()
+    for visual in visuals:
+        if not isinstance(visual, dict):
+            continue
+        for key in ("poses", "outfits"):
+            value = visual.get(key)
+            if isinstance(value, dict):
+                names.update(str(x) for x in value)
+        poses = visual.get("poses")
+        if isinstance(poses, dict):
+            # A layered pack nests its costumes inside a pose: `{"pose_1": {"costumes": ...}}`.
+            for info in poses.values():
+                if isinstance(info, dict):
+                    for name in (info.get("costumes") or {}):
+                        names.add(str(name))
+    return names
+
+
+def _costume_for(spec, visual, record_visual, trusted):
+    """`(outfit, pose)` for one character in one step.
+
+    Два правила, которые движок держит сам:
+
+    * имя, которого у персонажа нет, не применяется никогда. Выдуманное моделью значение иначе
+      молча уводит отрисовку на первый спрайт, который разрешился, то есть меняет вид персонажа
+      посторонней командой;
+    * «поза» у слоёного пака -- это костюм, а не ракурс: у SAO-пака тринадцать «поз», и это
+      доспехи, купальник, платье и школьная форма (сверено по спрайтам). Модель получает список
+      этих имён в промпте и выбирает наугад, поэтому для её шагов поза не применяется вообще.
+      Костюм меняется только по рукописному шагу или по явному объявленному `outfit`.
+    """
+    declared = _declared_costumes(visual, record_visual)
+    wanted_outfit = str(spec.get("outfit") or visual.get("outfit") or "").strip()
+    outfit = wanted_outfit if wanted_outfit in declared else None
+    wanted_pose = str(spec.get("pose") or "").strip()
+    pose = wanted_pose if trusted and wanted_pose in declared else None
+    return outfit, pose
+
+
+def _visual_character(spec, trusted=True):
     cid = spec.get("id") or spec.get("character")
     if not cid:
         return
@@ -410,7 +897,7 @@ def _visual_character(spec):
     emotion = spec.get("emotion") or "neutral"
     motion = spec.get("motion") or "idle"
     position = spec.get("position") or "center"
-    outfit = spec.get("outfit") or visual.get("outfit")
+    outfit, pose = _costume_for(spec, visual, (record or {}).get("visual"), trusted)
     tag = "vn_char_" + cid
     transform = _transform_for(position)
 
@@ -427,6 +914,19 @@ def _visual_character(spec):
 
     path = None
     if record:
+        # A pose is asked for by name, and the importer writes one state per pose and emotion
+        # (`pose_01_100_happy`). Without this the pose was ignored and every emotion resolved
+        # to the first pose that had it, so a character could never stand the way a scene
+        # wanted her to. `pose` comes out of `_costume_for`, so a step that has no right to
+        # change the costume arrives here as `None` and falls through to the default look.
+        wanted_pose = pose
+        if wanted_pose:
+            states = (record.get("visual") or {}).get("states") or {}
+            for key in ("%s_%s" % (wanted_pose, emotion), wanted_pose):
+                if states.get(key) and _asset_path(states[key]):
+                    path = states[key]
+                    break
+    if not path and record:
         resolved = resolve_state(record, emotion)
         path = resolved[0] if isinstance(resolved, tuple) else None
     if not path:
@@ -446,7 +946,7 @@ def _visual_character(spec):
     # is the fallback for a pack that still ships separate face files, and it only runs when
     # there is no finished file for this emotion.
     if not _asset_path(path) and record:
-        if _draw_layered(tag, record, transform, emotion, spec.get("pose")):
+        if _draw_layered(tag, record, transform, emotion, pose):
             return
 
     layered_sprite.clear_face(tag)
@@ -459,7 +959,41 @@ def _visual_character(spec):
         renpy.show(tag, what=Image(path), at_list=at_list)
 
 
+def _sync_music(step):
+    """The track for the scene that is about to be shown. Never raises, never blocks.
+
+    Музыка включается и по намерению сцены, и без него: если сцена ничего не сказала, а на
+    канале пусто, играет спокойный фон из каталога. Молчание остаётся только там, где про
+    него явно попросили (`music_intent: "none"`) или где выключена настройка.
+    """
+    if not _settings().get("music_enabled", True):
+        return
+    intent = str(step.get("music_intent") or "").strip().lower()
+    if intent == "none":
+        return
+    if not intent:
+        try:
+            if renpy.music.is_playing(channel="music"):
+                return
+        except Exception:
+            pass
+    try:
+        track = choose_track(_state().get("music_catalog") or [], intent)
+    except Exception:
+        track = None
+    if not track:
+        return
+    try:
+        renpy.music.play(track, channel="music", loop=True, fadeout=1.0, fadein=1.0, if_changed=True)
+    except Exception:
+        pass
+
+
 def apply_visuals(step):
+    ## Шаг от модели помечен в `_story_request`: его `pose` не значит ничего, потому что
+    ## модель выбирает костюм из списка, которого она не видит. Рукописные шаги, локальная
+    ## история и демо идут как `trusted` и право на смену костюма сохраняют.
+    trusted = not step.get("ai_generated")
     _show_background(step)
     specs = step.get("characters") or []
     if not specs and step.get("character"):
@@ -470,16 +1004,9 @@ def apply_visuals(step):
             "position": step.get("position", "center"),
         }]
     for spec in specs:
-        _visual_character(spec)
+        _visual_character(spec, trusted=trusted)
 
-    intent = step.get("music_intent")
-    if intent and _settings().get("music_enabled", True):
-        track = choose_track(_state().get("music_catalog", []), intent)
-        if track:
-            try:
-                renpy.music.play(track, channel="music", loop=True, fadeout=1.0, fadein=1.0, if_changed=True)
-            except Exception:
-                pass
+    _sync_music(step)
 
 
 def _apply_patch(patch):
@@ -529,35 +1056,78 @@ def apply_choice(step, choice_id):
 
     for choice in step.get("choices", []):
         if choice.get("id") == choice_id:
-            world.setdefault("history", []).append({"speaker": "player", "text": choice.get("text", ""), "turn": world.get("turn", 0)})
+            text = choice.get("text", "")
+            world.setdefault("history", []).append({"speaker": "player", "text": text, "turn": world.get("turn", 0)})
             # A local scene can only react to an answer if the answer reaches it.
-            local_story.note_choice(world, choice.get("text", ""), choice.get("flag"))
+            local_story.note_choice(world, text, choice.get("flag"))
             if choice.get("world_flag"):
                 world.setdefault("flags", {})[choice["world_flag"]] = True
+            # What the player decided is the one thing the next request must not forget: the
+            # prompt quotes it, and the hand-written chapter walks its branches by it.
+            world.setdefault("player_choices", []).append({
+                "id": str(choice_id),
+                "text": text,
+                "turn": int(world.get("turn", 0)),
+                "world_flag": choice.get("world_flag"),
+                "flag": choice.get("flag"),
+                "goto": choice.get("goto"),
+            })
             break
     world["memory_summary"] = "\n".join(x.get("text", "") for x in world.get("history", [])[-6:])
 
 
 def free_response(text):
+    """A line the player typed. It becomes part of the scene, not a separate chat."""
     text = str(text or "").strip()
     if not text:
         return
     world = _state()
     world.setdefault("history", []).append({"speaker": "player", "text": text, "turn": world.get("turn", 0)})
+    world.setdefault("player_choices", []).append({"id": "__free__", "text": text,
+                                                   "turn": int(world.get("turn", 0))})
+    mode = str(world.get("story_mode") or "ai")
+    if mode == "chapter":
+        import story_chapter
+
+        world["buffer"] = story_chapter.react(world, text) + (world.get("buffer") or [])
+        return
+    if mode == "offline" or not ai_configured():
+        # The answer is owed even when the buffer is not empty yet.
+        _extend_local(world, len(world.get("buffer") or []) + 2)
+        return
+    outcome = _story_request(player_text=text, title="Модель отвечает на твою реплику…")
+    if outcome == "done":
+        return
+    # The line is already in the history, so the chapter can answer it in its own words and the
+    # player is not left talking to a screen that never replies.
+    import story_chapter
+
+    world["buffer"] = story_chapter.react(world, text) + (world.get("buffer") or [])
+
+
+## Pending speech: the server answers in its own time, and a line must not wait for it.
+_PENDING_VOICE = {"data": None, "volume": 1.0}
+
+
+def _drain_voice():
+    """Play speech that has arrived. Ren'Py's player belongs to the main thread, so the
+    request is made in a worker and the audio is picked up from here, on a timer."""
+    data = _PENDING_VOICE.get("data")
+    if not data:
+        return
+    _PENDING_VOICE["data"] = None
     try:
-        bundle = generate_free_response(world, text, _settings())
-        beats = bundle.get("beats", []) if isinstance(bundle, dict) else []
-        if beats:
-            world["buffer"] = beats + world.get("buffer", [])
-            return
+        renpy.music.play(AudioData(data, "living_vn_tts.wav"), channel="voice", loop=False,
+                         relative_volume=float(_PENDING_VOICE.get("volume", 0.95)))
     except Exception:
         pass
-    world["buffer"] = fallback_bundle() + world.get("buffer", [])
 
 
 def speak_text(text):
     url = str(_settings().get("tts_url", "")).strip()
     if not url or not text:
+        return False
+    if _PENDING_VOICE.get("data"):
         return False
     payload = {
         "text": text,
@@ -566,15 +1136,31 @@ def speak_text(text):
         "put_accent": True,
         "put_yo": True,
     }
-    try:
-        data = renpy.fetch(url, method="POST", json=payload, timeout=20, result="bytes")
+    volume = float(_settings().get("voice_volume", 0.95))
+
+    def work():
+        # A worker thread, because the request takes as long as the server needs and the game
+        # has to stay responsive: the line is already on screen while the voice is fetched.
+        import ai_client
+
+        try:
+            data = ai_client.post_bytes(url, payload, timeout=20)
+        except Exception:
+            return
         if data:
-            audio = AudioData(data, "living_vn_tts.wav")
-            renpy.music.play(audio, channel="voice", loop=False, relative_volume=float(_settings().get("voice_volume", 0.95)))
-            return True
+            _PENDING_VOICE["data"] = data
+            _PENDING_VOICE["volume"] = volume
+            try:
+                renpy.restart_interaction()
+            except Exception:
+                pass
+
+    try:
+        threading.Thread(target=work, daemon=True).start()
+        renpy.create_timer(0.15, _drain_voice, repeat=True)
     except Exception:
         return False
-    return False
+    return True
 
 
 def _extend_local(world, min_items):

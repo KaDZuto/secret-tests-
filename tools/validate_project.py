@@ -72,10 +72,25 @@ def check_references():
         if not os.path.exists(os.path.join(GAME, rel)):
             errors.append(f"Missing demo asset: game/{rel}")
     text = open(os.path.join(GAME, "engine.py"), encoding="utf-8").read()
-    if "renpy.fetch" not in text:
-        errors.append("engine.py does not contain the OpenAI/TTS network adapter")
+    ## The network adapter moved to `ai_client` on purpose: `renpy.fetch` is not an attribute
+    ## of the `renpy` package in this project, so every call written that way raised at runtime
+    ## and the story request never left the machine. The transport is checked where it lives.
+    if "ai_client" not in text:
+        errors.append("engine.py does not reach the AI client")
     if "supervise(" not in text:
         errors.append("engine.py does not invoke the plot supervisor")
+    client_path = os.path.join(GAME, "ai_client.py")
+    if not os.path.exists(client_path):
+        errors.append("Missing AI transport: game/ai_client.py")
+    else:
+        client = open(client_path, encoding="utf-8").read()
+        for needle, what in (
+            ("urlopen", "the HTTP transport"),
+            ("call_chat", "the OpenAI-compatible chat call"),
+            ("post_bytes", "the TTS transport"),
+        ):
+            if needle not in client:
+                errors.append(f"ai_client.py does not contain {what}")
     return errors
 
 

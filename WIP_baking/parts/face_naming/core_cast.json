@@ -1,0 +1,57 @@
+{
+  "ec5bd_m7770": {
+    "eyes": {
+      "open": 1,
+      "closed": 3,
+      "half": 7,
+      "wide": 2,
+      "up": 14
+    },
+    "mouth": {
+      "neutral": 7,
+      "smile": 4,
+      "grin": 3,
+      "laugh": 2,
+      "open": 0,
+      "frown": 10,
+      "small": 5,
+      "surprise": 8
+    }
+  },
+  "e2c12_m8a6f": {
+    "eyes": {
+      "open": 4,
+      "closed": 5,
+      "half": 3,
+      "up": 10
+    },
+    "mouth": {
+      "neutral": 14,
+      "smile": 16,
+      "small": 9,
+      "open": 0,
+      "surprise": 6
+    }
+  },
+  "ec213_mnone": {
+    "eyes": {
+      "open": 2,
+      "closed": 0,
+      "half": 1
+    }
+  },
+  "ef473_m2a01": {
+    "eyes": {
+      "open": 2,
+      "closed": 0,
+      "half": 1
+    },
+    "mouth": {
+      "neutral": 5,
+      "smile": 1,
+      "open": 3,
+      "frown": 2,
+      "small": 7
+    }
+  }
+}

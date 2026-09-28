@@ -84,20 +84,39 @@ label demo_expression_sheet:
         _path = os.path.join(config.gamedir, "absorbed", "SAO", "character_art",
                              "asuna", "character.json")
         with open(_path, encoding="utf-8") as _fh:
-            demo_expression_table = json.load(_fh).get("expressions", {})
+            _manifest = json.load(_fh)
+        demo_expression_table = _manifest.get("expressions", {})
+        _states = (_manifest.get("visual") or {}).get("states") or {}
+
+        ## One pose per outfit, not every pose and not just the first. The importer bakes an
+        ## expression per pose, so a sheet that only showed the default pose hid a whole
+        ## outfit: the front facing one has its own eye and mouth strips and its own measured
+        ## offsets. Walking all thirteen would be a hundred and seventeen steps, so this
+        ## takes the first pose of each layer set, which is the outfit it stands for.
+        demo_sheet_rows = []
+        _seen_sets = []
+        for _pose in sorted((_manifest.get("visual") or {}).get("poses") or {}):
+            _info = ((_manifest.get("visual") or {}).get("poses") or {}).get(_pose) or {}
+            _set = _info.get("eyes_set") or _info.get("mouth_set") or _pose
+            if _set in _seen_sets:
+                continue
+            _seen_sets.append(_set)
+            for _emotion in demo_expressions:
+                if ("%s_%s" % (_pose, _emotion)) in _states:
+                    demo_sheet_rows.append((_pose, _emotion))
 
     $ demo_shown = []
     $ demo_index = 0
-    while demo_index < len(demo_expressions):
+    while demo_index < len(demo_sheet_rows):
         python:
-            _emotion = demo_expressions[demo_index]
+            _pose, _emotion = demo_sheet_rows[demo_index]
             _parts = demo_expression_table.get(_emotion, {})
-            demo_shown.append("%s — глаза: %s, рот: %s" % (
-                _emotion, _parts.get("eyes", "?"), _parts.get("mouth", "?")))
+            demo_shown.append("%s — %s, глаза: %s, рот: %s" % (
+                _pose, _emotion, _parts.get("eyes", "?"), _parts.get("mouth", "?")))
             apply_visuals({"characters": [{"id": "asuna", "position": "center",
-                                           "emotion": _emotion}]})
+                                           "emotion": _emotion, "pose": _pose}]})
         $ renpy.say(None, demo_shown[-1])
         $ demo_index += 1
 
-    $ renpy.say(None, "Девять выражений: тело одно, меняются только глаза и рот.")
+    $ renpy.say(None, "Девять выражений в каждой позе: тело одно, меняются только глаза и рот.")
     return

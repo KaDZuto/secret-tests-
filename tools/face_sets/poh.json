@@ -1,0 +1,103 @@
+{
+ "enone_ma90c": {
+  "poses": [
+   "pose_22_010"
+  ],
+  "mouth": {
+   "frame": [
+    424,
+    158
+   ],
+   "margin": [
+    0,
+    2
+   ],
+   "frames": {
+    "neutral": 1,
+    "smile": 8,
+    "grin": 2,
+    "laugh": 0
+   }
+  },
+  "emotions": {
+   "neutral": {
+    "mouth": "neutral"
+   },
+   "smile": {
+    "mouth": "smile"
+   },
+   "happy": {
+    "mouth": "grin"
+   },
+   "laugh": {
+    "mouth": "laugh"
+   },
+   "surprised": {
+    "mouth": "grin"
+   },
+   "sad": {
+    "mouth": "neutral"
+   },
+   "closed": {
+    "mouth": "neutral"
+   },
+   "think": {
+    "mouth": "neutral"
+   },
+   "shy": {
+    "mouth": "neutral"
+   }
+  }
+ },
+ "enone_mbf8b": {
+  "poses": [
+   "pose_22_000"
+  ],
+  "mouth": {
+   "frame": [
+    408,
+    158
+   ],
+   "margin": [
+    0,
+    2
+   ],
+   "frames": {
+    "neutral": 1,
+    "smile": 5,
+    "small": 2,
+    "open": 3,
+    "laugh": 0
+   }
+  },
+  "emotions": {
+   "neutral": {
+    "mouth": "neutral"
+   },
+   "smile": {
+    "mouth": "smile"
+   },
+   "happy": {
+    "mouth": "smile"
+   },
+   "laugh": {
+    "mouth": "laugh"
+   },
+   "surprised": {
+    "mouth": "open"
+   },
+   "sad": {
+    "mouth": "neutral"
+   },
+   "closed": {
+    "mouth": "neutral"
+   },
+   "think": {
+    "mouth": "small"
+   },
+   "shy": {
+    "mouth": "small"
+   }
+  }
+ }
+}
