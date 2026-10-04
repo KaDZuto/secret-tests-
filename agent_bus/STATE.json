@@ -61,19 +61,14 @@
     "absorbed copies": "Everlasting_Summer 1434 files / 556.7 MB / 12 packs; Doki_Doki_Literature_Club 383 files / 163.7 MB / 5 packs. Copy scope: character art, scene art, backgrounds, music. Voice and text catalogued only",
     "absorbed verification": "1817 archive entries re-read and compared byte for byte: 0 missing, 0 size mismatches, 0 byte mismatches. Catalog: 17 characters, 1724 states, 157 backgrounds, broken 0, all third_party"
   },
-  "last_change": "Per-character sprite packs, structure-based classification (gui_art/scene_art/live2d2), vendored unrpa fallback reader, and a real absorb of Everlasting Summer + DDLC (1817 archive entries verified byte-exact). Docs corrected: Asuna is Cubism 2, not MMD; the reader chain and the unofficial variants are described as implemented.",
-  "last_verified": [
-    "renpy lint clean: 28 screens, no errors",
-    "tools/validate_project.py OK",
-    "smoke_test_assets / smoke_test_cannibalism / smoke_test_logic OK",
-    "demo opening runs without a traceback (settings + stage + layered Asuna)",
-    "catalog: 18 characters, 157 backgrounds, 0 broken; asuna type=layered, 13 states"
-  ],
+  "last_change": "2026-10-04 overnight: LVN-008 external stories, TTS queue, Live2D outfit resolve, bg placeholder, untrack artefacts",
+  "last_verified": "smoke tests pass; Ren'Py lint/boot NOT run (no SDK in this environment)",
   "known_open": [
-    "two Asuna layer sets still need their face offsets measured (imported as plain bodies)",
-    "which Everlasting Summer pack is Slavya: sl or us",
-    "grim cannot capture this compositor, so screens are checked in game or by the player",
-    "data/story_pines.json has no choice steps: the player never decides anything (QAL-006 asks the author)",
-    "Ника's grandfather appears once and is never mentioned again; the brother of Егор is never named"
+    "Ren'Py lint+boot unverified here",
+    "UI pass 1280/1920/2560",
+    "SAO baking (needs ImageMagick)",
+    "story quality critique",
+    "compact AI context + per-character outfit/pose lists",
+    "Pines/SAO backgrounds have no images"
   ]
 }
