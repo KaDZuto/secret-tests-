@@ -300,6 +300,7 @@ def _characters_of(item, known, expressions):
             "emotion": _emotion_of(spec.get("emotion"), allowed),
             "motion": str(spec.get("motion") or "idle").strip() or "idle",
             "pose": str(spec.get("pose") or "").strip() or None,
+            "outfit": str(spec.get("outfit") or "").strip() or None,
         })
     # A single-element answer names the character flat, as the old schema did.
     if not out:
@@ -314,6 +315,7 @@ def _characters_of(item, known, expressions):
                 "emotion": _emotion_of(item.get("emotion"), allowed),
                 "motion": str(item.get("motion") or "idle").strip() or "idle",
                 "pose": str(item.get("pose") or "").strip() or None,
+                "outfit": str(item.get("outfit") or "").strip() or None,
             })
     # Deduplicate by character: two entries for one id would draw the same tag twice.
     unique = []
@@ -436,8 +438,6 @@ def normalize(item, world, expressions):
     beat.pop("what", None)
     beat.pop("line", None)
     beat.pop("say", None)
-    beat.pop("outfit", None)
-    beat.pop("pose", None)
     beat["type"] = _type_of(item, bool(text), bool(speaker), bool(choices),
                             bool(background), bool(characters), bool(music))
     beat["text"] = text

@@ -1,4 +1,6 @@
 label start:
+    if not persistent.vn_player_name:
+        $ persistent.vn_player_name = renpy.call_screen("player_name_input")
     jump creator
 
 label creator:

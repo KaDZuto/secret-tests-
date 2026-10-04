@@ -7,6 +7,7 @@ default creator_title = "Летний лагерь"
 default creator_genre = "романтика, тайна, драма"
 default creator_tone = "тёплая атмосфера с постепенным напряжением"
 default creator_player_name = "Игрок"
+default persistent.vn_player_name = ""
 default lore_edit_text = ""
 default settings_tab = "ai"
 default provider_models = []
@@ -181,6 +182,25 @@ screen say(who, what):
     ## If there's a side image, display it above the text. Do not display on the
     ## phone variant - there's no room.
     if not renpy.variant("small"):
+
+
+screen player_name_input():
+    modal True
+    add Solid("#05070cec")
+    frame:
+        style "vn_box"
+        xalign 0.5
+        yalign 0.5
+        xsize 600
+        vbox:
+            spacing 16
+            text "Как тебя зовут?" style "vn_title" size 30
+            text "Имя будет использоваться в сценах. Можно пропустить." style "vn_hint"
+            input value VariableInputValue("persistent.vn_player_name") length 24 style "vn_input"
+            hbox:
+                spacing 12
+                textbutton "Пропустить" action Return("")
+                textbutton "Сохранить" action Return(persistent.vn_player_name)
         add SideImage() xalign 0.0 yalign 1.0
 
 
@@ -1553,9 +1573,9 @@ screen creator():
                     if creator_mode == "brief":
                         frame:
                             background Solid("#11151d")
-                            padding (18, 14)
+                            padding (14, 12)
                             vbox:
-                                spacing 8
+                                spacing 6
                                 text "Название"
                                 input value VariableInputValue("creator_title") length 80 style "vn_input"
                                 text "Жанры"
@@ -1563,7 +1583,7 @@ screen creator():
                                 text "Тон"
                                 input value VariableInputValue("creator_tone") length 120 style "vn_input"
                                 text "Краткое описание сюжета"
-                                input value VariableInputValue("creator_description") length 600 style "vn_input"
+                                input value VariableInputValue("creator_description") length 600 style "vn_input_multiline"
                                 text "Количество персонажей"
                                 input value VariableInputValue("creator_character_count") length 3 style "vn_input"
                                 text "Музыкальные папки (desktop, через ; )"

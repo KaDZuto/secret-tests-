@@ -1035,11 +1035,19 @@ def _apply_patch(patch):
             rels["player"] = max(-100, min(100, current + delta))
 
 
+def _substitute_player(text):
+    """Replace {player} with the player's name."""
+    name = str(getattr(store.persistent, "vn_player_name", "") or "").strip()
+    if not name:
+        return text
+    return str(text).replace("{player}", name)
+
+
 def consume_dialogue(step):
     world = _state()
     world["turn"] = int(world.get("turn", 0)) + 1
     _apply_patch(step.get("state_patch", {}))
-    text = step.get("text", "")
+    text = _substitute_player(step.get("text", ""))
     speaker = step.get("speaker")
     world.setdefault("history", []).append({"speaker": speaker or "narrator", "text": text, "turn": world["turn"]})
     max_history = int(_settings().get("max_history", 18))
@@ -1107,18 +1115,21 @@ def free_response(text):
 
 ## Pending speech: the server answers in its own time, and a line must not wait for it.
 _PENDING_VOICE = {"data": None, "volume": 1.0}
+_PENDING_VOICE_LOCK = threading.Lock()
 
 
 def _drain_voice():
     """Play speech that has arrived. Ren'Py's player belongs to the main thread, so the
     request is made in a worker and the audio is picked up from here, on a timer."""
-    data = _PENDING_VOICE.get("data")
-    if not data:
-        return
-    _PENDING_VOICE["data"] = None
+    with _PENDING_VOICE_LOCK:
+        data = _PENDING_VOICE.get("data")
+        if not data:
+            return
+        volume = float(_PENDING_VOICE.get("volume", 0.95))
+        _PENDING_VOICE["data"] = None
     try:
         renpy.music.play(AudioData(data, "living_vn_tts.wav"), channel="voice", loop=False,
-                         relative_volume=float(_PENDING_VOICE.get("volume", 0.95)))
+                         relative_volume=volume)
     except Exception:
         pass
 
@@ -1127,8 +1138,9 @@ def speak_text(text):
     url = str(_settings().get("tts_url", "")).strip()
     if not url or not text:
         return False
-    if _PENDING_VOICE.get("data"):
-        return False
+    with _PENDING_VOICE_LOCK:
+        if _PENDING_VOICE.get("data"):
+            return False
     payload = {
         "text": text,
         "speaker": _settings().get("tts_speaker", "baya"),
@@ -1148,8 +1160,9 @@ def speak_text(text):
         except Exception:
             return
         if data:
-            _PENDING_VOICE["data"] = data
-            _PENDING_VOICE["volume"] = volume
+            with _PENDING_VOICE_LOCK:
+                _PENDING_VOICE["data"] = data
+                _PENDING_VOICE["volume"] = volume
             try:
                 renpy.restart_interaction()
             except Exception:
@@ -1270,7 +1283,7 @@ def load_story_from_clipboard():
     try:
         text = renpy.get_clipboard_text()
         obj = json.loads(text)
-        folder = os.path.join(config.gamedir, "data")
+        folder = os.path.join(store.config.gamedir, "data")
         os.makedirs(folder, exist_ok=True)
         path = os.path.join(folder, "clipboard_story.json")
         with open(path, "w", encoding="utf-8") as fh:

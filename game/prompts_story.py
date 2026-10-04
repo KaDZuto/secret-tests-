@@ -54,7 +54,7 @@ MUSIC_INTENT_RULE = (
 # noise by a small model; one line per field with what to write is read as an instruction.
 ELEMENT_RULES = """Один шаг — это один объект с такими полями:
 - "background": id фона из списка ФОНЫ. Либо null, если фон не меняется.
-- "characters": список тех, кто сейчас на экране. [{"id": "...", "position": "center", "emotion": "neutral", "pose": "pose_01_000"}]. Больше одного человека на экране не нужно.
+- "characters": список тех, кто сейчас на экране. [{"id": "...", "position": "center", "emotion": "neutral", "pose": "pose_01_000", "outfit": "school"}]. Больше одного человека на экране не нужно.
 - "text": одна строка. Обычно 80-200 символов. Это либо рассказ от автора, либо реплика.
 - "who": id персонажа, если реплику говорит он. null, если это рассказ от автора.
 - "choices": только у последнего шага, если игрок должен выбрать. [{"id": "a", "text": "..."}]. Два или три варианта.
@@ -81,7 +81,7 @@ SYSTEM = """Ты пишешь сюжет для русскоязычной ви�
 6. Не торопи события: сначала место и люди, потом реплика, потом выбор.
 7. Персонаж не знает того, чего не слышал и не видел.
 8. Бери только те id фонов, персонажей, эмоций и поз, что перечислены ниже. Ничего не выдумывай.
-9. Заканчивай массив шагом с "choices" — игрок должен решить что-то."""
+9. Выбор нужен только когда сюжетно оправдан: развилка, решение игрока, важный момент. Не заставляй персонажа каждые несколько реплик задавать вопрос. Не делай выбор в конце каждого пакета."""
 
 REPAIR_SYSTEM = """Ты исправляешь ответ другой модели.
 
@@ -195,6 +195,11 @@ def _poses_of(record):
     return [p for p in poses if str(p).startswith("pose_")][:8]
 
 
+def _outfits_of(record):
+    outfits = list(((record or {}).get("visual") or {}).get("outfits") or {})
+    return [o for o in outfits if str(o).strip()][:6]
+
+
 def cast_block(world):
     """The drawable cast with the exact ids, expressions and poses it really has."""
     import assets
@@ -238,10 +243,15 @@ def cast_block(world):
             pose_note = "позы: " + ", ".join(poses)
         else:
             pose_note = "поз нет, поле pose можно не указывать"
-        lines.append('- "%s" — %s%s. Выражения: %s. %s' % (
+        outfits = _outfits_of(record)
+        if outfits:
+            outfit_note = "костюмы: " + ", ".join(outfits)
+        else:
+            outfit_note = "костюмов нет"
+        lines.append('- "%s" — %s%s. Выражения: %s. %s. %s' % (
             cid, name,
             (": " + _clip(personality, 120)) if personality else "",
-            emotions, pose_note,
+            emotions, pose_note, outfit_note,
         ))
     if not lines:
         # A world with no drawable character still has to be playable: the engine falls back
@@ -415,7 +425,8 @@ def story_request(world, settings, player_text=None, director_command=""):
     question = (
         "Напиши продолжение сцены: массив JSON ровно из %d %s. %s\n"
         "%s\n"
-        "Закончи массив шагом с \"choices\"."
+        "Выбери темп и тон сам. Если в конце пакета есть сюжетная развилка — добавь выбор. "
+        "Если нет — просто закончи сцену естественно."
     ) % (count, _plural(count, "шага", "шагов", "шагов"), ELEMENT_RULES,
          random.choice(MIX_DIRECTIVES))
 
