@@ -1386,7 +1386,34 @@ def create_story_from_text():
 def toggle_setting(key):
     current = bool(store.persistent.vn_settings.get(key, False))
     store.persistent.vn_settings[key] = not current
-    renpy.save_persistent()
+    try:
+        renpy.save_persistent()
+        renpy.restart_interaction()
+    except Exception:
+        pass
+
+
+def adjust_setting(key, delta):
+    import vn_settings_schema
+    current = vn_settings_schema.number(key)
+    new_val = vn_settings_schema.coerce(key, current + delta)
+    vn_settings_schema.storage()[key] = new_val
+    try:
+        renpy.save_persistent()
+        renpy.restart_interaction()
+    except Exception:
+        pass
+
+
+def set_setting(key, value):
+    import vn_settings_schema
+    new_val = vn_settings_schema.coerce(key, value)
+    vn_settings_schema.storage()[key] = new_val
+    try:
+        renpy.save_persistent()
+        renpy.restart_interaction()
+    except Exception:
+        pass
 
 
 def set_export_key(value):

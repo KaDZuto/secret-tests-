@@ -439,3 +439,33 @@ style vn_input_multiline is vn_input:
     multiline True
     ysize 120
     padding (12, 9)
+
+style vn_step_button is button:
+    xsize 36
+    ysize 36
+    padding (0, 0)
+    background Solid("#e3f0e7d0")
+    hover_background Solid("#69d38ae0")
+
+style vn_step_button_text is button_text:
+    size 22
+    bold True
+    color "#112c19"
+    xalign 0.5
+    yalign 0.5
+
+style vn_chip_small is button:
+    padding (12, 5)
+    background Solid("#e3f0e7bb")
+    hover_background Solid("#69d38ae0")
+
+style vn_chip_small_text is button_text:
+    size 17
+    color "#112c19"
+    xalign 0.5
+
+style vn_chip_small_on is vn_chip_small:
+    background Solid("#69d38a")
+
+style vn_chip_small_on_text is vn_chip_small_text:
+    bold True

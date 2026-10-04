@@ -1,11 +1,11 @@
 default creator_mode = "brief"
-default creator_description = "Ты перевёлся в Академию в начале осени и встретил Асуну у старого корпуса. В её руках — запечатанный дневник, а в расписании занятий — аудитория, которой нет на плане здания."
+default creator_description = "Ты перевёлся в Академию в начале осени. Твоей соседкой по парте оказалась Асуна — добрая и весёлая староста. Впереди подготовка к осеннему фестивалю, прогулки после уроков и тёплые дни школьной жизни."
 default creator_json_path = ""
 default creator_music_paths = ""
 default creator_character_count = "3"
-default creator_title = "Академия: Тайна старого корпуса"
-default creator_genre = "мистика, школьная повседневность, детектив"
-default creator_tone = "светлая осенняя атмосфера с нарастающей тайной"
+default creator_title = "Академия: Осенние дни"
+default creator_genre = "школьная романтика, повседневность"
+default creator_tone = "тёплая и уютная атмосфера школьной жизни"
 default creator_player_name = "Игрок"
 default persistent.vn_player_name = ""
 default lore_edit_text = ""
@@ -1790,9 +1790,42 @@ screen vn_setting_row(row):
                 ## Ren'Py's `FieldInputValue` walks the name with `getattr` only.
                 input value FieldInputValue(vn_view, row.key) style "vn_input" length row.length
             elif row.kind == "number":
-                ## The bounds and the step are the declared ones, so the bar cannot
-                ## produce a value the schema would refuse to store.
-                bar value FieldValue(vn_view, row.key, min=row.low, max=row.high, step=row.step) style "vn_bar"
+                ## Direct step buttons plus the bar value with correct range and offset
+                hbox:
+                    spacing 8
+                    xfill True
+                    textbutton "−" style "vn_step_button" action Function(adjust_setting, row.key, -(row.step or 1))
+                    bar value FieldValue(vn_view, row.key, row.bar_range, offset=row.bar_offset, step=row.step) style "vn_bar" yalign 0.5
+                    textbutton "+" style "vn_step_button" action Function(adjust_setting, row.key, (row.step or 1))
+
+                if row.key == "temperature":
+                    hbox:
+                        spacing 6
+                        text "Быстрый выбор:" style "vn_hint" yalign 0.5
+                        textbutton "0.70 Точнее" style ("vn_chip_small_on" if abs(vn_settings_schema.number("temperature") - 0.70) < 0.03 else "vn_chip_small") action Function(set_setting, "temperature", 0.70)
+                        textbutton "0.85 Баланс" style ("vn_chip_small_on" if abs(vn_settings_schema.number("temperature") - 0.85) < 0.03 else "vn_chip_small") action Function(set_setting, "temperature", 0.85)
+                        textbutton "1.05 Живее" style ("vn_chip_small_on" if abs(vn_settings_schema.number("temperature") - 1.05) < 0.03 else "vn_chip_small") action Function(set_setting, "temperature", 1.05)
+                elif row.key == "bundle_size":
+                    hbox:
+                        spacing 6
+                        text "Сцен за раз:" style "vn_hint" yalign 0.5
+                        textbutton "3 Быстро" style ("vn_chip_small_on" if int(vn_settings_schema.number("bundle_size")) == 3 else "vn_chip_small") action Function(set_setting, "bundle_size", 3)
+                        textbutton "6 Баланс" style ("vn_chip_small_on" if int(vn_settings_schema.number("bundle_size")) == 6 else "vn_chip_small") action Function(set_setting, "bundle_size", 6)
+                        textbutton "10 Подробно" style ("vn_chip_small_on" if int(vn_settings_schema.number("bundle_size")) == 10 else "vn_chip_small") action Function(set_setting, "bundle_size", 10)
+                elif row.key == "timeout":
+                    hbox:
+                        spacing 6
+                        text "Таймаут:" style "vn_hint" yalign 0.5
+                        textbutton "60 с" style ("vn_chip_small_on" if int(vn_settings_schema.number("timeout")) == 60 else "vn_chip_small") action Function(set_setting, "timeout", 60)
+                        textbutton "120 с" style ("vn_chip_small_on" if int(vn_settings_schema.number("timeout")) == 120 else "vn_chip_small") action Function(set_setting, "timeout", 120)
+                        textbutton "180 с" style ("vn_chip_small_on" if int(vn_settings_schema.number("timeout")) == 180 else "vn_chip_small") action Function(set_setting, "timeout", 180)
+                elif row.key == "supervisor_threshold":
+                    hbox:
+                        spacing 6
+                        text "Порог оценки:" style "vn_hint" yalign 0.5
+                        textbutton "6.0 Мягко" style ("vn_chip_small_on" if abs(vn_settings_schema.number("supervisor_threshold") - 6.0) < 0.05 else "vn_chip_small") action Function(set_setting, "supervisor_threshold", 6.0)
+                        textbutton "7.0 Стандарт" style ("vn_chip_small_on" if abs(vn_settings_schema.number("supervisor_threshold") - 7.0) < 0.05 else "vn_chip_small") action Function(set_setting, "supervisor_threshold", 7.0)
+                        textbutton "8.5 Строго" style ("vn_chip_small_on" if abs(vn_settings_schema.number("supervisor_threshold") - 8.5) < 0.05 else "vn_chip_small") action Function(set_setting, "supervisor_threshold", 8.5)
             elif row.kind == "flag":
                 textbutton ("ВКЛ" if vn_settings_schema.flag(row.key) else "ВЫКЛ") style ("vn_toggle_on" if vn_settings_schema.flag(row.key) else "vn_toggle") action Function(toggle_setting, row.key)
 

@@ -128,6 +128,16 @@ class Field(object):
         self.unit = declared.get("unit", "")
         self.integer = bool(declared.get("integer"))
 
+    @property
+    def bar_range(self):
+        if self.high is not None and self.low is not None:
+            return max(0.001, float(self.high) - float(self.low))
+        return 1.0
+
+    @property
+    def bar_offset(self):
+        return float(self.low) if self.low is not None else 0.0
+
     def value_text(self):
         try:
             return schema.display(self.key)

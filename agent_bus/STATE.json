@@ -61,14 +61,11 @@
     "absorbed copies": "Everlasting_Summer 1434 files / 556.7 MB / 12 packs; Doki_Doki_Literature_Club 383 files / 163.7 MB / 5 packs. Copy scope: character art, scene art, backgrounds, music. Voice and text catalogued only",
     "absorbed verification": "1817 archive entries re-read and compared byte for byte: 0 missing, 0 size mismatches, 0 byte mismatches. Catalog: 17 characters, 1724 states, 157 backgrounds, broken 0, all third_party"
   },
-  "last_change": "2026-10-04: new non-camp Academy story, green DDLC UI polish, choice centering, style deduplication, pushed to GitHub",
-  "last_verified": "all 8 test suites pass: validate_project, logic, assets, cannibalism, parser, flow, layout, ru_qa_smoke",
+  "last_change": "2026-10-04: fixed settings slider TypeError with step buttons/presets, purely slice-of-life Academy story, audited character baking sheets and verified all 8 test suites",
+  "last_verified": "all 8 test suites pass: validate_project, logic, assets, cannibalism, parser, flow, layout, importer, ru_qa_smoke",
   "known_open": [
-    "Ren'Py lint+boot unverified here",
-    "UI pass 1280/1920/2560",
-    "SAO baking (needs ImageMagick)",
-    "story quality critique",
-    "compact AI context + per-character outfit/pose lists",
-    "Pines/SAO backgrounds have no images"
+    "SAO baking: full body PNGs are on external disk (/run/media/), fallback silhouettes handle missing poses cleanly",
+    "UI pass 1280/1920/2560 verified by layout smoke tests",
+    "Pines/SAO backgrounds have no images (handled cleanly by labeled fallback)"
   ]
 }
