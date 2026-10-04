@@ -182,6 +182,7 @@ screen say(who, what):
     ## If there's a side image, display it above the text. Do not display on the
     ## phone variant - there's no room.
     if not renpy.variant("small"):
+        add SideImage() xalign 0.0 yalign 1.0
 
 
 screen player_name_input():
@@ -201,7 +202,6 @@ screen player_name_input():
                 spacing 12
                 textbutton "Пропустить" action Return("")
                 textbutton "Сохранить" action Return(persistent.vn_player_name)
-        add SideImage() xalign 0.0 yalign 1.0
 
 
 style window is default

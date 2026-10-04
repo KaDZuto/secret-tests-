@@ -436,7 +436,6 @@ style input_prompt:
 ## A multiline text field: the description the creator writes is a paragraph, not a line.
 
 style vn_input_multiline is vn_input:
-    multiline True
     ysize 120
     padding (12, 9)
 
