@@ -73,7 +73,7 @@ def default_world():
     }
 
 
-def random_world(character_count=3):
+def random_world(character_count=3, description=None):
     rng = random.Random()
     worlds = [
         ("Пионерское лето", ["романтика", "тайна"], "ностальгическая история о лагере и странных письмах"),
@@ -85,7 +85,8 @@ def random_world(character_count=3):
     base = default_world()
     base["title"] = title
     base["genre"] = genres
-    base["premise"] = premise
+    # Use the creator's description when provided, so the premise is not lost on fallback
+    base["premise"] = description or premise
     base["tone"] = "спокойно в начале, затем всё более личная и напряжённая история"
     base["characters"] = base["characters"][:max(1, min(int(character_count), 8))]
     for ch in base["characters"]:
@@ -112,9 +113,9 @@ def bootstrap_world(mode, creator, settings):
         try:
             return generate_world(brief, int(creator.get("character_count", 3)), settings)
         except Exception:
-            return random_world(creator.get("character_count", 3))
+            return random_world(creator.get("character_count", 3), description=creator.get("description"))
 
-    return random_world(creator.get("character_count", 3))
+    return random_world(creator.get("character_count", 3), description=creator.get("description"))
 
 
 def safe_id(prefix="event"):
