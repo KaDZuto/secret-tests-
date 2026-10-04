@@ -656,11 +656,11 @@ def story_ready_menu():
 
     titles = {"pines": "История: Сосны", "sao": "История: SAO"}
     try:
-        names = sorted(story_external.story_files(config.gamedir))
+        names = sorted(story_external.story_files(store.config.gamedir))
     except Exception:
         return []
     return [(n, titles.get(n, "История: " + n)) for n in names if story_external.load_story(
-        story_external.story_files(config.gamedir)[n])]
+        story_external.story_files(store.config.gamedir)[n])]
 
 
 def story_start_external(name_or_path):
@@ -673,7 +673,7 @@ def story_start_external(name_or_path):
 
     path = str(name_or_path or "")
     if not os.path.isfile(path):
-        path = story_external.story_files(config.gamedir).get(path, "")
+        path = story_external.story_files(store.config.gamedir).get(path, "")
     story = story_external.load_story(path) if path else None
     if not story:
         return False

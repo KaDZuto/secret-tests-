@@ -59,7 +59,7 @@ screen story_generating():
     ## rest of the game uses and it is not modal over the save screen itself.
     key "K_ESCAPE" action ShowMenu("save")
 
-    add Solid("#05070ce6")
+    add Solid("#e9f4ece6")
 
     frame:
         style "vn_box"
@@ -132,7 +132,7 @@ screen story_generating():
 
 screen story_offer_chapter():
     modal True
-    add Solid("#05070cec")
+    add Solid("#e9f4ecec")
     frame:
         style "vn_box"
         xalign 0.5

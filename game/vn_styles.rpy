@@ -34,7 +34,7 @@ init 10 python:
     store.vn_section_h = vn_layout.section_h()
     store.vn_creator_scroll_h = vn_layout.creator_scroll_h()
 define vn_namebox_pad_x = 52
-define vn_cyan = "#8fb8ff"
+define vn_accent = "#22773d"
 
 
 ## Dialogue window: a hairline on top, light text with a dark outline so it stays
@@ -58,18 +58,18 @@ style say_dialogue:
     ypos 58
     xsize 1160
     size 30
-    color "#f2f5fa"
+    color "#14341f"
     line_spacing 3
-    outlines [ (2, "#05070cd8", 0, 0) ]
+    outlines [ (2, "#e9f4ecd8", 0, 0) ]
 
 style say_thought is say_dialogue:
     italic True
-    color "#d5deeb"
+    color "#2c5a3a"
 
 style say_label:
     size 30
-    color "#8fb8ff"
-    outlines [ (2, "#04060ad0", 0, 0) ]
+    color "#22773d"
+    outlines [ (2, "#eaf4edd0", 0, 0) ]
 
 
 ## The name plate straddles the top edge of the textbox, like the reference VNs.
@@ -79,7 +79,7 @@ style namebox:
     xanchor 0.0
     ypos -52
     yanchor 1.0
-    background Solid("#151d2ceb")
+    background Solid("#dbece0eb")
     padding (24, 7, 28, 9)
 
 style namebox_label is say_label
@@ -109,9 +109,9 @@ style vn_ctc is button:
 
 style vn_ctc_text is button_text:
     size 22
-    color vn_cyan
+    color vn_accent
     xalign 0.5
-    outlines [ (2, "#05070cc0", 0, 0) ]
+    outlines [ (2, "#e9f4ecc0", 0, 0) ]
 
 
 ## Quick menu sitting on the textbox border. The stock quick_button style carries a 9-patch
@@ -121,28 +121,28 @@ style quick_button:
     xsize None
     ysize None
     padding (14, 7)
-    background Solid("#0b111cbb")
-    hover_background Solid("#28344ef2")
-    insensitive_background Solid("#0b111c88")
+    background Solid("#e3f0e7bb")
+    hover_background Solid("#cbe4d3f2")
+    insensitive_background Solid("#e3f0e788")
 
 style quick_button_text:
     size 19
-    color "#b0bccf"
-    hover_color "#ffffff"
-    insensitive_color "#6f7d92"
+    color "#225a34"
+    hover_color "#112c19"
+    insensitive_color "#4f725a"
     xalign 0.5
-    outlines [ (2, "#05070ca8", 0, 0) ]
+    outlines [ (2, "#e9f4eca8", 0, 0) ]
 
 ## Choices.
 
 style choice_button:
-    background Solid("#0e1421e0")
-    hover_background Solid("#2f3d5aee")
+    background Solid("#e0efe5e0")
+    hover_background Solid("#c5e1ceee")
 
 style choice_button_text:
     size 30
     xalign 0.5
-    outlines [ (2, "#05070cbc", 0, 0) ]
+    outlines [ (2, "#e9f4ecbc", 0, 0) ]
 
 
 ## Panels used by the creator, settings and codex screens.
@@ -153,13 +153,13 @@ style vn_panel is frame:
     yalign 0.5
     xsize vn_panel_w
     ysize vn_panel_h
-    background Solid("#0e1220f2")
+    background Solid("#e1efe5f2")
     padding (30, 26)
 
 style vn_panel_title is default:
     size 36
     bold True
-    color "#f4f7ff"
+    color "#22773d"
 
 style vn_section is default:
     size 28
@@ -168,31 +168,31 @@ style vn_section is default:
 
 style vn_hint is default:
     size 21
-    color "#8b98ad"
+    color "#4f725a"
     line_spacing 2
 
 style vn_field is default:
     size 24
-    color "#eef2f9"
+    color "#22773d"
 
 style vn_tab is button:
     xsize None
     ysize None
     padding (18, 9)
-    background Solid("#0e1420cc")
-    hover_background Solid("#28344ef2")
+    background Solid("#e1efe5cc")
+    hover_background Solid("#cbe4d3f2")
 
 style vn_tab_text is button_text:
     size 22
-    color "#b3bed0"
-    hover_color "#ffffff"
+    color "#225933"
+    hover_color "#112c19"
     xalign 0.5
 
 style vn_tab_on is vn_tab:
-    background Solid("#28344ef2")
+    background Solid("#cbe4d3f2")
 
 style vn_tab_on_text is vn_tab_text:
-    color "#ffffff"
+    color "#112c19"
     bold True
 
 style vn_vscrollbar is gui_vscrollbar:
@@ -205,7 +205,7 @@ style vn_input is input:
     ## it, so every input read as a line of text and the only one that could be typed into was
     ## the one that happened to hold the cursor.
     size 24
-    color "#eef2f9"
+    color "#22773d"
     xfill True
     background Frame("images/ui/input_field.png", 1, 1, 1, 1)
     hover_background Frame("images/ui/input_field_hover.png", 1, 1, 1, 1)
@@ -222,7 +222,7 @@ style vn_input is input:
 style vn_nav is frame:
     xsize vn_nav_w
     yfill True
-    background Solid("#0a0f1ae6")
+    background Solid("#e3f1e8e6")
     padding (10, 12)
 
 ## The check button beside the proof strip: the one control that must be reachable from
@@ -231,7 +231,7 @@ style vn_nav is frame:
 style vn_check_frame is frame:
     xsize vn_check_w
     yfill True
-    background Solid("#0a1120e6")
+    background Solid("#e2f0e6e6")
     padding (16, 8)
 
 style vn_nav_button is button:
@@ -239,66 +239,66 @@ style vn_nav_button is button:
     ysize None
     padding (12, 1)
     background None
-    hover_background Solid("#1d2a45f2")
+    hover_background Solid("#d1e7d8f2")
 
 style vn_nav_button_on is vn_nav_button:
-    background Solid("#2f6bd8")
-    hover_background Solid("#3f7ce8")
+    background Solid("#69d38a")
+    hover_background Solid("#69d38a")
 
 style vn_nav_title is default:
     size 19
-    color "#cfd8e6"
+    color "#22773d"
     xalign 0.0
 
 style vn_nav_title_on is vn_nav_title:
-    color "#ffffff"
+    color "#112c19"
     bold True
 
 style vn_nav_status is default:
     size 15
-    color "#8b98ad"
+    color "#4f725a"
     xalign 0.0
 
 style vn_nav_status_on is vn_nav_status:
-    color "#d7e4fa"
+    color "#22773d"
 
 
 ## One setting: name, what it means, the control, and the value the engine will get.
 
 style vn_row is frame:
     xfill True
-    background Solid("#0c111cd9")
+    background Solid("#e2f0e7d9")
     padding (16, 10)
 
 style vn_value is default:
     size 22
     bold True
-    color vn_cyan
+    color vn_accent
     xalign 1.0
 
 ## The "итог" strip under the section title: what this section currently does.
 
 style vn_summary is frame:
     xfill True
-    background Solid("#0c1526e6")
+    background Solid("#dfefe4e6")
     padding (16, 10)
 
 style vn_sum_label is default:
     size 20
-    color "#8b98ad"
+    color "#4f725a"
     xsize 160
     xalign 0.0
 
 style vn_sum_value is default:
     size 21
-    color "#eaf0fb"
+    color "#22773d"
     xalign 0.0
 
 ## A nested box inside a row: the model list, the profile row.
 
 style vn_box is frame:
     xfill True
-    background Solid("#080c15e6")
+    background Solid("#e6f2e9e6")
     padding (12, 10)
 
 ## A model name from the server list. Clipped rather than stretched, so a long id in the
@@ -308,20 +308,20 @@ style vn_chip is button:
     xfill True
     yfill False
     padding (10, 6)
-    background Solid("#0b111cbb")
-    hover_background Solid("#28344ef2")
+    background Solid("#e3f0e7bb")
+    hover_background Solid("#cbe4d3f2")
 
 style vn_chip_text is button_text:
     size 19
-    color "#b3bed0"
-    hover_color "#ffffff"
+    color "#225933"
+    hover_color "#112c19"
     xalign 0.5
 
 style vn_chip_on is vn_chip:
-    background Solid("#2f6bd8")
+    background Solid("#69d38a")
 
 style vn_chip_on_text is vn_chip_text:
-    color "#ffffff"
+    color "#112c19"
     bold True
 
 ## A slider in this panel: the stock bar with a thumb, so the value is visible while it
@@ -337,19 +337,19 @@ style vn_toggle is button:
     xsize None
     ysize None
     padding (18, 7)
-    background Solid("#0b111cbb")
-    hover_background Solid("#28344ef2")
+    background Solid("#e3f0e7bb")
+    hover_background Solid("#cbe4d3f2")
 
 style vn_toggle_text is button_text:
     size 21
-    color "#8b98ad"
+    color "#4f725a"
     xalign 0.5
 
 style vn_toggle_on is vn_toggle:
-    background Solid("#2f6bd8")
+    background Solid("#69d38a")
 
 style vn_toggle_on_text is vn_toggle_text:
-    color "#ffffff"
+    color "#112c19"
     bold True
 
 
@@ -358,32 +358,32 @@ style vn_toggle_on_text is vn_toggle_text:
 style vn_title is default:
     size 58
     bold True
-    color "#f4f7ff"
-    outlines [ (3, "#04060ad8", 0, 0) ]
+    color "#22773d"
+    outlines [ (3, "#eaf4edd8", 0, 0) ]
     xalign 0.0
 
 style vn_subtitle is default:
     size 22
-    color "#9fb0c9"
-    outlines [ (2, "#04060ab0", 0, 0) ]
+    color "#22773d"
+    outlines [ (2, "#eaf4edb0", 0, 0) ]
     xalign 0.0
 
 style vn_menu_button is button:
     xsize 340
     xalign 0.0
-    background Solid("#111826d9")
-    hover_background Solid("#2b3a5aee")
+    background Solid("#deeee3d9")
+    hover_background Solid("#c7e2cfee")
     padding (26, 14)
 
 style vn_menu_button_text is button_text:
     size 30
     xalign 0.0
-    outlines [ (2, "#05070cb0", 0, 0) ]
+    outlines [ (2, "#e9f4ecb0", 0, 0) ]
 
 style vn_footer is default:
     size 16
-    color "#6f7d92"
-    outlines [ (2, "#04060aa8", 0, 0) ]
+    color "#4f725a"
+    outlines [ (2, "#eaf4eda8", 0, 0) ]
 
 
 ## The primary action of a panel, so "start" is never the quietest button on screen.
@@ -392,28 +392,28 @@ style vn_start_button is button:
     xsize None
     ysize None
     padding (28, 14)
-    background Solid("#2f6bd8")
-    hover_background Solid("#4b8bf0")
+    background Solid("#69d38a")
+    hover_background Solid("#69d38a")
 
 style vn_start_button_text is button_text:
     size 28
     bold True
     xalign 0.5
-    color "#ffffff"
-    outlines [ (2, "#0a1428b0", 0, 0) ]
+    color "#112c19"
+    outlines [ (2, "#dfefe4b0", 0, 0) ]
 
 ## Text inputs, so a form field reads as a field instead of bare text.
 
 style input:
     size 24
-    color "#eef2f9"
+    color "#22773d"
     xfill True
-    background Solid("#080b12e6")
+    background Solid("#e6f2eae6")
     padding (14, 9)
 
 style input_prompt:
     size 24
-    color "#8b98ad"
+    color "#4f725a"
 
 
 ## A multiline text field: the description the creator writes is a paragraph, not a line.

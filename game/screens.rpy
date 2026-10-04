@@ -186,7 +186,7 @@ screen say(who, what):
 
 screen player_name_input():
     modal True
-    add Solid("#05070cec")
+    add Solid("#e9f4ecec")
     frame:
         style "vn_box"
         xalign 0.5
@@ -292,7 +292,7 @@ style input:
 screen choice(items):
     style_prefix "choice"
 
-    add Solid("#05070ccc")
+    add Solid("#e9f4eccc")
 
     vbox:
         for i in items:
@@ -442,10 +442,10 @@ screen main_menu():
     tag menu
 
     add "images/menu_bg.png"
-    add Solid("#0a0d1457")
+    add Solid("#e5f2e957")
 
     ## Accent bar beside the title block.
-    add Solid("#8fb8ff") xpos 122 ypos 210 xsize 4 ysize 186
+    add Solid("#22773d") xpos 122 ypos 210 xsize 4 ysize 186
 
     vbox:
         xpos 154
@@ -1541,7 +1541,7 @@ style main_menu_vbox:
 
 screen creator():
     tag menu
-    add Solid("#10131b")
+    add Solid("#e1f0e6")
 
     frame:
         style "vn_panel"
@@ -1574,7 +1574,7 @@ screen creator():
 
                     if creator_mode == "brief":
                         frame:
-                            background Solid("#11151d")
+                            background Solid("#e1efe5")
                             padding (14, 12)
                             vbox:
                                 spacing 6
@@ -1593,18 +1593,18 @@ screen creator():
 
                     elif creator_mode == "import":
                         frame:
-                            background Solid("#11151d")
+                            background Solid("#e1efe5")
                             padding (18, 14)
                             vbox:
                                 spacing 10
                                 text "Путь к story.json / world.json"
                                 input value VariableInputValue("creator_json_path") length 500 style "vn_input"
                                 textbutton "Вставить JSON из буфера обмена" action Function(load_story_from_clipboard)
-                                text "Совет: файл должен описывать title, genre, characters, locations и lore." color "#8792a4"
+                                text "Совет: файл должен описывать title, genre, characters, locations и lore." color "#4f725a"
 
                     else:
                         frame:
-                            background Solid("#11151d")
+                            background Solid("#e1efe5")
                             padding (18, 14)
                             vbox:
                                 spacing 10
@@ -1625,7 +1625,7 @@ screen dynamic_choices(choices):
         xalign 0.5
         yalign 0.82
         xsize 1080
-        background Solid("#151923e8")
+        background Solid("#deeee3e8")
         padding (20, 18)
         vbox:
             spacing 10
@@ -1655,7 +1655,7 @@ screen dynamic_choices(choices):
 screen settings():
     tag menu
 
-    add Solid("#070910")
+    add Solid("#e7f3eb")
 
     frame:
         style "vn_panel_settings"
@@ -2017,7 +2017,7 @@ screen vn_settings_assets():
                             action SetScreenVariable("asset_preview_id", item["id"])
                             xfill True
                             yfill True
-                            add Solid("#0c1220")
+                            add Solid("#e1f0e6")
                             add Image(item["preview"]) xalign 0.5 yalign 0.5 ysize 180
                             text item["id"] style "vn_hint" xalign 0.0 yalign 1.0
             else:
@@ -2030,7 +2030,7 @@ screen vn_settings_assets():
                         button:
                             action SetScreenVariable("asset_preview_id", item["id"])
                             xfill True
-                            add Solid("#0c1220")
+                            add Solid("#e1f0e6")
                             add Image(item["preview"]) xalign 0.5 yalign 0.5 ysize 150
                             text item["id"] style "vn_hint" xalign 0.5
 
@@ -2141,18 +2141,18 @@ screen vn_settings_cannibalism():
 
 screen codex():
     tag menu
-    add Solid("#0d1016")
+    add Solid("#e4f1e8")
     frame:
         xalign 0.5
         yalign 0.5
         xsize 1180
         ysize 660
-        background Solid("#191d27")
+        background Solid("#dbede1")
         padding (28, 26)
         vbox:
             spacing 10
             text "World Codex / Лор" size 34
-            text "Изменение лора здесь не меняет только текстовый журнал — изменения попадают в world state и доступны будущим сценам." color "#98a5b7"
+            text "Изменение лора здесь не меняет только текстовый журнал — изменения попадают в world state и доступны будущим сценам." color "#4f725a"
             viewport:
                 scrollbars "vertical"
                 mousewheel True
@@ -2164,7 +2164,7 @@ screen codex():
                     for item in game_state.get("lore", []):
                         text "• [item]"
                     for name, loc in game_state.get("locations", {}).items():
-                        text "[name]: [loc.get('description', '')]" color "#c1c9d4"
+                        text "[name]: [loc.get('description', '')]" color "#1f522f"
             text "Добавить факт"
             input value VariableInputValue("lore_edit_text") style "vn_input" length 500
             hbox:
@@ -2193,34 +2193,34 @@ style vn_status_frame is frame:
     ## Room for the verdict, the mode and the reason, and no more: without a maximum the text
     ## asks for its full natural width and pushes the button out of the panel.
     xmaximum 740
-    background Solid("#0a1120e6")
+    background Solid("#e2f0e6e6")
     padding (16, 10)
 
 style vn_status_none is default:
     size 20
-    color "#c3d0e4"
+    color "#22773d"
     line_spacing 1
     xalign 0.0
 
 style vn_status_good is vn_status_none:
-    color "#8ce0a6"
+    color "#248542"
 
 style vn_status_bad is vn_status_none:
-    color "#ff9d90"
+    color "#972111"
 
 style vn_status_warn is vn_status_none:
-    color "#ffd479"
+    color "#976c11"
 
 ## The read-only "what the game uses" block, and the path line in the footer.
 
 style vn_effective is frame:
     xfill True
-    background Solid("#0a1120b8")
+    background Solid("#e2f0e6b8")
     padding (16, 10)
 
 style vn_mono is default:
     size 20
-    color "#a8c2e8"
+    color "#22773d"
     xalign 0.0
 
 ## The connection check is the one button whose outcome the player came for.
@@ -2229,11 +2229,11 @@ style vn_primary is button:
     xsize None
     ysize None
     padding (24, 11)
-    background Solid("#2f6bd8")
-    hover_background Solid("#4b8bf0")
+    background Solid("#69d38a")
+    hover_background Solid("#69d38a")
 
 style vn_primary_text is button_text:
     size 24
     bold True
-    color "#ffffff"
+    color "#112c19"
     xalign 0.5
