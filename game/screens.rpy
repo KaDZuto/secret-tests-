@@ -1,11 +1,11 @@
 default creator_mode = "brief"
-default creator_description = "Ты приехал в летний лагерь и встретил там Асуну. Через неё — Моника, Славя и всё, что этот лагерь скрывает."
+default creator_description = "Ты перевёлся в Академию в начале осени и встретил Асуну у старого корпуса. В её руках — запечатанный дневник, а в расписании занятий — аудитория, которой нет на плане здания."
 default creator_json_path = ""
 default creator_music_paths = ""
 default creator_character_count = "3"
-default creator_title = "Летний лагерь"
-default creator_genre = "романтика, тайна, драма"
-default creator_tone = "тёплая атмосфера с постепенным напряжением"
+default creator_title = "Академия: Тайна старого корпуса"
+default creator_genre = "мистика, школьная повседневность, детектив"
+default creator_tone = "светлая осенняя атмосфера с нарастающей тайной"
 default creator_player_name = "Игрок"
 default persistent.vn_player_name = ""
 default lore_edit_text = ""
@@ -213,37 +213,7 @@ style namebox is default
 style namebox_label is say_label
 
 
-style window:
-    xalign 0.5
-    xfill True
-    yalign gui.textbox_yalign
-    ysize gui.textbox_height
-
-    background Image("gui/textbox.png", xalign=0.5, yalign=1.0)
-
-style namebox:
-    xpos gui.name_xpos
-    xanchor gui.name_xalign
-    xsize gui.namebox_width
-    ypos gui.name_ypos
-    ysize gui.namebox_height
-
-    background Frame("gui/namebox.png", gui.namebox_borders, tile=gui.namebox_tile, xalign=gui.name_xalign)
-    padding gui.namebox_borders.padding
-
-style say_label:
-    properties gui.text_properties("name", accent=True)
-    xalign gui.name_xalign
-    yalign 0.5
-
-style say_dialogue:
-    properties gui.text_properties("dialogue")
-
-    xpos gui.dialogue_xpos
-    xsize gui.dialogue_width
-    ypos gui.dialogue_ypos
-
-    adjust_spacing False
+## (Dialogue and namebox styles consolidated in vn_styles.rpy)
 
 
 ## Input screen ################################################################
@@ -292,11 +262,17 @@ style input:
 screen choice(items):
     style_prefix "choice"
 
-    add Solid("#e9f4eccc")
-
     vbox:
+        xalign 0.5
+        yalign 0.52
+        xsize min(int(config.screen_width * 0.76), 920)
+        spacing 14
+
         for i in items:
-            textbutton i.caption action i.action
+            textbutton i.caption:
+                style "choice_button"
+                xfill True
+                action i.action
 
     use quick_menu
 
@@ -312,11 +288,7 @@ style choice_vbox:
 
     spacing gui.choice_spacing
 
-style choice_button is default:
-    properties gui.button_properties("choice_button")
-
-style choice_button_text is default:
-    properties gui.text_properties("choice_button")
+## (Choice styles consolidated in vn_styles.rpy)
 
 
 ## Quick Menu screen ###########################################################
@@ -358,11 +330,7 @@ default quick_menu = True
 style quick_button is default
 style quick_button_text is button_text
 
-style quick_button:
-    properties gui.button_properties("quick_button")
-
-style quick_button_text:
-    properties gui.text_properties("quick_button")
+## (Quick menu styles consolidated in vn_styles.rpy)
 
 
 ################################################################################
@@ -396,7 +364,7 @@ screen navigation():
 
         textbutton _("Загрузить") action ShowMenu("load")
 
-        textbutton _("Настройки") action ShowMenu("preferences")
+        textbutton _("Настройки") action ShowMenu("settings")
 
         if _in_replay:
 
@@ -1548,7 +1516,7 @@ style main_menu_vbox:
 
 screen creator():
     tag menu
-    add Solid("#e1f0e6")
+    add "gui/game_menu.png"
 
     frame:
         style "vn_panel"
@@ -1628,18 +1596,25 @@ screen creator():
 
 screen dynamic_choices(choices):
     modal True
-    frame:
+    zorder 100
+
+    vbox:
         xalign 0.5
-        yalign 0.82
-        xsize 1080
-        background Solid("#deeee3e8")
-        padding (20, 18)
-        vbox:
-            spacing 10
-            for choice in choices:
-                textbutton choice.get("text", "...") action Return(choice.get("id", choice.get("text", ""))) xfill True
-            if persistent.vn_settings.get("free_input", True):
-                textbutton "Сказать самому" action Return("__FREE__") xfill True
+        yalign 0.52
+        xsize min(int(config.screen_width * 0.76), 920)
+        spacing 14
+
+        for choice in choices:
+            textbutton choice.get("text", "..."):
+                style "choice_button"
+                xfill True
+                action Return(choice.get("id", choice.get("text", "")))
+
+        if persistent.vn_settings.get("free_input", True):
+            textbutton "✎ Сказать самому...":
+                style "choice_button"
+                xfill True
+                action Return("__FREE__")
 
 ## The settings panel.
 ##

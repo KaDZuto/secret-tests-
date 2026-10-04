@@ -654,13 +654,14 @@ def story_ready_menu():
     """`[(name, button title)]` for the ready-made stories that are really on disk."""
     import story_external
 
-    titles = {"pines": "История: Сосны", "sao": "История: SAO"}
+    titles = {"academy": "История: Академия", "sao": "История: SAO", "pines": "История: Сосны"}
     try:
-        names = sorted(story_external.story_files(store.config.gamedir))
+        files = story_external.story_files(store.config.gamedir)
+        order = {"academy": 0, "sao": 1, "pines": 2}
+        names = sorted(files.keys(), key=lambda x: (order.get(x, 99), x))
     except Exception:
         return []
-    return [(n, titles.get(n, "История: " + n)) for n in names if story_external.load_story(
-        story_external.story_files(store.config.gamedir)[n])]
+    return [(n, titles.get(n, "История: " + n)) for n in names if story_external.load_story(files[n])]
 
 
 def story_start_external(name_or_path):

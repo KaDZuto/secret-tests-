@@ -136,13 +136,18 @@ style quick_button_text:
 ## Choices.
 
 style choice_button:
-    background Solid("#e0efe5e0")
-    hover_background Solid("#c5e1ceee")
+    xfill True
+    padding (26, 14)
+    background Solid("#f3fbf5f2")
+    hover_background Solid("#69d38af0")
 
 style choice_button_text:
-    size 30
+    size 26
+    color "#14341f"
+    hover_color "#05180b"
     xalign 0.5
-    outlines [ (2, "#e9f4ecbc", 0, 0) ]
+    bold True
+    outlines [ (1, "#ffffffcc", 0, 0) ]
 
 
 ## Panels used by the creator, settings and codex screens.

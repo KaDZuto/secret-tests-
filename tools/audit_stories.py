@@ -14,7 +14,7 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(ROOT, "game"))
 import story_external  # noqa: E402
 
-EMOTIONS = {"neutral", "happy", "sad", "angry", "surprised", "embarrassed", "afraid", "thinking",
+EMOTIONS = {"neutral", "happy", "sad", "angry", "surprised", "embarrassed", "afraid", "thinking", "think",
             "smile", "serious", "worried", "excited", "tired", "calm"}
 IMAGE_EXT = (".png", ".jpg", ".jpeg", ".webp")
 

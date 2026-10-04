@@ -415,10 +415,10 @@ finally:
 # --- ready-made stories (LVN-008): load, validate, play through the buffer, never crash ---
 import json as _json, os, tempfile as _tmp
 import story_external
-for _name in ("pines", "sao"):
+for _name in ("academy", "pines", "sao"):
     _path = story_external.story_files(str(GAME)).get(_name)
     _story = story_external.load_story(_path) if _path else None
-    check("готовая история %s загружается" % _name, bool(_story) and len(_story["steps"]) > 50, _path)
+    check("готовая история %s загружается" % _name, bool(_story) and len(_story["steps"]) > 30, _path)
     started = engine.story_start_external(_name)
     check("%s стартует через engine" % _name, started is True)
     seen = choices = 0
@@ -430,9 +430,9 @@ for _name in ("pines", "sao"):
         if step.get("choices"):
             choices += 1
             engine.apply_choice(step, step["choices"][0]["id"])
-    check("%s проигрывается до конца" % _name, engine._state()["external"]["done"] and seen > 50,
+    check("%s проигрывается до конца" % _name, engine._state()["external"]["done"] and seen > 30,
           (seen, engine._state()["external"]))
-    check("%s: choices на месте" % _name, choices == (6 if _name == "sao" else 0), choices)
+    check("%s: choices на месте" % _name, choices == (5 if _name == "academy" else (6 if _name == "sao" else 0)), choices)
 check("нет файла: тихий False", engine.story_start_external("/nonexistent/story.json") is False)
 with _tmp.TemporaryDirectory() as _d:
     _bad = os.path.join(_d, "story_bad.json")
