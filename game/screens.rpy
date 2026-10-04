@@ -442,37 +442,44 @@ screen main_menu():
     tag menu
 
     add "images/menu_bg.png"
-    add Solid("#e5f2e957")
 
-    ## Accent bar beside the title block.
-    add Solid("#22773d") xpos 122 ypos 210 xsize 4 ysize 186
+    ## The heroine stands on the right when her art is present; no art, no hole in the layout.
+    if renpy.loadable("absorbed/SAO/character_art/asuna/base/pose_01_000_neutral.png"):
+        add Transform("absorbed/SAO/character_art/asuna/base/pose_01_000_neutral.png", fit="contain", xysize=(int(config.screen_width * 0.46), config.screen_height - 20)) xalign 0.93 yalign 1.0
 
-    vbox:
-        xpos 154
-        ypos 192
-        spacing 4
+    ## Left panel in the Doki Doki manner: the whole height, the title on top, the buttons under it,
+    ## all of it inside the screen at any window size (the menu is laid out in virtual pixels).
+    frame:
+        style "vn_menu_panel"
+        xsize int(config.screen_width * 0.36)
+        ysize config.screen_height
 
-        text "[config.name!t]":
-            style "vn_title"
+        vbox:
+            xfill True
+            yalign 0.5
+            spacing 3
 
-        text _("Визуальная новелла, которая пишет себя в процессе игры"):
-            style "vn_subtitle"
+            text "[config.name!t]":
+                style "vn_title"
 
-        null height 28
+            text _("Визуальная новелла, которая пишет себя в процессе игры"):
+                style "vn_subtitle"
 
-        textbutton "Проверка эмоций: Асуна" action Start("demo_expression_sheet") style "vn_menu_button"
-        textbutton "Демо: Асуна" action Start("demo_start") style "vn_menu_button"
-        textbutton _("Новая игра") action Start("creator") style "vn_menu_button"
-        for _name, _title in story_ready_menu():
-            textbutton _title action [SetVariable("story_ext_name", _name), Start("story_external_start")] style "vn_menu_button"
-        textbutton _("Продолжить") action ShowMenu("load") style "vn_menu_button"
-        textbutton _("Настройки") action ShowMenu("settings") style "vn_menu_button"
-        textbutton _("Выход") action Quit(confirm=True) style "vn_menu_button"
+            null height 18
 
-    text "MVP 0.1 · Ren'Py [renpy.version_only] · AI optional":
+            textbutton _("Новая игра") action Start("creator") style "vn_menu_button"
+            for _name, _title in story_ready_menu():
+                textbutton _title action [SetVariable("story_ext_name", _name), Start("story_external_start")] style "vn_menu_button"
+            textbutton _("Продолжить") action ShowMenu("load") style "vn_menu_button"
+            textbutton _("Настройки") action ShowMenu("settings") style "vn_menu_button"
+            textbutton "Проверка эмоций: Асуна" action Start("demo_expression_sheet") style "vn_menu_button_small"
+            textbutton "Демо: Асуна" action Start("demo_start") style "vn_menu_button_small"
+            textbutton _("Выход") action Quit(confirm=True) style "vn_menu_button"
+
+    text "Ren'Py [renpy.version_only] · AI optional":
         style "vn_footer"
-        xalign 0.5
-        ypos 660
+        xpos 24
+        yalign 0.99
 
 ## Game Menu screen ############################################################
 ##

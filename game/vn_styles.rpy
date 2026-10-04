@@ -356,7 +356,7 @@ style vn_toggle_on_text is vn_toggle_text:
 ## Main menu: the title block, its accent bar and the version footer.
 
 style vn_title is default:
-    size 58
+    size 50
     bold True
     color "#22773d"
     outlines [ (3, "#eaf4edd8", 0, 0) ]
@@ -368,17 +368,29 @@ style vn_subtitle is default:
     outlines [ (2, "#eaf4edb0", 0, 0) ]
     xalign 0.0
 
+style vn_menu_panel is empty:
+    background Solid("#f1faf3e6")
+    padding (38, 24, 30, 24)
+
 style vn_menu_button is button:
-    xsize 340
-    xalign 0.0
-    background Solid("#deeee3d9")
+    xfill True
+    background None
     hover_background Solid("#c7e2cfee")
-    padding (26, 14)
+    padding (18, 8)
 
 style vn_menu_button_text is button_text:
-    size 30
+    size 28
     xalign 0.0
-    outlines [ (2, "#e9f4ecb0", 0, 0) ]
+    color "#14341f"
+    hover_color "#1a8f48"
+    outlines []
+
+style vn_menu_button_small is vn_menu_button:
+    padding (18, 4)
+
+style vn_menu_button_small_text is vn_menu_button_text:
+    size 20
+    color "#4f725a"
 
 style vn_footer is default:
     size 16
