@@ -239,6 +239,16 @@ def main():
         assert live2d.expression_for(pack_out, "happy") == "happy"
         assert live2d.expression_for(pack_out, "nobody") in (None, "neutral", "normal")
 
+        # Outfit resolution: only an outfit the pack owns resolves; a foreign or unknown
+        # outfit never leaks in, and an emotion change does not touch the outfit.
+        fake = {"ok": True, "outfit_expressions": ["school", "casual"]}
+        assert live2d.resolve_outfit(fake, "school") == "school"
+        assert live2d.resolve_outfit(fake, " casual ") == "casual"
+        assert live2d.resolve_outfit(fake, "battle") is None
+        assert live2d.resolve_outfit(fake, "") is None
+        assert live2d.resolve_outfit({"ok": False, "outfit_expressions": ["school"]}, "school") is None
+        assert live2d.resolve_outfit(None, "school") is None
+
         # A manifest that promises a model file which is not there is not a pack.
         missing = live2d.get_pack({"type": "live2d", "model": "live2d/asuna/ghost.model3.json"})
         assert not missing["ok"] and "model_unreadable" in missing["issues"]

@@ -378,6 +378,90 @@ check("temperature дошла до payload", payloads[0].get("temperature") == 0
       payloads[0].get("temperature"))
 check("в payload есть messages и max_tokens",
       payloads[0].get("messages") and payloads[0].get("max_tokens", 0) > 0, payloads[0].keys())
+
+# --- TTS queue: clips must not be lost, timers must not pile up, failures must be silent ---
+import time as _time
+played, timers = [], []
+renpy.music = types.SimpleNamespace(play=lambda data, **k: played.append(k.get("relative_volume")),
+                                    is_playing=lambda channel=None: False)
+renpy.create_timer = lambda delay, fn, repeat=False: timers.append(repeat)
+engine.AudioData = lambda data, name: data
+engine._settings = lambda: {"tts_url": "http://127.0.0.1:9/tts", "voice_volume": 0.5}
+_real_pb = ai_client.post_bytes
+ai_client.post_bytes = lambda url, payload, timeout=20: b"RIFFwav"
+try:
+    check("speak_text принимает реплику", engine.speak_text("раз") is True)
+    check("вторая реплика не перетирает первую", engine.speak_text("два") is True)
+    for _ in range(50):
+        if len(engine._PENDING_VOICE["queue"]) == 2 and engine._PENDING_VOICE["inflight"] == 0:
+            break
+        _time.sleep(0.02)
+    check("оба клипа в очереди", len(engine._PENDING_VOICE["queue"]) == 2,
+          engine._PENDING_VOICE["queue"])
+    engine._drain_voice(); engine._drain_voice()
+    check("оба клипа проиграны по очереди", played == [0.5, 0.5], played)
+    check("таймеры одноразовые", timers and not any(timers), timers)
+    ai_client.post_bytes = lambda *a, **k: (_ for _ in ()).throw(OSError("down"))
+    engine.speak_text("сбой")
+    for _ in range(50):
+        if engine._PENDING_VOICE["inflight"] == 0:
+            break
+        _time.sleep(0.02)
+    check("сбой TTS не оставляет inflight и не ломает игру",
+          engine._PENDING_VOICE["inflight"] == 0 and not engine._PENDING_VOICE["queue"])
+finally:
+    ai_client.post_bytes = _real_pb
+
+# --- ready-made stories (LVN-008): load, validate, play through the buffer, never crash ---
+import json as _json, os, tempfile as _tmp
+import story_external
+for _name in ("pines", "sao"):
+    _path = story_external.story_files(str(GAME)).get(_name)
+    _story = story_external.load_story(_path) if _path else None
+    check("готовая история %s загружается" % _name, bool(_story) and len(_story["steps"]) > 50, _path)
+    started = engine.story_start_external(_name)
+    check("%s стартует через engine" % _name, started is True)
+    seen = choices = 0
+    for _ in range(2000):
+        step = engine.next_step() if engine._state().get("buffer") or not engine._state()["external"]["done"] else None
+        if step is None:
+            break
+        seen += 1
+        if step.get("choices"):
+            choices += 1
+            engine.apply_choice(step, step["choices"][0]["id"])
+    check("%s проигрывается до конца" % _name, engine._state()["external"]["done"] and seen > 50,
+          (seen, engine._state()["external"]))
+    check("%s: choices на месте" % _name, choices == (6 if _name == "sao" else 0), choices)
+check("нет файла: тихий False", engine.story_start_external("/nonexistent/story.json") is False)
+with _tmp.TemporaryDirectory() as _d:
+    _bad = os.path.join(_d, "story_bad.json")
+    open(_bad, "w").write("{not json")
+    check("плохой JSON: None, без краха", story_external.load_story(_bad) is None)
+    check("плохой JSON: engine False", engine.story_start_external(_bad) is False)
+    _mixed = os.path.join(_d, "story_mixed.json")
+    _json.dump({"title": "t", "scenes": [{"id": "a", "background": "x", "steps": [
+        {"type": "narration", "text": "ok"}, 42, {"type": "dialogue", "text": ""},
+        {"type": "choice", "choices": []}, {"type": "bogus", "text": "x"},
+        {"text": "без типа", "speaker": "z"}]}]}, open(_mixed, "w"))
+    _m = story_external.load_story(_mixed)
+    check("невалидные шаги пропущены, годные остались",
+          _m and [x["type"] for x in _m["steps"]] == ["scene", "narration", "dialogue"], _m and _m["steps"])
+    check("пропуски перечислены", _m and len(_m["issues"]) == 4, _m and _m["issues"])
+
+# --- a background nobody drew: labelled panel, never an empty black screen or a stand-in photo ---
+shown = []
+renpy.scene = lambda *a, **k: shown.append("scene")
+renpy.show = lambda name, **k: shown.append((name, k.get("what")))
+engine.Text = lambda text, **k: ("text", text)
+engine.Fixed = lambda *a, **k: ("fixed", a)
+engine.Solid = lambda c: ("solid", c)
+engine._background_dissolve = lambda: None
+engine.story_start_external("pines")
+engine._show_background({"background": "ext_camp_entrance_day"})
+check("нет картинки фона: показана подписанная заглушка",
+      any(isinstance(x, tuple) and x[0] == "vn_background" and x[1][0] == "fixed" for x in shown), shown)
+check("заглушка помнится как bg_shown", str(engine._state().get("bg_shown")).startswith("placeholder:"))
 srv.shutdown()
 print("\nИТОГ: провалено %d" % len(FAIL))
 sys.exit(1 if FAIL else 0)

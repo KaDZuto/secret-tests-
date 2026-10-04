@@ -463,6 +463,8 @@ screen main_menu():
         textbutton "Проверка эмоций: Асуна" action Start("demo_expression_sheet") style "vn_menu_button"
         textbutton "Демо: Асуна" action Start("demo_start") style "vn_menu_button"
         textbutton _("Новая игра") action Start("creator") style "vn_menu_button"
+        for _name, _title in story_ready_menu():
+            textbutton _title action [SetVariable("story_ext_name", _name), Start("story_external_start")] style "vn_menu_button"
         textbutton _("Продолжить") action ShowMenu("load") style "vn_menu_button"
         textbutton _("Настройки") action ShowMenu("settings") style "vn_menu_button"
         textbutton _("Выход") action Quit(confirm=True) style "vn_menu_button"

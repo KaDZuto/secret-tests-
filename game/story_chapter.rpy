@@ -10,6 +10,7 @@
 ## значит предлагать отказ от того, что работает.
 
 default persistent.story_chapter_offered = False
+default story_ext_name = ""
 
 
 label story_chapter_one:
@@ -42,4 +43,23 @@ label splashscreen:
     if not ai_configured() and not persistent.story_chapter_offered:
         $ persistent.story_chapter_offered = True
         $ renpy.call_screen("story_offer_chapter")
+    return
+
+
+## Готовая история из data/story_*.json (Сосны, SAO). Файл проверяется до запуска: нет файла или он
+## сломан -- игра честно говорит об этом и предлагает написанную главу, а не падает.
+label story_external_start:
+    $ story_ext_ok = store.story_start_external(story_ext_name)
+    if not story_ext_ok:
+        $ renpy.notify("История не найдена или повреждена")
+        jump story_chapter_one
+    jump play
+
+label story_external_finished:
+    $ renpy.hide_screen("story_generating")
+    scene
+    $ renpy.say(None, "История окончена.")
+    menu:
+        "В главное меню":
+            $ renpy.full_restart()
     return

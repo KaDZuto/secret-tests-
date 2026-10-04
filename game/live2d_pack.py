@@ -316,7 +316,19 @@ def get_pack(visual):
     return pack
 
 
-def expression_for(pack, emotion, outfit=None):
+def resolve_outfit(pack, outfit):
+    """The outfit name this pack really owns, or None.
+
+    A pack belongs to exactly one character, so an outfit that is not registered on it
+    is never borrowed from anywhere else: it resolves to None (the model's default look).
+    """
+    if not pack or not pack.get("ok") or not outfit:
+        return None
+    name = str(outfit).strip()
+    return name if name in (pack.get("outfit_expressions") or []) else None
+
+
+def expression_for(pack, emotion):
     """The expression name to show for an emotion, or None to keep the model."""
     if not pack or not pack.get("ok"):
         return None
@@ -327,8 +339,6 @@ def expression_for(pack, emotion, outfit=None):
             return candidate
         if pack["aliases"].get(candidate) in pack["expressions"]:
             return candidate
-    if outfit:
-        return None
     return None
 
 
@@ -396,6 +406,12 @@ def build_displayable(visual, emotion=None, motion=None, outfit=None):
     expression = expression_for(pack, emotion)
     if expression:
         kwargs["expression"] = expression
+
+    # The outfit is a non-exclusive expression layered on top of the emotion, so changing the
+    # emotion keeps the outfit. An outfit the pack does not own is ignored, never borrowed.
+    outfit_name = resolve_outfit(pack, outfit)
+    if outfit_name:
+        kwargs["used_nonexclusive"] = [outfit_name]
 
     try:
         return displayable_class(pack["model"], **kwargs)

@@ -650,6 +650,64 @@ def story_start_chapter():
     return _state()
 
 
+def story_ready_menu():
+    """`[(name, button title)]` for the ready-made stories that are really on disk."""
+    import story_external
+
+    titles = {"pines": "История: Сосны", "sao": "История: SAO"}
+    try:
+        names = sorted(story_external.story_files(config.gamedir))
+    except Exception:
+        return []
+    return [(n, titles.get(n, "История: " + n)) for n in names if story_external.load_story(
+        story_external.story_files(config.gamedir)[n])]
+
+
+def story_start_external(name_or_path):
+    """Play a ready-made JSON story (`data/story_<name>.json`) through the normal buffer.
+
+    Returns True when it started. A missing or unusable file returns False and changes
+    nothing, so the caller can fall back to the written chapter.
+    """
+    import story_external
+
+    path = str(name_or_path or "")
+    if not os.path.isfile(path):
+        path = story_external.story_files(config.gamedir).get(path, "")
+    story = story_external.load_story(path) if path else None
+    if not story:
+        return False
+    initialize_game(story["world"])
+    _state()["story_mode"] = "external"
+    _state()["external"] = {"path": path, "index": 0, "done": False}
+    _state()["chapter_locked"] = False
+    _extend_external(_state(), 3)
+    return True
+
+
+def _extend_external(world, min_items):
+    """Fill the buffer from the ready-made story. Nothing is queued past a choice."""
+    import story_external
+
+    cursor = world.get("external")
+    if not isinstance(cursor, dict) or cursor.get("done"):
+        return world.get("buffer", [])
+    guard = 0
+    while len(world.get("buffer", [])) < min_items and guard < 40 and not cursor.get("done"):
+        buffer = world.setdefault("buffer", [])
+        if buffer and buffer[-1].get("choices"):
+            break
+        steps = story_external.next_steps(cursor.get("path"), cursor,
+                                          max(1, min_items - len(buffer)))
+        if not steps:
+            break
+        buffer.extend(steps)
+        guard += 1
+        if steps[-1].get("choices"):
+            break
+    return world.get("buffer", [])
+
+
 def _extend_chapter(world, min_items):
     """Fill the buffer from the hand-written chapter, which needs no model at all."""
     import story_chapter
@@ -685,6 +743,9 @@ def ensure_buffer(min_items=2):
         return
 
     mode = str(world.get("story_mode") or ("ai" if ai_configured() else "chapter"))
+    if mode == "external":
+        _extend_external(world, min_items)
+        return
     if mode == "chapter" or world.get("chapter_locked"):
         _extend_chapter(world, min_items)
         return
@@ -715,6 +776,9 @@ def next_step():
     buffer = world.get("buffer") or []
     if buffer:
         return buffer.pop(0)
+    if str(world.get("story_mode")) == "external":
+        # The file ran out: an ending, not a hang.
+        renpy.jump("story_external_finished")
     mode = str(world.get("story_mode")) == "chapter" or world.get("chapter_locked")
     if mode:
         import story_chapter
@@ -794,6 +858,30 @@ def _background_dissolve():
         pass
 
 
+def _background_label(bg, world):
+    """Human text for a background id: the location's name or description, else the id."""
+    entry = (world.get("locations") or {}).get(bg)
+    if isinstance(entry, dict):
+        for key in ("name", "description"):
+            if entry.get(key):
+                return str(entry[key])
+    return str(bg).replace("_", " ")
+
+
+def _show_background_placeholder(bg, world):
+    marker = "placeholder:" + str(bg)
+    previous = str(world.get("bg_shown") or "")
+    try:
+        label = Text(_background_label(bg, world), size=34, color="#8b98ad", xalign=0.5,
+                     yalign=0.18, text_align=0.5, xmaximum=1100)
+        renpy.show("vn_background", what=Fixed(Solid("#141b29"), label), at_list=[])
+    except Exception:
+        return
+    world["bg_shown"] = marker
+    if previous and previous != marker:
+        _background_dissolve()
+
+
 def _show_background(step):
     bg = step.get("background")
     if not bg:
@@ -816,8 +904,10 @@ def _show_background(step):
         path = str(bg)
     path = _asset_path(path) if path else None
     if not path:
-        path = "images/bg_demo.png"
-        path = path if renpy.loadable(path) else None
+        # No image for this place. A black screen reads as a crash, and a stand-in photograph
+        # names the wrong place, so the place is drawn as a labelled dark panel instead.
+        _show_background_placeholder(bg, world)
+        return
     if path:
         # `bg_shown` lives in the world, not in a module global, so a save, a rollback and a
         # restart all still know what is on screen. The first background of a game is not a
@@ -1094,6 +1184,9 @@ def free_response(text):
     world.setdefault("player_choices", []).append({"id": "__free__", "text": text,
                                                    "turn": int(world.get("turn", 0))})
     mode = str(world.get("story_mode") or "ai")
+    if mode == "external":
+        # A ready-made story has no author to answer: the line stays in the history.
+        return
     if mode == "chapter":
         import story_chapter
 
@@ -1114,22 +1207,42 @@ def free_response(text):
 
 
 ## Pending speech: the server answers in its own time, and a line must not wait for it.
-_PENDING_VOICE = {"data": None, "volume": 1.0}
+## Results go through a short queue guarded by one lock, so a clip that arrives while another
+## one is waiting or playing is kept instead of overwriting it or being refused. The poll timer
+## is one-shot and re-arms itself only while a request is in flight or a clip is queued, so
+## timers do not pile up (one used to be created per line and never stopped).
+_PENDING_VOICE = {"queue": [], "inflight": 0}
 _PENDING_VOICE_LOCK = threading.Lock()
+_VOICE_QUEUE_MAX = 3
 
 
 def _drain_voice():
     """Play speech that has arrived. Ren'Py's player belongs to the main thread, so the
     request is made in a worker and the audio is picked up from here, on a timer."""
     with _PENDING_VOICE_LOCK:
-        data = _PENDING_VOICE.get("data")
-        if not data:
-            return
-        volume = float(_PENDING_VOICE.get("volume", 0.95))
-        _PENDING_VOICE["data"] = None
+        item = None
+        playing = False
+        if _PENDING_VOICE["queue"]:
+            try:
+                playing = bool(renpy.music.is_playing(channel="voice"))
+            except Exception:
+                playing = False
+            if not playing:
+                item = _PENDING_VOICE["queue"].pop(0)
+        again = bool(_PENDING_VOICE["queue"]) or _PENDING_VOICE["inflight"] > 0
+    if item is not None:
+        try:
+            renpy.music.play(AudioData(item[0], "living_vn_tts.wav"), channel="voice", loop=False,
+                             relative_volume=item[1])
+        except Exception:
+            pass
+    if again:
+        _arm_voice_timer()
+
+
+def _arm_voice_timer():
     try:
-        renpy.music.play(AudioData(data, "living_vn_tts.wav"), channel="voice", loop=False,
-                         relative_volume=volume)
+        renpy.create_timer(0.15, _drain_voice, repeat=False)
     except Exception:
         pass
 
@@ -1139,8 +1252,9 @@ def speak_text(text):
     if not url or not text:
         return False
     with _PENDING_VOICE_LOCK:
-        if _PENDING_VOICE.get("data"):
+        if len(_PENDING_VOICE["queue"]) + _PENDING_VOICE["inflight"] >= _VOICE_QUEUE_MAX:
             return False
+        _PENDING_VOICE["inflight"] += 1
     payload = {
         "text": text,
         "speaker": _settings().get("tts_speaker", "baya"),
@@ -1155,14 +1269,17 @@ def speak_text(text):
         # has to stay responsive: the line is already on screen while the voice is fetched.
         import ai_client
 
+        data = None
         try:
             data = ai_client.post_bytes(url, payload, timeout=20)
         except Exception:
-            return
-        if data:
+            data = None
+        finally:
             with _PENDING_VOICE_LOCK:
-                _PENDING_VOICE["data"] = data
-                _PENDING_VOICE["volume"] = volume
+                _PENDING_VOICE["inflight"] = max(0, _PENDING_VOICE["inflight"] - 1)
+                if data:
+                    _PENDING_VOICE["queue"].append((data, volume))
+        if data:
             try:
                 renpy.restart_interaction()
             except Exception:
@@ -1170,9 +1287,11 @@ def speak_text(text):
 
     try:
         threading.Thread(target=work, daemon=True).start()
-        renpy.create_timer(0.15, _drain_voice, repeat=True)
     except Exception:
+        with _PENDING_VOICE_LOCK:
+            _PENDING_VOICE["inflight"] = max(0, _PENDING_VOICE["inflight"] - 1)
         return False
+    _arm_voice_timer()
     return True
 
 

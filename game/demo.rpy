@@ -81,7 +81,7 @@ label demo_expression_sheet:
 
     python:
         import json, os
-        _path = os.path.join(config.gamedir, "absorbed", "SAO", "character_art",
+        _path = os.path.join(store.config.gamedir, "absorbed", "SAO", "character_art",
                              "asuna", "character.json")
         with open(_path, encoding="utf-8") as _fh:
             _manifest = json.load(_fh)

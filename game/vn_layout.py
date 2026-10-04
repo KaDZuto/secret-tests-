@@ -64,7 +64,7 @@ CREATOR_CHROME_H = CREATOR_PAD_Y + 44 + 24 + 40 + 46 + 4 * 10
 ## Floors, so a very short window leaves a scrollable area rather than a sliver.
 MIN_STATUS_H = 76
 MIN_SECTION_H = 120
-MIN_CREATOR_H = 350
+MIN_CREATOR_H = 280
 
 
 def status_h():

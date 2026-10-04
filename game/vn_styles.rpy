@@ -33,9 +33,7 @@ init 10 python:
     store.vn_status_h = vn_layout.status_h()
     store.vn_section_h = vn_layout.section_h()
     store.vn_creator_scroll_h = vn_layout.creator_scroll_h()
-define vn_textbox_pad_x = 48
 define vn_namebox_pad_x = 52
-define vn_namebox_rise = 54
 define vn_cyan = "#8fb8ff"
 
 
@@ -135,21 +133,6 @@ style quick_button_text:
     xalign 0.5
     outlines [ (2, "#05070ca8", 0, 0) ]
 
-style vn_quick_button is button:
-    xsize None
-    ysize None
-    padding (16, 8)
-    background Solid("#0b111cbb")
-    hover_background Solid("#28344ef2")
-
-style vn_quick_text is button_text:
-    size 20
-    color "#b0bccf"
-    hover_color "#ffffff"
-    xalign 0.5
-    outlines [ (2, "#05070ca8", 0, 0) ]
-
-
 ## Choices.
 
 style choice_button:
@@ -214,18 +197,6 @@ style vn_tab_on_text is vn_tab_text:
 
 style vn_vscrollbar is gui_vscrollbar:
     unscrollable "hide"
-
-style vn_check is button:
-    xsize None
-    ysize None
-    padding (16, 8)
-    background Solid("#0b111cbb")
-    hover_background Solid("#28344ef2")
-
-style vn_check_text is vn_quick_text:
-    size 22
-    xalign 0.0
-
 
 ## Text inputs in the settings screen need an input style, not a text style.
 
@@ -443,3 +414,11 @@ style input:
 style input_prompt:
     size 24
     color "#8b98ad"
+
+
+## A multiline text field: the description the creator writes is a paragraph, not a line.
+
+style vn_input_multiline is vn_input:
+    multiline True
+    ysize 120
+    padding (12, 9)

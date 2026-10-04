@@ -212,7 +212,10 @@ def main():
         assert len({copied[n]["copied_path"] for n in
                     ("images/sprites/hero/hero_happy.png", "images/sprites/hero/hero_sad.png")}) == 2
         # The stem is slugged once, not twice.
-        assert copied["images/sprites/hero/hero_happy.png"]["copied_path"].endswith("hero_happy.png")
+        # Scan order of two same-named files is filesystem dependent, so either one may get
+        # the `_1` suffix; what matters is that the stem is slugged once, not twice.
+        _cp = copied["images/sprites/hero/hero_happy.png"]["copied_path"]
+        assert _cp.endswith(("hero_happy.png", "hero_happy_1.png")), _cp
         # A model Ren'Py cannot display is never copied into the game.
         assert "live2d/asuna.moc" not in copied
         assert "live2d/asuna.model.json" not in copied
