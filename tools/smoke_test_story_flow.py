@@ -462,6 +462,18 @@ engine._show_background({"background": "ext_camp_entrance_day"})
 check("нет картинки фона: показана подписанная заглушка",
       any(isinstance(x, tuple) and x[0] == "vn_background" and x[1][0] == "fixed" for x in shown), shown)
 check("заглушка помнится как bg_shown", str(engine._state().get("bg_shown")).startswith("placeholder:"))
+
+# --- costume stays put: emotions change the face only (Asuna swimsuit flicker) ---
+import story_chapter as _sc
+engine._state()["costume_pin"] = {}
+_vis = {"poses": ["pose_01_000", "pose_01_003"]}
+check("костюм по умолчанию -- первый объявленный", engine._pinned_pose("asuna", None, _vis, None) == "pose_01_000")
+check("эмоция не меняет костюм", engine._pinned_pose("asuna", None, _vis, None) == "pose_01_000")
+check("неизвестная поза не применяется", engine._pinned_pose("asuna", "pose_99", _vis, None) == "pose_01_000")
+check("явная объявленная поза запоминается", engine._pinned_pose("asuna", "pose_01_003", _vis, None) == "pose_01_003"
+      and engine._pinned_pose("asuna", None, _vis, None) == "pose_01_003")
+check("костюмы разных персонажей не смешиваются", engine._pinned_pose("other", None, {"poses": ["x1"]}, None) == "x1")
+check("рукопись не переодевает Асуну", {_sc.P0, _sc.P1, _sc.P2, _sc.P3, _sc.P4, _sc.P5} == {"pose_01_000"})
 srv.shutdown()
 print("\nИТОГ: провалено %d" % len(FAIL))
 sys.exit(1 if FAIL else 0)

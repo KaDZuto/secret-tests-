@@ -973,6 +973,45 @@ def _costume_for(spec, visual, record_visual, trusted):
     return outfit, pose
 
 
+def _pose_names(*visuals):
+    """Ordered pose names a pack declares (a list or a dict), nothing else."""
+    for visual in visuals:
+        poses = (visual or {}).get("poses") if isinstance(visual, dict) else None
+        if isinstance(poses, dict) and poses:
+            return [str(x) for x in poses]
+        if isinstance(poses, (list, tuple)) and poses:
+            return [str(x) for x in poses]
+    return []
+
+
+def _pinned_pose(cid, pose, visual, record_visual):
+    """The costume a character keeps until something explicit changes it.
+
+    A pack stores one state per pose and emotion, and the bare emotion keys (`happy`, `sad`)
+    point at whichever pose was written last. Resolving an emotion on its own therefore jumped
+    between costumes -- Asuna changed into a swimsuit in the middle of a conversation and back
+    on the next line. Now the costume is chosen once (the manifest's `default_pose`, else the
+    first declared pose), remembered in the world, and an emotion only changes the face.
+    """
+    names = _pose_names(visual, record_visual)
+    if not names:
+        return pose
+    pins = _state().setdefault("costume_pin", {})
+    if pose and pose in names:
+        pins[cid] = pose
+        return pose
+    pinned = pins.get(cid)
+    if pinned in names:
+        return pinned
+    default = None
+    for source in (visual, record_visual):
+        if isinstance(source, dict) and source.get("default_pose") in names:
+            default = source["default_pose"]
+            break
+    pins[cid] = default or names[0]
+    return pins[cid]
+
+
 def _visual_character(spec, trusted=True):
     cid = spec.get("id") or spec.get("character")
     if not cid:
@@ -988,6 +1027,7 @@ def _visual_character(spec, trusted=True):
     motion = spec.get("motion") or "idle"
     position = spec.get("position") or "center"
     outfit, pose = _costume_for(spec, visual, (record or {}).get("visual"), trusted)
+    pose = _pinned_pose(cid, pose, visual, (record or {}).get("visual"))
     tag = "vn_char_" + cid
     transform = _transform_for(position)
 
@@ -1012,7 +1052,7 @@ def _visual_character(spec, trusted=True):
         wanted_pose = pose
         if wanted_pose:
             states = (record.get("visual") or {}).get("states") or {}
-            for key in ("%s_%s" % (wanted_pose, emotion), wanted_pose):
+            for key in ("%s_%s" % (wanted_pose, emotion), "%s_neutral" % wanted_pose, wanted_pose):
                 if states.get(key) and _asset_path(states[key]):
                     path = states[key]
                     break
